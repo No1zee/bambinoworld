@@ -1,0 +1,6 @@
+{
+  "name": "Bambino World at The Little Farm",
+  "description": "A day of play, discovery, and family memories. Bambino World outdoor kids and family festival at The Little Farm, Harare on Saturday 5 December 2026.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
