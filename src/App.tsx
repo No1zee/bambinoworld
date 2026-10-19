@@ -47,6 +47,15 @@ export default function App() {
       });
   }, []);
 
+  const [bookingChildCount, setBookingChildCount] = useState<number>(1);
+
+  const handleOpenBooking = (childCount?: number) => {
+    if (childCount && childCount > 0) {
+      setBookingChildCount(childCount);
+    }
+    setIsBookingOpen(true);
+  };
+
   const handleBookingSuccess = (newBooking: Booking) => {
     const updated = [newBooking, ...bookings];
     setBookings(updated);
@@ -85,17 +94,17 @@ export default function App() {
           setCurrentTab(tab);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
-        onOpenBooking={() => setIsBookingOpen(true)}
+        onOpenBooking={() => handleOpenBooking()}
         bookingCount={bookings.length}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1">
+      {/* Main Content Area - with safe bottom clearance on mobile for sticky booking bar */}
+      <main className={`flex-1 ${currentTab !== '3d-map' ? 'pb-16 sm:pb-0' : ''}`}>
         {currentTab === 'home' && (
           <HomeHero
             siteMapRef={siteMapRef}
             onOpen3DMap={handleOpen3DMap}
-            onOpenBooking={() => setIsBookingOpen(true)}
+            onOpenBooking={handleOpenBooking}
             onSelectZone={setSelectedZoneId}
           />
         )}
@@ -106,28 +115,28 @@ export default function App() {
             onBackToSite={() => setCurrentTab('home')}
             onSelectZone={setSelectedZoneId}
             activeZoneId={selectedZoneId}
-            onOpenBooking={() => setIsBookingOpen(true)}
+            onOpenBooking={() => handleOpenBooking()}
           />
         )}
 
         {currentTab === 'december-5' && (
           <EventProgrammeView
             onInspectZone3D={handleInspectZone3D}
-            onOpenBooking={() => setIsBookingOpen(true)}
+            onOpenBooking={() => handleOpenBooking()}
           />
         )}
 
         {currentTab === 'zones' && (
           <PlayZonesView
             onInspectZone3D={handleInspectZone3D}
-            onOpenBooking={() => setIsBookingOpen(true)}
+            onOpenBooking={() => handleOpenBooking()}
           />
         )}
 
         {currentTab === 'farm' && (
           <TheLittleFarmView
             onOpen3DMap={() => handleOpen3DMap()}
-            onOpenBooking={() => setIsBookingOpen(true)}
+            onOpenBooking={() => handleOpenBooking()}
           />
         )}
       </main>
@@ -137,16 +146,48 @@ export default function App() {
         zoneId={selectedZoneId}
         onClose={() => setSelectedZoneId(null)}
         onSelectZone={handleInspectZone3D}
-        onOpenBooking={() => setIsBookingOpen(true)}
+        onOpenBooking={() => handleOpenBooking()}
       />
-
 
       {/* Booking Modal */}
       <BookingModal
         isOpen={isBookingOpen}
+        initialChildCount={bookingChildCount}
         onClose={() => setIsBookingOpen(false)}
         onBookingSuccess={handleBookingSuccess}
       />
+
+      {/* Mobile Sticky Booking Bar (omitted on 3D map tab so it never obscures the map) */}
+      {currentTab !== '3d-map' && (
+        <aside
+          aria-label="Quick Booking"
+          className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-2xl py-2 px-3 transition-all duration-200"
+          style={{
+            paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
+            paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
+            paddingBottom: 'max(0.45rem, env(safe-area-inset-bottom, 0px))'
+          }}
+        >
+          <div className="flex items-center justify-between gap-2.5 max-w-md mx-auto">
+            <div className="flex flex-col min-w-0">
+              <span className="font-kid font-bold text-xs text-white leading-tight truncate">
+                Bambino World
+              </span>
+              <span className="text-[10px] text-amber-300 font-semibold leading-tight truncate">
+                5 Dec · Early Bird $25
+              </span>
+            </div>
+
+            <button
+              onClick={() => setIsBookingOpen(true)}
+              className="h-8 px-3 bg-amber-400 hover:bg-amber-300 active:scale-98 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1 shadow-sm transition-transform cursor-pointer shrink-0"
+            >
+              <span>Book Pass ($25)</span>
+              <span aria-hidden="true">&rarr;</span>
+            </button>
+          </div>
+        </aside>
+      )}
 
       {/* Footer (omitted on full-screen 3D map for maximum viewport immersion) */}
       {currentTab !== '3d-map' && (

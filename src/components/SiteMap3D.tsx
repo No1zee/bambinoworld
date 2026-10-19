@@ -32,24 +32,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
   const domOverlayRef = useRef<HTMLDivElement>(null);
 
   // UI state
-  const [lightingMode, setLightingMode] = useState<'day' | 'sunset' | 'night'>('day');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [isTouring, setIsTouring] = useState<boolean>(false);
-  const [isDockCollapsed, setIsDockCollapsed] = useState<boolean>(false);
-  const [expandedCards, setExpandedCards] = useState<boolean>(false);
-  const [crowdDensity, setCrowdDensity] = useState<'quiet' | 'normal' | 'peak'>('peak');
-  const [showCrowdPanel, setShowCrowdPanel] = useState<boolean>(false);
-  const [crowdStats, setCrowdStats] = useState({ total: 148, adults: 54, kids: 52, babies: 22, strollers: 8, staff: 12 });
   const [inspectedPerson, setInspectedPerson] = useState<{ icon: string; roleTitle: string; label: string } | null>(null);
   const [personScreenPos, setPersonScreenPos] = useState<{ x: number; y: number } | null>(null);
-
-  // Layer Visibility Toggles
-  const [layerVisibility, setLayerVisibility] = useState({
-    labels: true,
-    flow: true,
-    barriers: true,
-    trees: true
-  });
 
   // References to Three.js runtime internals
   const internalsRef = useRef<{
@@ -98,7 +82,6 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     setLighting: (mode) => {
       if (internalsRef.current) {
         internalsRef.current.setLighting(mode);
-        setLightingMode(mode);
       }
     },
     focusActivityCam: (key: string) => {
@@ -1947,14 +1930,6 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         animatedAgents.forEach((ag, idx) => {
           ag.root.visible = (idx / animatedAgents.length) <= factor;
         });
-        setCrowdStats({
-          total: Math.round(148 * factor),
-          adults: Math.round(54 * factor),
-          kids: Math.round(52 * factor),
-          babies: Math.round(22 * factor),
-          strollers: Math.round(8 * factor),
-          staff: Math.round(12 * factor)
-        });
       }
     };
 
@@ -1979,53 +1954,6 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     }
   }, [activeZoneId]);
 
-  // Guided Tour
-  useEffect(() => {
-    if (!isTouring) return;
-    const zones = Object.keys(ZONES_DATA);
-    let idx = 0;
-    const interval = setInterval(() => {
-      idx = (idx + 1) % zones.length;
-      const zId = zones[idx];
-      const z = ZONES_DATA[zId];
-      if (z && internalsRef.current) {
-        internalsRef.current.animateCameraTo(
-          new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z),
-          new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z),
-          1100
-        );
-        onSelectZone(zId);
-      }
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [isTouring, onSelectZone]);
-
-  const handleFilter = (cat: string) => {
-    setFilterCategory(cat);
-    if (internalsRef.current) {
-      internalsRef.current.calloutRuntimes.forEach(c => {
-        const z = ZONES_DATA[c.zoneId];
-        c.hiddenByFilter = cat !== 'all' && z?.category !== cat;
-      });
-    }
-  };
-
-  const handleSetLighting = (mode: 'day' | 'sunset' | 'night') => {
-    setLightingMode(mode);
-    internalsRef.current?.setLighting(mode);
-  };
-
-  const handleToggleLayer = (layer: 'labels' | 'flow' | 'barriers' | 'trees') => {
-    const next = !layerVisibility[layer];
-    setLayerVisibility(prev => ({ ...prev, [layer]: next }));
-    if (layer === 'labels') {
-      if (svgRef.current) svgRef.current.style.display = next ? 'block' : 'none';
-      if (domOverlayRef.current) domOverlayRef.current.style.display = next ? 'block' : 'none';
-    } else {
-      internalsRef.current?.toggleGroup(layer, next);
-    }
-  };
-
   return (
     <div className={`relative overflow-hidden select-none bg-[#141e18] ${className}`}>
       {/* 3D WebGL Canvas Container */}
@@ -2035,7 +1963,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       <svg ref={svgRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
       {/* HTML Callout Badges Layer */}
-      <div ref={domOverlayRef} className={`absolute inset-0 w-full h-full pointer-events-none z-11 ${expandedCards ? 'expanded-cards' : ''}`} />
+      <div ref={domOverlayRef} className="absolute inset-0 w-full h-full pointer-events-none z-11" />
 
       {/* Floating Person / Activity Inspector Pill */}
       {inspectedPerson && personScreenPos && (
@@ -2056,252 +1984,6 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           </div>
         </div>
       )}
-
-      {/* Live Crowd & Close-Up Activity Cams HUD Panel */}
-      {showCrowdPanel && (
-        <section className="fixed left-4 top-20 z-40 w-76 bg-slate-900/95 backdrop-blur-xl border border-slate-700/90 rounded-2xl shadow-2xl p-3.5 text-slate-100 max-h-[85vh] overflow-y-auto">
-          <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-800">
-            <div className="flex items-center gap-2">
-              <span className="text-base">🎪</span>
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-amber-300 font-['Outfit']">
-                  Live Crowd &amp; Activities
-                </h3>
-                <p className="text-[10px] text-slate-400">148 animated people, tents &amp; trees</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowCrowdPanel(false)}
-              className="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Demographic Breakdown */}
-          <div className="grid grid-cols-5 gap-1 mb-3 text-center">
-            <div className="bg-slate-800/90 rounded-lg p-1.5 border border-slate-700/60">
-              <div className="text-xs">🧑</div>
-              <div className="text-xs font-black text-white">{crowdStats.adults}</div>
-              <div className="text-[9px] text-slate-400 font-semibold">Adults</div>
-            </div>
-            <div className="bg-slate-800/90 rounded-lg p-1.5 border border-slate-700/60">
-              <div className="text-xs">🧒</div>
-              <div className="text-xs font-black text-amber-300">{crowdStats.kids}</div>
-              <div className="text-[9px] text-slate-400 font-semibold">Kids</div>
-            </div>
-            <div className="bg-slate-800/90 rounded-lg p-1.5 border border-slate-700/60">
-              <div className="text-xs">👶</div>
-              <div className="text-xs font-black text-emerald-300">{crowdStats.babies}</div>
-              <div className="text-[9px] text-slate-400 font-semibold">Babies</div>
-            </div>
-            <div className="bg-slate-800/90 rounded-lg p-1.5 border border-slate-700/60">
-              <div className="text-xs">🚼</div>
-              <div className="text-xs font-black text-sky-300">{crowdStats.strollers}</div>
-              <div className="text-[9px] text-slate-400 font-semibold">Prams</div>
-            </div>
-            <div className="bg-slate-800/90 rounded-lg p-1.5 border border-slate-700/60">
-              <div className="text-xs">🦺</div>
-              <div className="text-xs font-black text-rose-300">{crowdStats.staff}</div>
-              <div className="text-[9px] text-slate-400 font-semibold">Staff</div>
-            </div>
-          </div>
-
-          {/* Crowd Density Control */}
-          <div className="mb-3">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-              <span>Festival Crowd Level</span>
-              <span className="text-emerald-400 font-bold capitalize">{crowdDensity}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {(['quiet', 'normal', 'peak'] as const).map(lvl => (
-                <button
-                  key={lvl}
-                  onClick={() => {
-                    setCrowdDensity(lvl);
-                    internalsRef.current?.setDensity(lvl);
-                  }}
-                  className={`py-1 text-[11px] rounded-lg font-semibold capitalize transition cursor-pointer ${
-                    crowdDensity === lvl
-                      ? 'bg-amber-400 text-slate-950 font-bold'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  }`}
-                >
-                  {lvl}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Close-Up Activity Cams */}
-          <div className="space-y-2 text-left">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-              🎥 Close-Up Activity &amp; Infrastructure Cams
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {[
-                { key: 'baby-garden', icon: '👶', title: 'Baby Soft-Play', sub: 'Crawling & Slide' },
-                { key: 'skating-pit', icon: '⛸️', title: 'Skating Rink', sub: 'Kids Gliding Loop' },
-                { key: 'bouncy-castles', icon: '🏰', title: 'Bouncy Castles', sub: 'Inflatables' },
-                { key: 'stage-show', icon: '🎸', title: 'Stage Concert', sub: 'Marimba & Show' },
-                { key: 'science-lab', icon: '🔬', title: 'Discovery STEM', sub: 'Lawn Chess & Lab' },
-                { key: 'stroller-flow', icon: '🚼', title: 'Stroller Walk', sub: 'Parents Lounge' },
-                { key: 'main-gate', icon: '⛩️', title: 'Main Entry Gate', sub: 'Welcome Arch' },
-                { key: 'garden-pergola', icon: '🌸', title: 'Pergola Gate', sub: 'Bougainvillea' },
-                { key: 'exit-boom', icon: '🚧', title: 'Exit Boom Gate', sub: 'Jersey Barriers' },
-                { key: 'pond-fence', icon: '🛟', title: 'Pond & Fence', sub: 'Safety Perimeter' }
-              ].map(cam => (
-                <button
-                  key={cam.key}
-                  onClick={() => internalsRef.current?.focusActivityCam(cam.key)}
-                  className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 text-left transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span className="text-base">{cam.icon}</span>
-                  <div className="truncate">
-                    <div className="text-[10px] font-bold text-white truncate">{cam.title}</div>
-                    <div className="text-[9px] text-slate-400 truncate">{cam.sub}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Sleek Ergonomic Collapsible Bottom Control Dock */}
-      <div className={`fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[96%] max-w-6xl transition-transform duration-300 ${isDockCollapsed ? 'translate-y-[calc(100%-26px)]' : 'translate-y-0'}`}>
-        <div className="flex justify-center mb-1">
-          <button
-            onClick={() => setIsDockCollapsed(!isDockCollapsed)}
-            className="px-3.5 py-1 rounded-t-xl bg-slate-900/95 text-[11px] font-bold text-amber-300 border-t border-x border-slate-700 hover:bg-slate-800 transition cursor-pointer"
-          >
-            {isDockCollapsed ? '▴ Show Map Controls' : '▾ Hide Controls'}
-          </button>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-1.5 bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 px-3 py-2 rounded-2xl shadow-2xl text-xs text-slate-100">
-          {/* Camera Presets & Tour */}
-          <div className="flex items-center gap-1 pr-2 border-r border-slate-700/80">
-            <button
-              onClick={() => internalsRef.current?.animateCameraTo(new THREE.Vector3(0, 68, 74), new THREE.Vector3(-2, 0, 2), 1000)}
-              className="px-2.5 py-1 rounded-lg font-bold bg-amber-400 text-slate-950 hover:bg-amber-300 transition cursor-pointer"
-              title="Exact Reference Map Angle"
-            >
-              🖼️ Reference View
-            </button>
-            <button
-              onClick={() => internalsRef.current?.animateCameraTo(new THREE.Vector3(-2, 105, 6), new THREE.Vector3(-2, 0, 2), 1000)}
-              className="px-2.5 py-1 rounded-lg text-slate-300 hover:bg-slate-800 transition cursor-pointer"
-              title="Overhead 2D/3D Plan"
-            >
-              📐 Plan
-            </button>
-            <button
-              onClick={() => setIsTouring(!isTouring)}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition cursor-pointer ${
-                isTouring ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-slate-300 hover:bg-slate-800'
-              }`}
-            >
-              {isTouring ? '⏹ Stop Tour' : '🚁 Guided Tour'}
-            </button>
-          </div>
-
-          {/* Age Filters */}
-          <div className="flex items-center gap-1 pr-2 border-r border-slate-700/80">
-            {['all', '6m-2y', '3-6y', 'family', 'safety'].map(cat => (
-              <button
-                key={cat}
-                onClick={() => handleFilter(cat)}
-                className={`px-2 py-1 rounded-lg text-[11px] font-medium transition cursor-pointer ${
-                  filterCategory === cat
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold'
-                    : 'text-slate-300 hover:bg-slate-800'
-                }`}
-              >
-                {cat === 'all' ? 'All' : cat === '6m-2y' ? '👶 6M–2Y' : cat === '3-6y' ? '🧒 3–6Y' : cat === 'family' ? 'Family' : '🛡️ Safety'}
-              </button>
-            ))}
-          </div>
-
-          {/* Lighting Modes */}
-          <div className="flex items-center gap-1 pr-2 border-r border-slate-700/80">
-            {(['day', 'sunset', 'night'] as const).map(mode => (
-              <button
-                key={mode}
-                onClick={() => handleSetLighting(mode)}
-                className={`px-2 py-1 rounded-lg text-[11px] font-medium capitalize transition cursor-pointer ${
-                  lightingMode === mode
-                    ? 'bg-sky-500/25 text-sky-200 border border-sky-400/40 font-bold'
-                    : 'text-slate-300 hover:bg-slate-800'
-                }`}
-              >
-                {mode === 'day' ? '☀️ Day' : mode === 'sunset' ? '🌅 Sunset' : '✨ Showtime'}
-              </button>
-            ))}
-          </div>
-
-          {/* Detailed Layer Toggles */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => handleToggleLayer('labels')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                layerVisibility.labels ? 'bg-slate-700 text-amber-300' : 'text-slate-400 hover:bg-slate-800'
-              }`}
-              title="Toggle Callout Labels"
-            >
-              🏷️ Labels
-            </button>
-            <button
-              onClick={() => handleToggleLayer('flow')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                layerVisibility.flow ? 'bg-slate-700 text-emerald-300' : 'text-slate-400 hover:bg-slate-800'
-              }`}
-              title="Toggle Paths, Pavers & Walkers"
-            >
-              🛤️ Flow
-            </button>
-            <button
-              onClick={() => handleToggleLayer('barriers')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                layerVisibility.barriers ? 'bg-slate-700 text-rose-300' : 'text-slate-400 hover:bg-slate-800'
-              }`}
-              title="Toggle Gates & Fences"
-            >
-              🚧 Fences
-            </button>
-            <button
-              onClick={() => handleToggleLayer('trees')}
-              className={`px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                layerVisibility.trees ? 'bg-slate-700 text-lime-300' : 'text-slate-400 hover:bg-slate-800'
-              }`}
-              title="Toggle Multi-Species Trees"
-            >
-              🌳 Trees
-            </button>
-            <button
-              onClick={() => setShowCrowdPanel(!showCrowdPanel)}
-              className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40 hover:bg-amber-400/30 transition cursor-pointer flex items-center gap-1"
-            >
-              <span>👨‍👩‍👧‍👦</span>
-              <span>Crowd ({crowdStats.total})</span>
-            </button>
-            <button
-              onClick={() => setExpandedCards(!expandedCards)}
-              className="px-2 py-1 rounded-lg text-[11px] text-slate-300 hover:bg-slate-800 transition cursor-pointer"
-            >
-              {expandedCards ? '📋 Cards' : '📍 Pins'}
-            </button>
-            {onToggleCinema && (
-              <button
-                onClick={onToggleCinema}
-                className="px-2.5 py-1 rounded-lg text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-200 transition font-bold cursor-pointer"
-              >
-                {isCinemaMode ? '🗗 Exit' : '⛶ Fullscreen'}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 });

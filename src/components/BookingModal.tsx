@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Ticket, Check, X, Shield, Sparkles, QrCode, Phone, Mail, User } from 'lucide-react';
+import { Ticket, Check, X, Shield, Sparkles, QrCode, Phone, Mail, User, Copy } from 'lucide-react';
 import { Booking } from '../types/festival';
 import { SIBLING_DISCOUNTS, TICKET_INCLUSIONS } from '../data/festivalData';
 
@@ -9,16 +9,18 @@ interface BookingModalProps {
   onClose: () => void;
   onBookingSuccess: (booking: Booking) => void;
   userEmail?: string | null;
+  initialChildCount?: number;
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({
   isOpen,
   onClose,
   onBookingSuccess,
-  userEmail
+  userEmail,
+  initialChildCount
 }) => {
   const [ticketType, setTicketType] = useState<'early-bird' | 'standard' | 'gate'>('early-bird');
-  const [childCount, setChildCount] = useState<number>(1);
+  const [childCount, setChildCount] = useState<number>(initialChildCount || 1);
   const [underTwoCount, setUnderTwoCount] = useState<number>(0);
   const [adultCount, setAdultCount] = useState<number>(1);
   const [name, setName] = useState<string>('');
@@ -26,9 +28,17 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [phone, setPhone] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'ecocash' | 'pay-later' | 'gate'>('ecocash');
   const [ecoCashRef, setEcoCashRef] = useState<string>('');
+  const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [completedBooking, setCompletedBooking] = useState<Booking | null>(null);
+
+  // Sync initialChildCount when opened
+  React.useEffect(() => {
+    if (isOpen && initialChildCount && initialChildCount > 0) {
+      setChildCount(initialChildCount);
+    }
+  }, [isOpen, initialChildCount]);
 
   if (!isOpen) return null;
 
@@ -106,14 +116,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-[#faf9f5] border border-slate-300 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto text-slate-900 relative">
-        {/* Close Button */}
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="bg-[#faf9f5] border-t sm:border border-slate-300 rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92dvh] overflow-y-auto text-slate-900 relative pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+        {/* Close Button - 44x44px touch target */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center font-bold transition cursor-pointer z-10"
+          className="absolute top-4 right-4 w-11 h-11 rounded-full bg-slate-200/90 hover:bg-slate-300 active:scale-95 text-slate-700 flex items-center justify-center font-bold transition cursor-pointer z-10"
+          aria-label="Close booking modal"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
 
         {completedBooking ? (
@@ -178,7 +189,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             <div className="pt-3">
               <button
                 onClick={onClose}
-                className="px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl transition cursor-pointer text-sm shadow-md"
+                className="min-h-[44px] px-7 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl transition cursor-pointer text-sm shadow-md"
               >
                 Done &amp; Explore 3D Map
               </button>
@@ -186,8 +197,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           </div>
         ) : (
           /* Booking Form */
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
-            <div>
+          <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5">
+            <div className="pr-10">
               <h2 className="text-2xl sm:text-4xl font-kid font-black text-slate-900 mt-1">
                 Bambino <span className="kid-tilt-l text-amber-500">Wonder Day</span> Tickets
               </h2>
@@ -207,7 +218,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   key={tier.type}
                   type="button"
                   onClick={() => setTicketType(tier.type as any)}
-                  className={`p-3 rounded-2xl border text-center transition cursor-pointer ${
+                  className={`min-h-[64px] p-2.5 sm:p-3 rounded-2xl border text-center transition cursor-pointer active:scale-98 ${
                     ticketType === tier.type
                       ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-sm'
                       : 'border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -215,31 +226,33 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 >
                   <div className="text-xs text-slate-500 font-semibold">{tier.label}</div>
                   <div className="text-xl sm:text-2xl font-black font-['Outfit'] my-0.5">{tier.price}</div>
-                  <div className="text-[10px] text-emerald-700 font-medium">{tier.note}</div>
+                  <div className="text-[10px] text-emerald-700 font-medium truncate">{tier.note}</div>
                 </button>
               ))}
             </div>
 
-            {/* Counters */}
+            {/* Counters with Apple HIG 44x44px Buttons */}
             <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-xs sm:text-sm font-bold text-slate-900">Children (Ages 3–12)</div>
                   <div className="text-[11px] text-slate-500">Includes all activities, lunch &amp; passport</div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setChildCount(Math.max(1, childCount - 1))}
-                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center cursor-pointer"
+                    className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
+                    aria-label="Decrease child count"
                   >
                     -
                   </button>
-                  <span className="w-6 text-center font-bold text-base">{childCount}</span>
+                  <span className="w-8 text-center font-bold text-base">{childCount}</span>
                   <button
                     type="button"
                     onClick={() => setChildCount(childCount + 1)}
-                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center cursor-pointer"
+                    className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
+                    aria-label="Increase child count"
                   >
                     +
                   </button>
@@ -251,19 +264,21 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <div className="text-xs sm:text-sm font-bold text-slate-900">Babies &amp; Toddlers (2 and Under)</div>
                   <div className="text-[11px] text-emerald-700 font-semibold">FREE with paying sibling</div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setUnderTwoCount(Math.max(0, underTwoCount - 1))}
-                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center cursor-pointer"
+                    className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
+                    aria-label="Decrease toddler count"
                   >
                     -
                   </button>
-                  <span className="w-6 text-center font-bold text-base">{underTwoCount}</span>
+                  <span className="w-8 text-center font-bold text-base">{underTwoCount}</span>
                   <button
                     type="button"
                     onClick={() => setUnderTwoCount(underTwoCount + 1)}
-                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center cursor-pointer"
+                    className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
+                    aria-label="Increase toddler count"
                   >
                     +
                   </button>
@@ -271,47 +286,47 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               </div>
             </div>
 
-            {/* Parent Details */}
+            {/* Parent Details - inputs at 16px to prevent iOS auto-zoom */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Parent / Guardian Name *</label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. Sarah Moyo"
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600"
+                    className="w-full pl-9 pr-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600 min-h-[44px]"
                   />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Email Address *</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="e.g. sarah@example.com"
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600"
+                    className="w-full pl-9 pr-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600 min-h-[44px]"
                   />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp / Phone *</label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                   <input
                     type="tel"
                     required
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="e.g. +263 77..."
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600"
+                    className="w-full pl-9 pr-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600 min-h-[44px]"
                   />
                 </div>
               </div>
@@ -320,7 +335,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <select
                   value={paymentMethod}
                   onChange={e => setPaymentMethod(e.target.value as any)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600"
+                  className="w-full px-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-xl bg-white focus:outline-none focus:border-emerald-600 min-h-[44px]"
                 >
                   <option value="ecocash">EcoCash (Instant Confirmation)</option>
                   <option value="pay-later">Pay Later (WhatsApp follow-up)</option>
@@ -329,14 +344,47 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               </div>
             </div>
 
-            {/* EcoCash Payment Box */}
+            {/* EcoCash Payment Box with Dynamic Shortcode */}
             {paymentMethod === 'ecocash' && (
-              <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-xs text-amber-950 space-y-1.5">
-                <div className="font-extrabold text-amber-900 flex items-center gap-1.5">
-                  <span>📱</span> EcoCash Instructions:
+              <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs sm:text-sm text-amber-950 space-y-2.5">
+                <div className="font-extrabold text-amber-900 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span>📱</span> EcoCash USSD Shortcode:
+                  </span>
+                  <span className="text-xs bg-amber-200/90 text-amber-950 px-2.5 py-0.5 rounded-full font-bold">
+                    ${total} Total
+                  </span>
                 </div>
-                <p>
-                  Send total <strong>${total}</strong> to <strong>0779 140 417</strong> (*151# &rarr; Send Money).
+
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-2.5 bg-white border border-amber-300 rounded-xl shadow-2xs">
+                  <code className="font-mono font-black text-sm sm:text-base text-slate-900 flex-1 select-all tracking-wide break-all">
+                    *151*1*1*0779140417*{total}#
+                  </code>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(`*151*1*1*0779140417*${total}#`);
+                        setCopiedCode(true);
+                        setTimeout(() => setCopiedCode(false), 2000);
+                      }}
+                      className="min-h-[36px] px-3 py-1.5 bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1 cursor-pointer transition"
+                    >
+                      {copiedCode ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedCode ? 'Copied' : 'Copy'}</span>
+                    </button>
+                    <a
+                      href={`tel:*151*1*1*0779140417*${total}%23`}
+                      className="min-h-[36px] px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-lg text-xs flex items-center gap-1 cursor-pointer transition"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Dial</span>
+                    </a>
+                  </div>
+                </div>
+
+                <p className="text-xs text-amber-900 leading-relaxed">
+                  Dial from your phone or send <strong>${total}</strong> to <strong>0779 140 417</strong> (*151# &rarr; Send Money).
                 </p>
                 <div>
                   <input
@@ -344,14 +392,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     value={ecoCashRef}
                     onChange={e => setEcoCashRef(e.target.value)}
                     placeholder="Enter EcoCash approval / reference code (optional)"
-                    className="w-full mt-1 px-3 py-1.5 text-xs bg-white border border-amber-300 rounded-lg text-slate-900"
+                    className="w-full mt-1 px-3 py-2 text-base sm:text-xs bg-white border border-amber-300 rounded-xl text-slate-900 min-h-[44px]"
                   />
                 </div>
               </div>
             )}
 
             {/* Total and Submit */}
-            <div className="bg-slate-100 rounded-2xl p-4 flex items-center justify-between">
+            <div className="bg-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div>
                 <div className="text-xs text-slate-500 font-semibold">Total Amount</div>
                 <div className="text-2xl font-black text-slate-900 font-['Outfit']">
@@ -364,7 +412,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-extrabold rounded-xl transition cursor-pointer text-sm shadow-md"
+                className="min-h-[48px] px-7 py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-extrabold rounded-xl transition cursor-pointer text-sm shadow-md active:scale-98 flex items-center justify-center"
               >
                 {isSubmitting ? 'Confirming...' : 'Confirm Family Pass'}
               </button>

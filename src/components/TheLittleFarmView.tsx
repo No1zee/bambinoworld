@@ -31,13 +31,13 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-kid font-black leading-tight drop-shadow-md">
               The Little Farm, <span className="kid-tilt-l kid-pastel-yellow">Meyrick Park</span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-200 leading-relaxed drop-shadow-sm max-w-xl font-medium">
+            <p className="text-base sm:text-lg text-slate-200 leading-relaxed drop-shadow-sm max-w-xl font-medium">
               4,000 m² of open grass lawns, mature shade trees, and purpose-built family amenities at 5 Richwell Ave, Harare, Zimbabwe.
             </p>
 
             {/* Quick Location Badge & Actions */}
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
-              <span className="px-3.5 py-2 bg-slate-900/85 backdrop-blur-md rounded-xl border border-white/20 flex items-center gap-2 text-slate-100 font-semibold">
+            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs sm:text-sm">
+              <span className="min-h-[44px] px-3.5 py-2.5 bg-slate-900/85 backdrop-blur-md rounded-xl border border-white/20 flex items-center gap-2 text-slate-100 font-semibold">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>5 Richwell Ave, Meyrick Park, Mabelreign</span>
               </span>
@@ -46,17 +46,17 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
                 href="https://www.google.com/maps/search/?api=1&query=-17.8093111%2C31.0038472"
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 bg-emerald-600/90 hover:bg-emerald-600 rounded-xl text-white font-bold flex items-center gap-1.5 transition shadow-sm"
+                className="min-h-[44px] px-4 py-2.5 bg-emerald-600/90 hover:bg-emerald-600 rounded-xl text-white font-bold flex items-center gap-1.5 transition shadow-sm active:scale-98"
               >
                 <span>Google Maps Directions</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-4 h-4" />
               </a>
 
               <button
                 onClick={onOpen3DMap}
-                className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-black flex items-center gap-1.5 transition shadow-sm cursor-pointer"
+                className="min-h-[44px] px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-black flex items-center gap-1.5 transition shadow-sm cursor-pointer active:scale-98"
               >
-                <Compass className="w-3.5 h-3.5" />
+                <Compass className="w-4 h-4" />
                 <span>Explore in 3D</span>
               </button>
             </div>
@@ -80,13 +80,13 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
             const Icon = item.icon;
             return (
               <Tooltip key={idx} content={item.tip} position="top" className="w-full">
-                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs hover:border-emerald-400 transition cursor-help flex items-center gap-4 w-full">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs hover:border-emerald-400 transition cursor-pointer flex items-center gap-4 w-full min-h-[72px]">
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-slate-900 font-['Outfit']">{item.title}</h3>
-                    <span className="text-[11px] text-slate-400">Hover for details</span>
+                  <div className="text-left">
+                    <h3 className="font-bold text-sm sm:text-base text-slate-900 font-['Outfit']">{item.title}</h3>
+                    <span className="text-xs text-slate-400 font-medium">Tap or hover for details</span>
                   </div>
                 </div>
               </Tooltip>

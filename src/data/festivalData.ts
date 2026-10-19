@@ -84,22 +84,22 @@ export const ZONES_DATA: Record<string, ZoneData> = {
   'creative-zone': {
     id: 'creative-zone',
     title: 'CREATIVE ZONE',
-    subtitle: '(Skating Pit & Arts)',
+    subtitle: '(Arts & Crafts)',
     category: '3-6y',
     badgeColor: 'bg-cyan-400 text-slate-950',
-    status: 'Active • Sessions',
+    status: 'Active • Open',
     ageGroup: '3 – 6+ Yrs',
-    staffing: '3 Skate Coaches',
+    staffing: '3 Art Mentors',
     camPos: { x: -34, y: 18, z: 48 },
     camTarget: { x: -35, y: 0, z: 33 },
-    description: 'Located near the SW plaza, the Creative Zone features a smooth-surface enclosed Roller-Skating Pit with padded blue barrier boards, helmet & skate rental booths, and creative craft tables.',
+    description: 'The Creative Zone is a shaded outdoor art studio where children explore their imagination with arts & crafts, painting, bracelet making, and spelling activities.',
     features: [
-      'Enclosed smooth-floor skating pit with blue safety boarding',
-      'Complimentary helmet, knee-pad, and quad-skate fitting station',
-      'Adjacent shaded creative arts & face-painting tables',
-      'Direct visibility from the Parents\' Meeting & Lounge gazebos'
+      'Arts & crafts',
+      'Painting',
+      'Bracelet making',
+      'Spelling activities'
     ],
-    safetyNote: 'Helmets and wrist/knee guards are mandatory before entering the skating pit.'
+    safetyNote: 'All materials are non-toxic, washable, and supervised by dedicated creative mentors.'
   },
   'main-entrance': {
     id: 'main-entrance',
@@ -328,10 +328,10 @@ export const CALLOUT_ITEMS: CalloutItem[] = [
     id: 'callout-creative-zone',
     zoneId: 'creative-zone',
     icon: '🎨',
-    shortTitle: 'Skating & Art',
+    shortTitle: 'Arts & Crafts',
     title: 'CREATIVE ZONE',
-    lines: ['(Skating Pit)'],
-    tooltipDesc: 'Smooth roller-skating pit with blue safety boarding, complimentary helmets, and face-painting pavilions.',
+    lines: ['(Arts & Crafts)'],
+    tooltipDesc: 'Arts & crafts, painting, bracelet making, and spelling activities.',
     theme: 'theme-white',
     anchor3D: [-35, 0.8, 33],
     label3D:  [-58, 2.0, 33]
@@ -471,9 +471,9 @@ export const PROGRAMME_SESSIONS: ProgrammeSession[] = [
   { id: 'stage-2', zone: 'stage', zoneName: 'Celebration Stage', start: '12:00', end: '13:00', title: 'Family Lunch & Acoustic Marimba Beats', description: 'Catered lunch packages, chilled juice, and live Zimbabwean marimba music.' },
   { id: 'baby-3', zone: 'baby', zoneName: 'The Little Garden', start: '13:00', end: '13:30', title: 'Toys & Foam Pool Splash', description: 'Sensory water-free bubble and ball pool play for toddlers.' },
   { id: 'adventure-3', zone: 'adventure', zoneName: 'Adventure Zone', start: '13:00', end: '13:45', title: 'Giant Tic-Tac-Toe & Hoop Shooting', description: 'Friendly group lawn tournaments with awards for teamwork.' },
-  { id: 'creative-3', zone: 'creative', zoneName: 'Creative Zone', start: '13:00', end: '13:45', title: 'Clay Sculpture & Arts Workshop', description: 'Non-toxic modeling clay, stamps, and nature impressions.' },
+  { id: 'creative-3', zone: 'creative', zoneName: 'Creative Zone', start: '13:00', end: '13:45', title: 'Arts & Crafts Creative Workshop', description: 'Hands-on paper craft, festival crowns, and mixed media art.' },
+  { id: 'creative-4', zone: 'creative', zoneName: 'Creative Zone', start: '14:00', end: '14:45', title: 'Fun Spelling Activities & Word Discovery', description: 'Interactive wooden alphabet tiles, spelling games, and word challenges.' },
   { id: 'discovery-3', zone: 'discovery', zoneName: 'Discovery World', start: '13:00', end: '13:45', title: 'Cardboard Rockets & Lunar Rover Build', description: 'Design wearable space gear and race recycled cars.' },
-  { id: 'creative-4', zone: 'creative', zoneName: 'Creative Zone', start: '14:00', end: '14:45', title: 'Roller-Skate Dance & Obstacle Jam', description: 'Gliding sessions with helmets, knee pads, and fun coaching.' },
   { id: 'discovery-4', zone: 'discovery', zoneName: 'Discovery World', start: '14:00', end: '14:45', title: 'Planting Sunflower Seed Pots', description: 'Every child plants a biodegradable flower pot to grow at home.' },
   { id: 'stage-3', zone: 'stage', zoneName: 'Celebration Stage', start: '14:45', end: '15:30', title: 'Magic, Clown & Floating Bubble Show', description: 'Hilarious family entertainment with comedy, puppets, and giant soap bubbles.' },
   { id: 'baby-4', zone: 'baby', zoneName: 'The Little Garden', start: '14:30', end: '15:00', title: 'Afternoon Fairy Tale Storytime', description: 'Cozy listening circle with plush cushions and fruit snacks.' },
@@ -502,7 +502,7 @@ export const TICKET_INCLUSIONS = [
   'Complimentary popcorn pack',
   'Full face painting & temporary glitter tattoos',
   'Complete access to all 5 age-graded play zones',
-  'Roller-skating pit access with helmets & pads',
+  'All creative arts, painting, bracelet making & spelling activities',
   'All science experiments & take-home plant pot',
   'Official Bambino Explorer Passport & medal',
   'Complimentary admission for children 2 and under (with sibling)'

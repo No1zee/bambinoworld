@@ -1,48 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface TooltipProps {
   content: string | React.ReactNode;
   children: React.ReactNode;
   position?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
+  id?: string;
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
   content,
   children,
   position = 'top',
-  className = ''
+  className = '',
+  id
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside touch or click
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDownOutside = (event: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDownOutside);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDownOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
 
   const positionClasses = {
-    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
-    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2',
-    left: 'right-full top-1/2 -translate-y-1/2 mr-2',
-    right: 'left-full top-1/2 -translate-y-1/2 ml-2'
+    top: 'bottom-full left-1/2 -translate-x-1/2 mb-2.5',
+    bottom: 'top-full left-1/2 -translate-x-1/2 mt-2.5',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-2.5',
+    right: 'left-full top-1/2 -translate-y-1/2 ml-2.5'
   };
 
   const caretClasses = {
-    top: 'top-full left-1/2 -translate-x-1/2 border-t-slate-900 border-x-transparent border-b-transparent',
-    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-slate-900 border-x-transparent border-t-transparent',
-    left: 'left-full top-1/2 -translate-y-1/2 border-l-slate-900 border-y-transparent border-r-transparent',
-    right: 'right-full top-1/2 -translate-y-1/2 border-r-slate-900 border-y-transparent border-l-transparent'
+    top: 'top-full left-1/2 -translate-x-1/2 border-t-slate-950 border-x-transparent border-b-transparent',
+    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-slate-950 border-x-transparent border-t-transparent',
+    left: 'left-full top-1/2 -translate-y-1/2 border-l-slate-950 border-y-transparent border-r-transparent',
+    right: 'right-full top-1/2 -translate-y-1/2 border-r-slate-950 border-y-transparent border-l-transparent'
   };
 
   return (
     <div
+      ref={containerRef}
       className={`relative inline-flex items-center ${className}`}
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
-      onFocus={() => setIsVisible(true)}
-      onBlur={() => setIsVisible(false)}
-      onTouchStart={() => setIsVisible(!isVisible)}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      onFocus={() => setIsOpen(true)}
+      onBlur={() => setIsOpen(false)}
+      onClick={(e) => {
+        // Toggle on touch/click
+        setIsOpen(prev => !prev);
+      }}
+      aria-expanded={isOpen}
+      id={id}
     >
       {children}
-      {isVisible && (
+
+      {isOpen && (
         <div
+          ref={tooltipRef}
           role="tooltip"
-          className={`absolute z-50 pointer-events-none px-3 py-2 text-[11px] font-medium text-slate-100 bg-slate-950/95 border border-white/20 rounded-xl shadow-2xl max-w-[240px] sm:max-w-xs text-center leading-snug backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 ${positionClasses[position]}`}
+          aria-live="polite"
+          onClick={(e) => {
+            // Tapping tooltip closes it
+            e.stopPropagation();
+            setIsOpen(false);
+          }}
+          className={`absolute z-60 px-3.5 py-2.5 text-xs font-semibold text-slate-100 bg-slate-950/95 border border-amber-400/40 rounded-2xl shadow-2xl w-max text-center leading-snug backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 select-none ${positionClasses[position]}`}
+          style={{
+            maxWidth: 'min(280px, calc(100vw - 32px))',
+            width: 'max-content'
+          }}
         >
           {content}
           <div className={`absolute w-0 h-0 border-4 ${caretClasses[position]}`} />

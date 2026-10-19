@@ -280,3 +280,33 @@ body.expanded-cards .map-callout .callout-sub {
 body.expanded-cards .map-callout .pin-tooltip {
   display: none !important;
 }
+
+/* Apple HIG Safe Area & Touch Ergonomics */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+
+.pt-safe {
+  padding-top: max(1rem, env(safe-area-inset-top, 0px));
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+}
+
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Smooth mobile scrolling container */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
