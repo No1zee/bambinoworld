@@ -3,7 +3,7 @@ import {
   Clock,
   Plus,
   Check,
-  Compass,
+  MapPin,
   Baby,
   Castle,
   Palette,
@@ -17,6 +17,8 @@ import {
   getStoredSectionBackgrounds,
   SectionBackgroundConfig
 } from '../data/sectionBackgrounds';
+
+import { MulticolorTitle } from './MulticolorTitle';
 
 interface EventProgrammeViewProps {
   onInspectZone3D: (zoneId: string) => void;
@@ -68,9 +70,12 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-amber-950/80 to-emerald-950/85" />
 
         <div className="relative z-10 space-y-2 max-w-xl">
-          <h1 className="text-3xl sm:text-5xl font-kid font-black tracking-wide text-white drop-shadow-md">
-            Festival <span className="kid-tilt-l text-amber-400">Programme</span>
-          </h1>
+          <MulticolorTitle
+            text="Festival Programme"
+            as="h1"
+            className="text-3xl sm:text-5xl font-kid font-black tracking-wide drop-shadow-md"
+            bounceOnMount={true}
+          />
           <p className="text-sm text-slate-200 font-medium">
             Saturday 5 December 2026 · 10:00 AM – 5:00 PM CAT. 22 sessions across five play sectors at The Little Farm.
           </p>
@@ -164,7 +169,7 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
                         className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer flex items-center justify-center active:scale-95"
                         aria-label="3D View"
                       >
-                        <Compass className="w-4 h-4 text-amber-600" />
+                        <MapPin className="w-4 h-4 text-amber-600" />
                       </button>
                     </Tooltip>
                     <button

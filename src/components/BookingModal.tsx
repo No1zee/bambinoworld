@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Ticket, Check, X, Shield, Sparkles, QrCode, Phone, Mail, User, Copy } from 'lucide-react';
+import { Ticket, Check, X, Shield, Sparkles, QrCode, Phone, Mail, User, Copy, Star } from 'lucide-react';
 import { Booking } from '../types/festival';
 import { SIBLING_DISCOUNTS, TICKET_INCLUSIONS } from '../data/festivalData';
+import { soundscape } from '../utils/soundscape';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -205,6 +206,57 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <p className="text-xs sm:text-sm text-slate-600 mt-1">
                 Saturday 5 December 2026 · All passes include lunch, unlimited candyfloss &amp; waffles, live shows &amp; all zones.
               </p>
+            </div>
+
+            {/* Interactive Holographic Souvenir Pass Preview */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-200 via-rose-200 to-sky-200 p-[2px] shadow-lg shadow-amber-950/10 transition-all">
+              <div className="relative rounded-[14px] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 overflow-hidden">
+                {/* Iridescent shimmer overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-amber-400/10 via-rose-400/15 to-sky-400/15 pointer-events-none" />
+                <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-amber-400/10 blur-2xl pointer-events-none" />
+
+                {/* Left: Pass Brand, Guest Name & Date */}
+                <div className="relative z-10 space-y-1.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-xs">
+                      <Sparkles className="w-3 h-3 text-slate-950" />
+                      <span>{ticketType.replace('-', ' ')} Pass</span>
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-amber-300/80">
+                      5 DEC 2026 · HARARE
+                    </span>
+                  </div>
+
+                  <h3 className="font-kid font-black text-lg sm:text-xl text-white tracking-wide truncate">
+                    {name.trim() ? name : 'Little Adventurer'} &amp; Family
+                  </h3>
+
+                  <p className="text-xs text-slate-300 font-medium flex items-center gap-2">
+                    <span>{childCount} Child Pass{childCount > 1 ? 'es' : ''}</span>
+                    {underTwoCount > 0 && <span>· {underTwoCount} Under 2 (Free)</span>}
+                    <span>· All 5 Zones Included</span>
+                  </p>
+                </div>
+
+                {/* Perforated Divider (dashed on larger screens) */}
+                <div className="hidden sm:block border-l-2 border-dashed border-slate-700/80 h-16 self-center relative">
+                  <div className="absolute -top-6 -left-[7px] w-3 h-3 rounded-full bg-white" />
+                  <div className="absolute -bottom-6 -left-[7px] w-3 h-3 rounded-full bg-white" />
+                </div>
+
+                {/* Right: Price & Barcode */}
+                <div className="relative z-10 sm:text-right shrink-0 flex items-center sm:flex-col justify-between sm:justify-center border-t sm:border-t-0 border-slate-800 pt-2 sm:pt-0">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Total Due</span>
+                    <span className="font-kid font-black text-2xl sm:text-3xl text-amber-400 leading-tight">
+                      ${total}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/80">
+                    EcoCash &amp; USD
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Ticket Tier Picker */}

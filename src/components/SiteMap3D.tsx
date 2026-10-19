@@ -10,10 +10,12 @@ export interface SiteMap3DHandle {
   resetView: () => void;
   setLighting: (mode: 'day' | 'sunset' | 'night') => void;
   focusActivityCam: (key: string) => void;
+  animateCameraForTab: (tab: string) => void;
 }
 
 interface SiteMap3DProps {
   onSelectZone: (zoneId: string) => void;
+  onDeselectZone?: () => void;
   activeZoneId?: string | null;
   className?: string;
   isCinemaMode?: boolean;
@@ -22,6 +24,7 @@ interface SiteMap3DProps {
 
 export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
   onSelectZone,
+  onDeselectZone,
   activeZoneId,
   className = '',
   isCinemaMode = false,
@@ -67,7 +70,6 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z),
           1050
         );
-        onSelectZone(zoneId);
       }
     },
     resetView: () => {
@@ -88,6 +90,40 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       if (internalsRef.current) {
         internalsRef.current.focusActivityCam(key);
       }
+    },
+    animateCameraForTab: (tab: string) => {
+      if (!internalsRef.current) return;
+      if (tab === 'home') {
+        internalsRef.current.animateCameraTo(
+          new THREE.Vector3(0, 68, 74),
+          new THREE.Vector3(-2, 0, 2),
+          1200
+        );
+      } else if (tab === 'zones') {
+        internalsRef.current.animateCameraTo(
+          new THREE.Vector3(-12, 28, 38),
+          new THREE.Vector3(-10, 2, 8),
+          1200
+        );
+      } else if (tab === 'farm') {
+        internalsRef.current.animateCameraTo(
+          new THREE.Vector3(26, 26, 32),
+          new THREE.Vector3(14, 2, 8),
+          1200
+        );
+      } else if (tab === 'december-5') {
+        internalsRef.current.animateCameraTo(
+          new THREE.Vector3(-24, 28, 48),
+          new THREE.Vector3(-18, 2, 18),
+          1200
+        );
+      } else if (tab === '3d-map') {
+        internalsRef.current.animateCameraTo(
+          new THREE.Vector3(-8, 48, 58),
+          new THREE.Vector3(-4, 0, 4),
+          1000
+        );
+      }
     }
   }));
 
@@ -104,19 +140,23 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.5, 600);
+    const camera = new THREE.PerspectiveCamera(36, width / height, 1.2, 450);
     const POSTER_CAM_POS = new THREE.Vector3(0, 68, 74);
     const POSTER_CAM_TARGET = new THREE.Vector3(-2, 0, 2);
     camera.position.copy(POSTER_CAM_POS);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+      logarithmicDepthBuffer: false
+    });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.0;
     container.appendChild(renderer.domElement);
 
     // Studio Environment Reflections
@@ -127,25 +167,29 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.copy(POSTER_CAM_TARGET);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
+    controls.dampingFactor = 0.08;
     controls.maxPolarAngle = Math.PI / 2 - 0.04;
     controls.minDistance = 6;
     controls.maxDistance = 180;
+    controls.addEventListener('start', () => {
+      camAnim = null;
+      setInspectedPerson(null);
+    });
     controls.update();
 
-    // Lighting Setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.62);
+    // Lighting Setup - Calibrated for high clarity, warm richness, and zero glare
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.42);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x3f6212, 0.55);
+    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x3f6212, 0.35);
     hemiLight.position.set(0, 80, 0);
     scene.add(hemiLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfffbeb, 1.25);
+    const sunLight = new THREE.DirectionalLight(0xfffbeb, 0.95);
     sunLight.position.set(-45, 78, 42);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
     sunLight.shadow.camera.near = 10;
     sunLight.shadow.camera.far = 200;
     const d = 68;
@@ -153,7 +197,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     sunLight.shadow.camera.right = d;
     sunLight.shadow.camera.top = d;
     sunLight.shadow.camera.bottom = -d;
-    sunLight.shadow.bias = -0.0005;
+    sunLight.shadow.bias = -0.0004;
+    sunLight.shadow.normalBias = 0.035;
     scene.add(sunLight);
 
     const stageSpot1 = new THREE.PointLight(0xa855f7, 0, 28);
@@ -164,15 +209,21 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     poolGlowLight.position.set(-26, 3, 15);
     const ledGlowLight = new THREE.PointLight(0x60a5fa, 0, 18);
     ledGlowLight.position.set(-39, 5, 25);
-    scene.add(stageSpot1, stageSpot2, poolGlowLight, ledGlowLight);
+    
+    // Soft atmospheric rim light for subtle diorama highlights
+    const rimLight = new THREE.DirectionalLight(0xffedd5, 0.25);
+    rimLight.position.set(38, 48, -42);
+    scene.add(stageSpot1, stageSpot2, poolGlowLight, ledGlowLight, rimLight);
 
     const applyLighting = (mode: 'day' | 'sunset' | 'night') => {
       if (mode === 'day') {
         scene.background = new THREE.Color(0x1a261e);
         if (scene.fog) scene.fog.color.setHex(0x1a261e);
-        ambientLight.intensity = 0.62;
-        sunLight.intensity = 1.25;
+        ambientLight.intensity = 0.42;
+        sunLight.intensity = 0.95;
         sunLight.color.setHex(0xfffbeb);
+        rimLight.intensity = 0.25;
+        rimLight.color.setHex(0xffedd5);
         stageSpot1.intensity = 0;
         stageSpot2.intensity = 0;
         poolGlowLight.intensity = 0;
@@ -183,6 +234,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         ambientLight.intensity = 0.45;
         sunLight.intensity = 1.1;
         sunLight.color.setHex(0xfb923c);
+        rimLight.intensity = 0.70;
+        rimLight.color.setHex(0xfdba74);
         stageSpot1.intensity = 1.2;
         stageSpot2.intensity = 1.2;
         poolGlowLight.intensity = 0.9;
@@ -193,6 +246,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         ambientLight.intensity = 0.25;
         sunLight.intensity = 0.32;
         sunLight.color.setHex(0x818cf8);
+        rimLight.intensity = 0.18;
+        rimLight.color.setHex(0xa5b4fc);
         stageSpot1.intensity = 2.4;
         stageSpot2.intensity = 2.4;
         poolGlowLight.intensity = 1.8;
@@ -259,10 +314,16 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     worldGroup.add(outerGround);
 
     const westRoadGeo = new THREE.PlaneGeometry(14, 130);
-    const dirtRoadMat = new THREE.MeshStandardMaterial({ color: 0x7c5846, roughness: 0.92 });
+    const dirtRoadMat = new THREE.MeshStandardMaterial({
+      color: 0x7c5846,
+      roughness: 0.92,
+      polygonOffset: true,
+      polygonOffsetFactor: -1.0,
+      polygonOffsetUnits: -1.0
+    });
     const westRoad = new THREE.Mesh(westRoadGeo, dirtRoadMat);
     westRoad.rotation.x = -Math.PI / 2;
-    westRoad.position.set(-55, -0.25, 0);
+    westRoad.position.set(-55, 0.04, 0);
     westRoad.receiveShadow = true;
     worldGroup.add(westRoad);
 
@@ -270,7 +331,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const southExitRoad = new THREE.Mesh(southExitRoadGeo, dirtRoadMat);
     southExitRoad.rotation.x = -Math.PI / 2;
     southExitRoad.rotation.z = -0.35;
-    southExitRoad.position.set(16, -0.18, 41);
+    southExitRoad.position.set(16, 0.05, 41);
     southExitRoad.receiveShadow = true;
     worldGroup.add(southExitRoad);
 
@@ -336,7 +397,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       new THREE.MeshStandardMaterial({ map: terrainTexture, roughness: 0.88, metalness: 0.02 })
     );
     parkGround.rotation.x = -Math.PI / 2;
-    parkGround.position.set(-4, 0, 0);
+    parkGround.position.set(-4, 0.02, 0);
     parkGround.receiveShadow = true;
     worldGroup.add(parkGround);
 
@@ -1146,15 +1207,26 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     worldGroup.add(billboardGroup);
     createFloralPlanterBox(-39, 24.4, 4.6, 0.48);
 
-    // ZONE 5: Main Entrance Welcome Archway & Creative Skating Pit
+    // ZONE 5: Main Entrance Welcome Archway & Creative Art Rink
     const archGroup = new THREE.Group();
     archGroup.position.set(-37, 0.15, 40.5);
     archGroup.rotation.y = 0.35;
+
+    const towerMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.25, roughness: 0.4 });
+    [-3.8, 3.8].forEach(tx => {
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(1.0, 4.3, 1.0), towerMat);
+      tower.position.set(tx, 2.15, 0);
+      tower.castShadow = true;
+      registerZoneMesh(tower, 'main-entrance');
+      archGroup.add(tower);
+    });
+
     const archBeam = new THREE.Mesh(
       new THREE.BoxGeometry(8.8, 1.25, 1.05),
       new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.35 })
     );
     archBeam.position.set(0, 4.1, 0);
+    archBeam.castShadow = true;
     registerZoneMesh(archBeam, 'main-entrance');
     archGroup.add(archBeam);
     worldGroup.add(archGroup);
@@ -1185,44 +1257,170 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       bc.position.set(x, 0.15, z);
       bc.rotation.y = rotY;
 
+      // 1. Inflatable Bounce Mattress Bed (top surface at y = 1.10)
       const base = new THREE.Mesh(
-        new THREE.BoxGeometry(6.2, 1.1, 5.4),
-        new THREE.MeshStandardMaterial({ color: mainHex, roughness: 0.45 })
+        new THREE.BoxGeometry(6.6, 1.1, 5.8),
+        new THREE.MeshStandardMaterial({ color: mainHex, roughness: 0.35, side: THREE.DoubleSide })
       );
       base.position.y = 0.55;
       base.castShadow = true;
+      base.receiveShadow = true;
       registerZoneMesh(base, 'adventure-zone');
       bc.add(base);
 
-      const backWall = new THREE.Mesh(
-        new THREE.BoxGeometry(6.2, 3.4, 1.2),
-        new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.45 })
+      // Inflatable Entrance Step / Apron Pad (connects ground to mattress smoothly)
+      const entryStep = new THREE.Mesh(
+        new THREE.BoxGeometry(2.8, 0.45, 1.5),
+        new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.35, side: THREE.DoubleSide })
       );
-      backWall.position.set(0, 2.1, -2.1);
+      entryStep.position.set(0, 0.22, 3.2);
+      entryStep.castShadow = true;
+      entryStep.receiveShadow = true;
+      bc.add(entryStep);
+
+      // 2. Full Inflatable Back Wall (Flush height from y = 0.55 to y = 3.95, height 3.4m)
+      const backWall = new THREE.Mesh(
+        new THREE.BoxGeometry(6.6, 3.4, 0.85),
+        new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.35, side: THREE.DoubleSide })
+      );
+      backWall.position.set(0, 2.25, -2.4);
       backWall.castShadow = true;
       bc.add(backWall);
 
-      [[-2.7, -2.3], [2.7, -2.3], [-2.7, 2.3], [2.7, 2.3]].forEach(([px, pz]) => {
-        const pil = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.55, 0.55, 4.2, 10),
-          new THREE.MeshStandardMaterial({ color: slideHex, roughness: 0.4 })
+      // 3. Left Inflatable Side Wall (Flush height from y = 0.55 to y = 3.95, height 3.4m)
+      const leftWall = new THREE.Mesh(
+        new THREE.BoxGeometry(0.85, 3.4, 5.6),
+        new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.35, side: THREE.DoubleSide })
+      );
+      leftWall.position.set(-2.85, 2.25, 0);
+      leftWall.castShadow = true;
+      bc.add(leftWall);
+
+      // 4. Right Inflatable Side Wall (Flush height from y = 0.55 to y = 3.95, height 3.4m)
+      const rightWall = new THREE.Mesh(
+        new THREE.BoxGeometry(0.85, 3.4, 5.6),
+        new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.35, side: THREE.DoubleSide })
+      );
+      rightWall.position.set(2.85, 2.25, 0);
+      rightWall.castShadow = true;
+      bc.add(rightWall);
+
+      // 5. Front Left Safety Bumper Wall (Flush height from y = 0.55 to y = 3.95)
+      const frontLeft = new THREE.Mesh(
+        new THREE.BoxGeometry(2.0, 3.4, 0.85),
+        new THREE.MeshStandardMaterial({ color: mainHex, roughness: 0.35, side: THREE.DoubleSide })
+      );
+      frontLeft.position.set(-2.25, 2.25, 2.4);
+      frontLeft.castShadow = true;
+      bc.add(frontLeft);
+
+      // 6. Front Right Safety Bumper Wall (Flush height from y = 0.55 to y = 3.95)
+      const frontRight = new THREE.Mesh(
+        new THREE.BoxGeometry(2.0, 3.4, 0.85),
+        new THREE.MeshStandardMaterial({ color: mainHex, roughness: 0.35, side: THREE.DoubleSide })
+      );
+      frontRight.position.set(2.25, 2.25, 2.4);
+      frontRight.castShadow = true;
+      bc.add(frontRight);
+
+      // 7. Front Entrance Overhead Arch Beam (Flush connection between front bumpers)
+      const frontArch = new THREE.Mesh(
+        new THREE.BoxGeometry(2.8, 0.9, 0.85),
+        new THREE.MeshStandardMaterial({ color: slideHex, roughness: 0.35, side: THREE.DoubleSide })
+      );
+      frontArch.position.set(0, 3.5, 2.4);
+      frontArch.castShadow = true;
+      bc.add(frontArch);
+
+      // Castle Battlements / Parapet Crenels along wall tops
+      [-2.2, -1.1, 0, 1.1, 2.2].forEach(bx => {
+        const crenel = new THREE.Mesh(
+          new THREE.BoxGeometry(0.65, 0.45, 0.85),
+          new THREE.MeshStandardMaterial({ color: mainHex, roughness: 0.35, side: THREE.DoubleSide })
         );
-        pil.position.set(px, 2.1, pz);
-        const spire = new THREE.Mesh(
-          new THREE.ConeGeometry(0.7, 1.3, 10),
-          new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 })
-        );
-        spire.position.set(px, 4.85, pz);
-        bc.add(pil, spire);
+        crenel.position.set(bx, 4.15, -2.4);
+        crenel.castShadow = true;
+        bc.add(crenel);
+      });
+      [-1.5, -0.5, 0.5, 1.5].forEach(bz => {
+        [-2.85, 2.85].forEach(sx => {
+          const crenel = new THREE.Mesh(
+            new THREE.BoxGeometry(0.85, 0.45, 0.65),
+            new THREE.MeshStandardMaterial({ color: mainHex, roughness: 0.35, side: THREE.DoubleSide })
+          );
+          crenel.position.set(sx, 4.15, bz);
+          crenel.castShadow = true;
+          bc.add(crenel);
+        });
       });
 
+      // 8. 4 Corner Inflatable Spire Towers with Festival Flags
+      [[-2.85, -2.4], [2.85, -2.4], [-2.85, 2.4], [2.85, 2.4]].forEach(([px, pz], tIdx) => {
+        const pil = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.7, 0.7, 4.6, 16),
+          new THREE.MeshStandardMaterial({ color: slideHex, roughness: 0.35, side: THREE.DoubleSide })
+        );
+        pil.position.set(px, 2.3, pz);
+        pil.castShadow = true;
+        const spire = new THREE.Mesh(
+          new THREE.ConeGeometry(0.95, 1.6, 16),
+          new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.35, side: THREE.DoubleSide })
+        );
+        spire.position.set(px, 5.4, pz);
+        spire.castShadow = true;
+
+        // Small decorative flagpole on top of spire
+        const pole = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.04, 0.04, 0.8, 6),
+          new THREE.MeshStandardMaterial({ color: 0xffffff })
+        );
+        pole.position.set(px, 6.4, pz);
+        const pennant = new THREE.Mesh(
+          new THREE.BoxGeometry(0.4, 0.25, 0.03),
+          new THREE.MeshStandardMaterial({ color: [0xef4444, 0xfacc15, 0x22c55e, 0x3b82f6][tIdx % 4] })
+        );
+        pennant.position.set(px + 0.2, 6.55, pz);
+
+        bc.add(pil, spire, pole, pennant);
+      });
+
+      // 9. Inflatable Slide - flush slope anchored cleanly to front opening
       const slide = new THREE.Mesh(
-        new THREE.BoxGeometry(2.6, 0.45, 3.2),
-        new THREE.MeshStandardMaterial({ color: slideHex, roughness: 0.35 })
+        new THREE.BoxGeometry(2.5, 0.35, 3.8),
+        new THREE.MeshStandardMaterial({ color: slideHex, roughness: 0.3, side: THREE.DoubleSide })
       );
-      slide.position.set(0, 0.85, 3.4);
-      slide.rotation.x = 0.42;
+      slide.position.set(0, 0.62, 3.9);
+      slide.rotation.x = 0.38;
+      slide.castShadow = true;
       bc.add(slide);
+
+      // 10. Slide Safety Handrail Walls - flush and parallel to slide slope
+      [-1.25, 1.25].forEach(rx => {
+        const rail = new THREE.Mesh(
+          new THREE.BoxGeometry(0.3, 0.65, 3.8),
+          new THREE.MeshStandardMaterial({ color: accentHex, roughness: 0.35, side: THREE.DoubleSide })
+        );
+        rail.position.set(rx, 0.95, 3.9);
+        rail.rotation.x = 0.38;
+        rail.castShadow = true;
+        bc.add(rail);
+      });
+
+      // 11. Protective Safety Netting Panels (no visual holes)
+      [-2.42, 2.42].forEach(nx => {
+        const net = new THREE.Mesh(
+          new THREE.PlaneGeometry(3.6, 2.2),
+          new THREE.MeshStandardMaterial({
+            color: 0x1e293b,
+            transparent: true,
+            opacity: 0.35,
+            side: THREE.DoubleSide
+          })
+        );
+        net.position.set(nx, 2.2, 0);
+        net.rotation.y = Math.PI / 2;
+        bc.add(net);
+      });
 
       bouncyCastles.push(bc);
       worldGroup.add(bc);
@@ -1250,25 +1448,173 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       worldGroup.add(createPicnicTable(px, pz));
     });
 
-    // ZONE 8: Celebration Stage (Covered Truss, Zimbabwean Marimba, Bubbles & 80+ Chairs)
+    // ZONE 8: Celebration Stage (Complete Structural Truss Rig, Back Wall, Side Scrims, Stairs & Performers)
     const stageGroup = new THREE.Group();
     stageGroup.position.set(10, 0.15, -1.5);
     worldGroup.add(stageGroup);
 
+    // 1. Stage Elevated Deck / Platform Base
     const stagePlatform = new THREE.Mesh(
-      new THREE.BoxGeometry(11.5, 1.1, 6.8),
-      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 })
+      new THREE.BoxGeometry(12.8, 1.1, 7.8),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65, side: THREE.DoubleSide })
     );
     stagePlatform.position.y = 0.55;
+    stagePlatform.receiveShadow = true;
+    stagePlatform.castShadow = true;
     stageGroup.add(stagePlatform);
     registerZoneMesh(stagePlatform, 'celebration-stage');
 
+    // Stage Perimeter Black Pleated Skirting (covers under-stage framing cleanly)
+    const skirtMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.85, side: THREE.DoubleSide });
+    const frontSkirt = new THREE.Mesh(new THREE.BoxGeometry(12.8, 1.1, 0.08), skirtMat);
+    frontSkirt.position.set(0, 0.55, 3.9);
+    const leftSkirt = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.1, 7.8), skirtMat);
+    leftSkirt.position.set(-6.4, 0.55, 0);
+    const rightSkirt = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.1, 7.8), skirtMat);
+    rightSkirt.position.set(6.4, 0.55, 0);
+    stageGroup.add(frontSkirt, leftSkirt, rightSkirt);
+
+    // 2. Stage Wooden Floor Finish (Top surface at y = 1.18; world space y = 1.33)
+    const stageFloor = new THREE.Mesh(
+      new THREE.BoxGeometry(12.8, 0.08, 7.8),
+      new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.45, side: THREE.DoubleSide })
+    );
+    stageFloor.position.y = 1.14;
+    stageFloor.receiveShadow = true;
+    stageGroup.add(stageFloor);
+
+    // Stage Front Safety Kickboard / Lip
+    const kickboard = new THREE.Mesh(
+      new THREE.BoxGeometry(12.8, 0.08, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4 })
+    );
+    kickboard.position.set(0, 1.20, 3.86);
+    stageGroup.add(kickboard);
+
+    // 3. Stage Solid Rear Acoustic Wall Enclosure (Zero see-through holes from rear/sides)
+    const stageBackdrop = new THREE.Mesh(
+      new THREE.BoxGeometry(12.8, 5.6, 0.4),
+      new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.6, side: THREE.DoubleSide })
+    );
+    stageBackdrop.position.set(0, 3.8, -3.7);
+    stageBackdrop.castShadow = true;
+    stageGroup.add(stageBackdrop);
+
+    // Dynamic Festive Backdrop LED Screen Panel
+    const backdropScreen = new THREE.Mesh(
+      new THREE.BoxGeometry(11.2, 4.6, 0.1),
+      new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.3, emissive: 0x1e3a8a, emissiveIntensity: 0.35, side: THREE.DoubleSide })
+    );
+    backdropScreen.position.set(0, 3.8, -3.45);
+    stageGroup.add(backdropScreen);
+
+    // 4. Left and Right Stage Solid Acoustic Wing Panels
+    [-6.3, 6.3].forEach(wx => {
+      const wing = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 5.4, 4.4),
+        new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6, side: THREE.DoubleSide })
+      );
+      wing.position.set(wx, 3.7, -1.6);
+      wing.castShadow = true;
+      stageGroup.add(wing);
+    });
+
+    // 5. Heavy Aluminum Box Truss Rig (Columns + 4 Top Crossmembers)
+    const trussMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.25, side: THREE.DoubleSide });
+    [[-6.2, -3.6], [6.2, -3.6], [-6.2, 3.6], [6.2, 3.6]].forEach(([tx, tz]) => {
+      const column = new THREE.Mesh(new THREE.BoxGeometry(0.55, 6.2, 0.55), trussMat);
+      column.position.set(tx, 3.65, tz);
+      column.castShadow = true;
+      stageGroup.add(column);
+    });
+    // Top horizontal cross trusses connecting all 4 pillars
+    const frontTruss = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.45, 0.45), trussMat);
+    frontTruss.position.set(0, 6.45, 3.6);
+    const rearTruss = new THREE.Mesh(new THREE.BoxGeometry(12.4, 0.45, 0.45), trussMat);
+    rearTruss.position.set(0, 6.45, -3.6);
+    const leftTruss = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 7.2), trussMat);
+    leftTruss.position.set(-6.2, 6.45, 0);
+    const rightTruss = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 7.2), trussMat);
+    rightTruss.position.set(6.2, 6.45, 0);
+    stageGroup.add(frontTruss, rearTruss, leftTruss, rightTruss);
+
+    // 6. Stage Overhead Roof Canopy & Side/Rear Fascia Trim
     const stageRoof = new THREE.Mesh(
-      new THREE.BoxGeometry(12.2, 0.65, 7.4),
-      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
+      new THREE.BoxGeometry(13.6, 0.65, 8.8),
+      new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.5, side: THREE.DoubleSide })
     );
     stageRoof.position.set(0, 6.8, 0);
+    stageRoof.castShadow = true;
     stageGroup.add(stageRoof);
+
+    // Roof Side & Rear Fascias (No open gaps)
+    const rearFascia = new THREE.Mesh(new THREE.BoxGeometry(13.6, 0.8, 0.15), new THREE.MeshStandardMaterial({ color: 0x090d16 }));
+    rearFascia.position.set(0, 6.4, -4.35);
+    const leftFascia = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.8, 8.8), new THREE.MeshStandardMaterial({ color: 0x090d16 }));
+    leftFascia.position.set(-6.75, 6.4, 0);
+    const rightFascia = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.8, 8.8), new THREE.MeshStandardMaterial({ color: 0x090d16 }));
+    rightFascia.position.set(6.75, 6.4, 0);
+    stageGroup.add(rearFascia, leftFascia, rightFascia);
+
+    // Roof Front Gold Valance / Overhead Banner
+    const roofBanner = new THREE.Mesh(
+      new THREE.BoxGeometry(13.2, 0.9, 0.15),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.4, side: THREE.DoubleSide })
+    );
+    roofBanner.position.set(0, 6.35, 4.35);
+    stageGroup.add(roofBanner);
+
+    // 7. Realistic 3-Step Front Access Stairs (True graduated steps + side stringers)
+    const stairMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6, side: THREE.DoubleSide });
+    const woodTreadMat = new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.5, side: THREE.DoubleSide });
+    const step1 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.28, 0.65), stairMat);
+    step1.position.set(0, 0.14, 5.1);
+    const tread1 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.04, 0.65), woodTreadMat);
+    tread1.position.set(0, 0.29, 5.1);
+
+    const step2 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.56, 0.65), stairMat);
+    step2.position.set(0, 0.28, 4.5);
+    const tread2 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.04, 0.65), woodTreadMat);
+    tread2.position.set(0, 0.57, 4.5);
+
+    const step3 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.84, 0.65), stairMat);
+    step3.position.set(0, 0.42, 3.9);
+    const tread3 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.04, 0.65), woodTreadMat);
+    tread3.position.set(0, 0.85, 3.9);
+
+    const stairRailMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.7 });
+    [-1.85, 1.85].forEach(sx => {
+      const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 8), stairRailMat);
+      rail.position.set(sx, 0.9, 4.5);
+      rail.rotation.x = -0.58;
+      stageGroup.add(rail);
+    });
+    stageGroup.add(step1, tread1, step2, tread2, step3, tread3);
+
+    // Stage Front Floor Wedges (Foldback Monitors for Performers)
+    const monitorMat = new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.3 });
+    [-1.8, 1.8].forEach(mx => {
+      const mon = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.32, 0.5), monitorMat);
+      mon.position.set(mx, 1.30, 2.4);
+      mon.rotation.x = -0.35;
+      stageGroup.add(mon);
+    });
+
+    // Center Vocal Microphone Stand on Stage
+    const micPole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.2, 8), stairRailMat);
+    micPole.position.set(0, 1.74, 1.5);
+    const micHead = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), stairRailMat);
+    micHead.position.set(0, 2.34, 1.5);
+    stageGroup.add(micPole, micHead);
+
+    // 8. Line Array Subwoofers / Speaker Stacks Flanking Stage
+    const speakerMat = new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.3 });
+    [-7.2, 7.2].forEach(sx => {
+      const stack = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 1.2), speakerMat);
+      stack.position.set(sx, 1.6, 1.0);
+      stack.castShadow = true;
+      stageGroup.add(stack);
+    });
 
     // Marimba Instrument
     const marimbaGroup = new THREE.Group();
@@ -1454,7 +1800,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       }
     });
 
-    // 6. Complete Demographic Crowd (148 Articulated People)
+    // 6. Complete Demographic Crowd (148 Articulated People with Multi-Racial Diversity & Varied Silhouettes)
     const animatedAgents: Array<{
       root: THREE.Group;
       leftArm: THREE.Mesh;
@@ -1462,23 +1808,77 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       leftLeg: THREE.Mesh;
       rightLeg: THREE.Mesh;
       baseX: number;
+      baseY: number;
       baseZ: number;
       role: string;
+      gender: 'male' | 'female';
       behavior: 'walk' | 'bounce' | 'dance' | 'crawl' | 'path';
       radius: number;
       speed: number;
       curve?: THREE.CatmullRomCurve3;
       progress: number;
       phase: number;
+      accessories?: THREE.Group;
     }> = [];
     const personClickMeshes: THREE.Mesh[] = [];
 
-    const createArticulatedPerson = (config: {
+    // Shared Skin Tones across the Demographic Matrix
+    const SKIN_TONES = [
+      0x341d14, // Deep Espresso / Rich Umber
+      0x553018, // Rich Mahogany
+      0x7f4c28, // Warm Bronze
+      0xa66f44, // Golden Honey Caramel
+      0xcfa173, // Warm Olive Tan
+      0xecd0b4  // Warm Fair Beige
+    ];
+    const sharedSkinMats = SKIN_TONES.map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.65 }));
+
+    const HAIR_COLORS = [
+      0x111111, // Jet Black
+      0x1f1610, // Dark Brown
+      0x3e2415, // Auburn Brown
+      0x5a3118, // Chestnut
+      0x945124, // Warm Bronze
+      0xd97706  // Golden Highlights
+    ];
+    const sharedHairMats = HAIR_COLORS.map(color => new THREE.MeshStandardMaterial({ color, roughness: 0.85 }));
+
+    const sharedSoleMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+    const sharedWoodMat = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.7 });
+    const sharedChromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.25, metalness: 0.8 });
+    const sharedGoldMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.3, metalness: 0.4 });
+    const sharedBeadMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.4 });
+
+    // Shared Geometries to eliminate GPU buffer allocations & memory fragmentation
+    const sharedHeadGeo = new THREE.SphereGeometry(0.21, 10, 10);
+    const sharedTorsoGeo = new THREE.BoxGeometry(0.46, 0.62, 0.26);
+    const sharedDressGeo = new THREE.CylinderGeometry(0.22, 0.36, 0.62, 10);
+    const sharedArmGeo = new THREE.BoxGeometry(0.13, 0.52, 0.13);
+    const sharedLegGeo = new THREE.BoxGeometry(0.16, 0.44, 0.16);
+    const sharedShoeGeo = new THREE.BoxGeometry(0.17, 0.11, 0.23);
+    const sharedSoleGeo = new THREE.BoxGeometry(0.18, 0.04, 0.24);
+    const sharedPuffGeo = new THREE.SphereGeometry(0.12, 8, 8);
+    const sharedFadeGeo = new THREE.CylinderGeometry(0.22, 0.23, 0.14, 10);
+    const sharedDreadBunGeo = new THREE.CylinderGeometry(0.15, 0.17, 0.18, 8);
+    const sharedHeadwrapGeo = new THREE.TorusGeometry(0.22, 0.08, 8, 14);
+    const sharedCapDomeGeo = new THREE.SphereGeometry(0.23, 10, 10, 0, Math.PI * 2, 0, Math.PI / 1.7);
+    const sharedCapVisorGeo = new THREE.BoxGeometry(0.22, 0.025, 0.16);
+    const sharedSunhatBrimGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.02, 12);
+    const sharedSunhatCrownGeo = new THREE.CylinderGeometry(0.21, 0.22, 0.18, 10);
+
+    interface PersonConfig {
       x: number;
       z: number;
+      y?: number;
       role?: 'adult' | 'kid' | 'baby' | 'staff';
+      gender?: 'male' | 'female';
+      skinToneIdx?: number;
+      bodyType?: 'sturdy' | 'slender' | 'petite' | 'curvy' | 'athletic';
+      hairStyle?: 'afro_puffs' | 'braids' | 'fade' | 'dreadlocks' | 'headwrap' | 'curls' | 'cap' | 'sunhat';
+      hairColorIdx?: number;
       shirtHex?: number;
       pantsHex?: number;
+      shoeHex?: number;
       behavior?: 'walk' | 'bounce' | 'dance' | 'crawl' | 'path';
       label?: string;
       roleTitle?: string;
@@ -1486,80 +1886,275 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       pathPts?: number[][] | null;
       speed?: number;
       hasBalloon?: boolean;
+      balloonColorHex?: number;
       hasHelmet?: boolean;
-    }) => {
+      prop?: 'marimba_mallets' | 'microphone' | 'guitar' | 'puppet' | 'palette' | 'clipboard';
+    }
+
+    const createArticulatedPerson = (config: PersonConfig) => {
       const {
-        x, z, role = 'adult', shirtHex = 0x3b82f6, pantsHex = 0x1e293b,
-        behavior = 'walk', label = 'Exploring Bambino World', roleTitle = 'Parent / Adult',
-        icon = '🧑', pathPts = null, speed = 1.0, hasBalloon = false, hasHelmet = false
+        x, z, y = 0.16, role = 'adult', gender = 'female',
+        skinToneIdx = 0, bodyType = 'athletic',
+        hairStyle = gender === 'female' ? 'afro_puffs' : 'fade',
+        hairColorIdx = 0,
+        shirtHex = 0x3b82f6, pantsHex = 0x1e293b, shoeHex = 0x0f172a,
+        behavior = 'walk', label = 'Exploring Bambino World', roleTitle = 'Festival Attendee',
+        icon = '🧑', pathPts = null, speed = 1.0, hasBalloon = false, balloonColorHex = 0xf43f5e,
+        hasHelmet = false, prop
       } = config;
 
-      const sc = role === 'baby' ? 0.46 : role === 'kid' ? 0.68 : role === 'staff' ? 1.02 : 1.0;
+      const baseSc = role === 'baby' ? 0.46 : role === 'kid' ? 0.68 : role === 'staff' ? 1.02 : 1.0;
       const root = new THREE.Group();
-      root.position.set(x, 0.16, z);
-      root.scale.setScalar(sc);
+      root.position.set(x, y, z);
 
-      const skinMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 });
+      // Body Type Scale Modifiers
+      let sx = baseSc;
+      let sy = baseSc;
+      let sz = baseSc;
+      if (bodyType === 'sturdy') {
+        sx *= 1.22;
+        sy *= 0.98;
+        sz *= 1.15;
+      } else if (bodyType === 'slender') {
+        sx *= 0.88;
+        sy *= 1.08;
+        sz *= 0.88;
+      } else if (bodyType === 'petite') {
+        sx *= 0.92;
+        sy *= 0.92;
+        sz *= 0.92;
+      } else if (bodyType === 'curvy') {
+        sx *= 1.12;
+        sy *= 0.98;
+        sz *= 1.10;
+      } else if (bodyType === 'athletic') {
+        sx *= 1.04;
+        sy *= 1.02;
+        sz *= 1.0;
+      }
+      root.scale.set(sx, sy, sz);
+
+      const skinMat = sharedSkinMats[skinToneIdx % sharedSkinMats.length];
+      const hairMat = sharedHairMats[hairColorIdx % sharedHairMats.length];
       const shirtMat = new THREE.MeshStandardMaterial({ color: shirtHex, roughness: 0.5 });
       const pantsMat = new THREE.MeshStandardMaterial({ color: pantsHex, roughness: 0.6 });
+      const shoeMat = new THREE.MeshStandardMaterial({ color: shoeHex, roughness: 0.5 });
 
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.62, 0.26), shirtMat);
+      // Torso: Male shirt / Female sundress or tee
+      const isSundress = gender === 'female' && (role === 'adult' || role === 'kid') && bodyType !== 'sturdy';
+      const torso = new THREE.Mesh(isSundress ? sharedDressGeo : sharedTorsoGeo, shirtMat);
       torso.position.y = 0.86;
       torso.castShadow = true;
       root.add(torso);
 
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.21, 10, 10), skinMat);
+      // Head with realistic skin tone
+      const head = new THREE.Mesh(sharedHeadGeo, skinMat);
       head.position.y = 1.38;
       root.add(head);
 
+      // Accessory sub-node for dynamic LOD optimization (culled during fast drag/orbit)
+      const accessoryGroup = new THREE.Group();
+
+      // Diverse Hairstyles & Headwear
       if (hasHelmet || role === 'staff') {
         const cap = new THREE.Mesh(
-          new THREE.SphereGeometry(0.23, 10, 10, 0, Math.PI * 2, 0, Math.PI / 1.8),
+          sharedCapDomeGeo,
           new THREE.MeshStandardMaterial({ color: role === 'staff' ? 0xfacc15 : 0x38bdf8 })
         );
         cap.position.y = 1.41;
-        root.add(cap);
+        accessoryGroup.add(cap);
+        const visor = new THREE.Mesh(sharedCapVisorGeo, new THREE.MeshStandardMaterial({ color: role === 'staff' ? 0xeab308 : 0x0284c7 }));
+        visor.position.set(0, 1.36, 0.22);
+        accessoryGroup.add(visor);
+      } else if (hairStyle === 'afro_puffs') {
+        // Iconic double afro puffs with hair band ties
+        const leftPuff = new THREE.Mesh(sharedPuffGeo, hairMat);
+        leftPuff.position.set(-0.16, 1.55, -0.02);
+        const rightPuff = new THREE.Mesh(sharedPuffGeo, hairMat);
+        rightPuff.position.set(0.16, 1.55, -0.02);
+        const tieMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e });
+        const leftTie = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 8), tieMat);
+        leftTie.position.set(-0.14, 1.48, -0.02);
+        const rightTie = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.03, 8), tieMat);
+        rightTie.position.set(0.14, 1.48, -0.02);
+        accessoryGroup.add(leftPuff, rightPuff, leftTie, rightTie);
+      } else if (hairStyle === 'braids') {
+        // Braided crown and hanging ponytail with bead accents
+        const crownBraids = new THREE.Mesh(sharedCapDomeGeo, hairMat);
+        crownBraids.position.y = 1.40;
+        const pony = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 0.42, 6), hairMat);
+        pony.position.set(0, 1.25, -0.22);
+        pony.rotation.x = 0.35;
+        const bead = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), sharedBeadMat);
+        bead.position.set(0, 1.06, -0.28);
+        accessoryGroup.add(crownBraids, pony, bead);
+      } else if (hairStyle === 'fade') {
+        // Clean geometric side fade crop
+        const fade = new THREE.Mesh(sharedFadeGeo, hairMat);
+        fade.position.set(0, 1.46, -0.02);
+        accessoryGroup.add(fade);
+      } else if (hairStyle === 'dreadlocks') {
+        // Dreadlock top bun with metallic brass ring
+        const bun = new THREE.Mesh(sharedDreadBunGeo, hairMat);
+        bun.position.set(0, 1.56, -0.04);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.02, 6, 12), sharedGoldMat);
+        ring.position.set(0, 1.50, -0.04);
+        ring.rotation.x = Math.PI / 2;
+        accessoryGroup.add(bun, ring);
+      } else if (hairStyle === 'headwrap') {
+        // African headscarf (dhuku)
+        const wrapMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.6 });
+        const wrap = new THREE.Mesh(sharedHeadwrapGeo, wrapMat);
+        wrap.position.set(0, 1.44, 0);
+        wrap.rotation.x = Math.PI / 2;
+        const crownWrap = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), wrapMat);
+        crownWrap.position.set(0, 1.52, -0.02);
+        accessoryGroup.add(wrap, crownWrap);
+      } else if (hairStyle === 'sunhat') {
+        // Wide-brim floppy safari sunhat
+        const hatMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.8 });
+        const brim = new THREE.Mesh(sharedSunhatBrimGeo, hatMat);
+        brim.position.set(0, 1.45, 0);
+        const crown = new THREE.Mesh(sharedSunhatCrownGeo, hatMat);
+        crown.position.set(0, 1.53, 0);
+        const band = new THREE.Mesh(new THREE.CylinderGeometry(0.215, 0.225, 0.04, 10), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
+        band.position.set(0, 1.46, 0);
+        accessoryGroup.add(brim, crown, band);
+      } else if (hairStyle === 'cap') {
+        // Baseball cap (facing backwards or forwards)
+        const capColorMat = new THREE.MeshStandardMaterial({ color: pantsHex });
+        const dome = new THREE.Mesh(sharedCapDomeGeo, capColorMat);
+        dome.position.y = 1.41;
+        const visor = new THREE.Mesh(sharedCapVisorGeo, capColorMat);
+        visor.position.set(0, 1.37, gender === 'male' ? -0.22 : 0.22);
+        accessoryGroup.add(dome, visor);
+      } else {
+        // Voluminous textured curls
+        const curls = new THREE.Mesh(new THREE.SphereGeometry(0.24, 8, 8), hairMat);
+        curls.position.set(0, 1.42, -0.04);
+        accessoryGroup.add(curls);
       }
 
-      const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.52, 0.14), shirtMat);
+      // Limbs: Arms & Legs
+      const leftArm = new THREE.Mesh(sharedArmGeo, shirtMat);
       leftArm.position.set(-0.32, 0.85, 0);
       const rightArm = leftArm.clone();
       rightArm.position.x = 0.32;
-      const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.55, 0.17), pantsMat);
-      leftLeg.position.set(-0.13, 0.28, 0);
+
+      const leftLeg = new THREE.Mesh(sharedLegGeo, pantsMat);
+      leftLeg.position.set(-0.13, 0.32, 0);
       const rightLeg = leftLeg.clone();
       rightLeg.position.x = 0.13;
       root.add(leftArm, rightArm, leftLeg, rightLeg);
 
-      if (hasBalloon) {
-        const balloon = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10), new THREE.MeshStandardMaterial({ color: 0xf43f5e }));
-        balloon.position.set(0.38, 2.15, 0);
-        root.add(balloon);
+      // Two-Tone Footwear with contrasting soles
+      const leftShoe = new THREE.Mesh(sharedShoeGeo, shoeMat);
+      leftShoe.position.set(-0.13, 0.08, 0.04);
+      const leftSole = new THREE.Mesh(sharedSoleGeo, sharedSoleMat);
+      leftSole.position.set(-0.13, 0.02, 0.04);
+
+      const rightShoe = new THREE.Mesh(sharedShoeGeo, shoeMat);
+      rightShoe.position.set(0.13, 0.08, 0.04);
+      const rightSole = new THREE.Mesh(sharedSoleGeo, sharedSoleMat);
+      rightSole.position.set(0.13, 0.02, 0.04);
+      root.add(leftShoe, leftSole, rightShoe, rightSole);
+
+      // Handheld Props
+      if (prop === 'marimba_mallets') {
+        // Two mallets held in hands
+        const stickGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.45, 6);
+        const malletHeadGeo = new THREE.SphereGeometry(0.06, 8, 8);
+        const stickLeft = new THREE.Mesh(stickGeo, sharedWoodMat);
+        stickLeft.rotation.x = Math.PI / 3;
+        stickLeft.position.set(-0.25, 0.72, 0.28);
+        const ballLeft = new THREE.Mesh(malletHeadGeo, sharedGoldMat);
+        ballLeft.position.set(-0.25, 0.82, 0.44);
+        const stickRight = stickLeft.clone();
+        stickRight.position.x = 0.25;
+        const ballRight = ballLeft.clone();
+        ballRight.position.x = 0.25;
+        accessoryGroup.add(stickLeft, ballLeft, stickRight, ballRight);
+      } else if (prop === 'microphone') {
+        // Vintage chrome microphone on stand
+        const micStand = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.35, 6), sharedChromeMat);
+        micStand.position.set(0, 0.68, 0.32);
+        const micHead = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), sharedChromeMat);
+        micHead.position.set(0, 1.38, 0.32);
+        accessoryGroup.add(micStand, micHead);
+      } else if (prop === 'guitar') {
+        // Strapped acoustic guitar
+        const guitarBody = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.52, 0.14), sharedWoodMat);
+        guitarBody.position.set(0.08, 0.84, 0.22);
+        guitarBody.rotation.z = -0.35;
+        const guitarNeck = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.45, 0.06), sharedWoodMat);
+        guitarNeck.position.set(-0.16, 1.15, 0.22);
+        guitarNeck.rotation.z = -0.35;
+        accessoryGroup.add(guitarBody, guitarNeck);
+      } else if (prop === 'puppet') {
+        // Lion puppet on left hand
+        const puppetHead = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+        puppetHead.position.set(-0.35, 1.05, 0.15);
+        const puppetMane = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.04, 6, 10), new THREE.MeshStandardMaterial({ color: 0xb45309 }));
+        puppetMane.position.set(-0.35, 1.05, 0.15);
+        accessoryGroup.add(puppetHead, puppetMane);
+      } else if (prop === 'palette') {
+        // Artist palette and paintbrush
+        const palette = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.02, 10), sharedWoodMat);
+        palette.position.set(-0.34, 0.75, 0.18);
+        palette.rotation.x = Math.PI / 4;
+        const pRed = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
+        pRed.position.set(-0.38, 0.78, 0.19);
+        const pBlue = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), new THREE.MeshStandardMaterial({ color: 0x3b82f6 }));
+        pBlue.position.set(-0.32, 0.77, 0.21);
+        accessoryGroup.add(palette, pRed, pBlue);
+      } else if (prop === 'clipboard') {
+        // Science lab clipboard
+        const clip = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.34, 0.02), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }));
+        clip.position.set(0, 0.85, 0.24);
+        accessoryGroup.add(clip);
       }
 
+      if (hasBalloon) {
+        const balloon = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10), new THREE.MeshStandardMaterial({ color: balloonColorHex }));
+        balloon.position.set(0.38, 2.15, 0);
+        const string = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 1.25, 4), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
+        string.position.set(0.35, 1.50, 0);
+        accessoryGroup.add(balloon, string);
+      }
+
+      root.add(accessoryGroup);
+
       torso.userData.personInfo = { roleTitle, label, icon };
-      personClickMeshes.push(torso, head);
+      personClickMeshes.push(torso);
 
       let curve: THREE.CatmullRomCurve3 | undefined = undefined;
       if (pathPts && pathPts.length > 1) {
-        curve = new THREE.CatmullRomCurve3(pathPts.map(([px, pz]) => new THREE.Vector3(px, 0.16, pz)), true);
+        curve = new THREE.CatmullRomCurve3(pathPts.map(([px, pz]) => new THREE.Vector3(px, y, pz)), true);
       }
 
       const agent = {
         root, leftArm, rightArm, leftLeg, rightLeg,
-        baseX: x, baseZ: z, role, behavior, radius: 1.8, speed,
-        curve, progress: Math.random(), phase: Math.random() * Math.PI * 2
+        baseX: x, baseY: y, baseZ: z, role, gender, behavior, radius: 1.8, speed,
+        curve, progress: Math.random(), phase: Math.random() * Math.PI * 2,
+        accessories: accessoryGroup
       };
       animatedAgents.push(agent);
       crowdGroup.add(root);
       return agent;
     };
 
-    const createStrollerPair = (x: number, z: number, pathPts: number[][], label: string) => {
+    const createStrollerPair = (
+      x: number, z: number, pathPts: number[][], label: string,
+      parentGender: 'female' | 'male' = 'female', skinToneIdx: number = 1
+    ) => {
       const parent = createArticulatedPerson({
-        x, z, role: 'adult', shirtHex: 0xec4899, pantsHex: 0x1e293b,
+        x, z, role: 'adult', gender: parentGender, skinToneIdx,
+        bodyType: parentGender === 'female' ? 'curvy' : 'athletic',
+        shirtHex: parentGender === 'female' ? 0xec4899 : 0x0284c7,
+        pantsHex: 0x1e293b, shoeHex: 0xf8fafc,
         behavior: 'path', pathPts, speed: 0.75,
-        roleTitle: 'Parent with Stroller', label, icon: '🚼'
+        roleTitle: parentGender === 'female' ? 'Mother with Stroller' : 'Father with Stroller',
+        label, icon: '🚼'
       });
       const pram = new THREE.Group();
       pram.position.set(0, 0, 0.68);
@@ -1571,100 +2166,253 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       parent.root.add(pram);
     };
 
-    // Populate full 148-person festival crowd across sectors:
-    // Babies & Carers
-    [
-      [-34, -6], [-31, -8], [-27, -5], [-24, -7], [-38, 2.5], [-29, 2.5], [-22, -3], [-35, -10],
-      [-33, -4], [-26, -9], [-21, -6], [-37, -3]
-    ].forEach(([bx, bz], i) => {
+    // =========================================================================
+    // POPULATE 148 ATTENDEES WITH MULTI-RACIAL DIVERSITY, GENDER & BODY VARIETY
+    // =========================================================================
+
+    // Sector 1: The Little Garden Babies & Early-Years Carers (12 Toddlers + 6 Carers)
+    const babyCoords = [
+      [-34, -6], [-31, -8], [-27, -5], [-24, -7], [-38, 2.5], [-29, 2.5],
+      [-22, -3], [-35, -10], [-33, -4], [-26, -9], [-21, -6], [-37, -3]
+    ];
+    babyCoords.forEach(([bx, bz], i) => {
+      const isGirl = i % 2 === 0;
       createArticulatedPerson({
-        x: bx, z: bz, role: 'baby', shirtHex: softPlayColors[i % softPlayColors.length],
+        x: bx, z: bz, role: 'baby', gender: isGirl ? 'female' : 'male',
+        skinToneIdx: i % 6,
+        bodyType: 'petite',
+        hairStyle: isGirl ? 'afro_puffs' : 'fade',
+        hairColorIdx: i % 4,
+        shirtHex: softPlayColors[i % softPlayColors.length],
+        pantsHex: softPlayColors[(i + 2) % softPlayColors.length],
+        shoeHex: 0xf8fafc,
         behavior: i % 2 === 0 ? 'crawl' : 'bounce', speed: 1.5,
-        roleTitle: 'Toddler (6M–2Y)', label: 'Playing on Baby Garden Soft-Play Mats', icon: '👶'
-      });
-    });
-    [[-33, -5], [-25, -6], [-30, 1], [-20, -4], [-28, -2], [-35, -8]].forEach(([ax, az]) => {
-      createArticulatedPerson({
-        x: ax, z: az, role: 'adult', shirtHex: 0x10b981, behavior: 'walk',
-        roleTitle: 'Early-Years Carer', label: 'Supervising Toddlers in The Little Garden', icon: '🧑'
+        roleTitle: isGirl ? 'Toddler Girl (6M–2Y)' : 'Toddler Boy (6M–2Y)',
+        label: 'Playing on Baby Garden Soft-Play Mats', icon: '👶'
       });
     });
 
-    // Roller Skaters
+    // 6 Adult Early-Years Carers (3 Female, 3 Male, Diverse Skin Tones)
+    [
+      { x: -33, z: -5, gender: 'female', skin: 0, hair: 'braids', body: 'curvy' },
+      { x: -25, z: -6, gender: 'male',   skin: 2, hair: 'fade',   body: 'sturdy' },
+      { x: -30, z:  1, gender: 'female', skin: 3, hair: 'headwrap', body: 'slender' },
+      { x: -20, z: -4, gender: 'male',   skin: 1, hair: 'dreadlocks', body: 'athletic' },
+      { x: -28, z: -2, gender: 'female', skin: 4, hair: 'curls',   body: 'petite' },
+      { x: -35, z: -8, gender: 'male',   skin: 5, hair: 'cap',     body: 'athletic' }
+    ].forEach((c, idx) => {
+      createArticulatedPerson({
+        x: c.x, z: c.z, role: 'adult', gender: c.gender as 'female' | 'male',
+        skinToneIdx: c.skin, bodyType: c.body as any,
+        hairStyle: c.hair as any,
+        shirtHex: 0x10b981, pantsHex: 0x1e293b, shoeHex: 0xf8fafc,
+        behavior: 'walk',
+        roleTitle: c.gender === 'female' ? 'Early-Years Carer (Female)' : 'Early-Years Carer (Male)',
+        label: 'Supervising Toddlers in The Little Garden', icon: '🧑'
+      });
+    });
+
+    // Sector 2: Creative Zone Roller Skaters & Craft Artists (6 Skaters + 6 Painters)
     const skateLoopPts = [[-37.5, 32], [-33, 30.8], [-32.5, 34], [-37, 35]];
     for (let s = 0; s < 6; s++) {
+      const isGirl = s % 2 === 0;
       createArticulatedPerson({
-        x: -35, z: 33, role: 'kid', shirtHex: flagColors[s % flagColors.length],
+        x: -35, z: 33, role: 'kid', gender: isGirl ? 'female' : 'male',
+        skinToneIdx: (s * 2) % 6, bodyType: isGirl ? 'slender' : 'athletic',
+        hairStyle: isGirl ? 'braids' : 'fade',
+        shirtHex: flagColors[s % flagColors.length], pantsHex: 0x1e293b, shoeHex: 0x38bdf8,
         behavior: 'path', pathPts: skateLoopPts, speed: 1.8 + (s % 2) * 0.3, hasHelmet: true,
-        roleTitle: 'Skater Kid (3–6Y)', label: 'Roller-Skating in Creative Zone Rink', icon: '⛸️'
+        roleTitle: isGirl ? 'Junior Roller Skater (Girl)' : 'Junior Roller Skater (Boy)',
+        label: 'Roller Skating on Smooth Asphalt Track', icon: '🛼'
       });
     }
 
-    // Adventure Zone Bouncing Kids & Picnic Families
+    // Creative Craft Young Artists with palettes & brushes
     [
-      [9.5, -34], [10.2, -35], [18.2, -31], [19.0, -30.5], [0.5, -24.5], [1.2, -24], [18.0, -21], [17.4, -21.5],
-      [6.5, -26], [12.5, -25], [14.0, -28], [4.5, -29], [8.0, -31], [16.5, -27], [2.5, -26], [19.5, -24]
-    ].forEach(([kx, kz], idx) => {
+      [-31, 37], [-29, 39], [-34, 41], [-28, 36], [-30, 42], [-33, 38]
+    ].forEach(([cx, cz], idx) => {
+      const isFemale = idx % 2 === 0;
       createArticulatedPerson({
-        x: kx, z: kz, role: 'kid', shirtHex: flagColors[idx % flagColors.length],
-        behavior: 'bounce', speed: 2.2, hasBalloon: idx % 3 === 0,
-        roleTitle: 'Child (3–6 Yrs)', label: 'Jumping in Adventure Zone Bouncy Castles', icon: '🧒'
+        x: cx, z: cz, role: 'kid', gender: isFemale ? 'female' : 'male',
+        skinToneIdx: (idx + 1) % 6, bodyType: 'petite',
+        hairStyle: isFemale ? 'afro_puffs' : 'cap',
+        shirtHex: flagColors[(idx + 3) % flagColors.length], pantsHex: 0x334155,
+        behavior: 'walk', prop: 'palette',
+        roleTitle: isFemale ? 'Young Artist (Girl)' : 'Young Artist (Boy)',
+        label: 'Painting & Craft Workshop in Creative Zone', icon: '🎨'
       });
     });
 
-    // Stage Performers & Cheering Audience
-    [[-2.2, -1.5], [0, -1.2], [2.2, -1.5]].forEach(([px, pz]) => {
+    // Sector 3: Adventure Zone Bouncing Kids & Picnic Families
+    // 8 Kids actively bouncing inside the 4 bouncy castles (on mattress at y = 1.26)
+    [
+      { x:  9.5, z: -34.5, y: 1.26, gender: 'female', skin: 0, hair: 'afro_puffs' },
+      { x: 10.2, z: -34.0, y: 1.26, gender: 'male',   skin: 1, hair: 'fade' },
+      { x: 18.5, z: -31.0, y: 1.26, gender: 'female', skin: 2, hair: 'curls' },
+      { x: 19.0, z: -30.5, y: 1.26, gender: 'male',   skin: 3, hair: 'cap' },
+      { x:  0.5, z: -24.5, y: 1.26, gender: 'female', skin: 4, hair: 'braids' },
+      { x:  1.2, z: -24.0, y: 1.26, gender: 'male',   skin: 5, hair: 'fade' },
+      { x: 18.0, z: -21.0, y: 1.26, gender: 'female', skin: 1, hair: 'afro_puffs' },
+      { x: 17.4, z: -20.5, y: 1.26, gender: 'male',   skin: 2, hair: 'short_locs' }
+    ].forEach((k, idx) => {
       createArticulatedPerson({
-        x: 10 + px, z: pz, role: 'adult', shirtHex: 0xa855f7, pantsHex: 0xfacc15,
-        behavior: 'dance', speed: 2.5, roleTitle: 'Stage Performer',
-        label: 'Performing Live Music & Puppet Show on Stage', icon: '🎸'
+        x: k.x, z: k.z, y: k.y, role: 'kid', gender: k.gender as 'female' | 'male',
+        skinToneIdx: k.skin, bodyType: 'athletic',
+        hairStyle: k.hair as any,
+        shirtHex: flagColors[idx % flagColors.length], pantsHex: 0x0f172a, shoeHex: 0xfacc15,
+        behavior: 'bounce', speed: 2.2, hasBalloon: idx % 2 === 0,
+        balloonColorHex: flagColors[(idx + 2) % flagColors.length],
+        roleTitle: k.gender === 'female' ? 'Child (Girl 3–6Y)' : 'Child (Boy 3–6Y)',
+        label: 'Jumping on Adventure Zone Inflatable Mattress', icon: '🧒'
       });
     });
+
+    // 8 Picnic families and lawn attendees around bouncy castle grounds (y = 0.16)
+    [
+      { x:  6.5, z: -26, gender: 'female', skin: 0, body: 'curvy',   shirt: 0xec4899 },
+      { x: 12.5, z: -25, gender: 'male',   skin: 1, body: 'sturdy',  shirt: 0x3b82f6 },
+      { x: 14.0, z: -28, gender: 'female', skin: 2, body: 'slender', shirt: 0xf59e0b },
+      { x:  4.5, z: -29, gender: 'male',   skin: 3, body: 'athletic',shirt: 0x10b981 },
+      { x:  8.0, z: -31, gender: 'female', skin: 4, body: 'petite',  shirt: 0x8b5cf6 },
+      { x: 16.5, z: -27, gender: 'male',   skin: 5, body: 'slender', shirt: 0x06b6d4 },
+      { x:  2.5, z: -26, gender: 'female', skin: 1, body: 'athletic',shirt: 0xf43f5e },
+      { x: 19.5, z: -24, gender: 'male',   skin: 0, body: 'curvy',   shirt: 0x14b8a6 }
+    ].forEach((p, idx) => {
+      createArticulatedPerson({
+        x: p.x, z: p.z, y: 0.16, role: 'adult', gender: p.gender as 'female' | 'male',
+        skinToneIdx: p.skin, bodyType: p.body as any,
+        hairStyle: p.gender === 'female' ? 'headwrap' : 'fade',
+        shirtHex: p.shirt, pantsHex: 0x1e293b, shoeHex: 0xf8fafc,
+        behavior: 'bounce', speed: 1.8,
+        roleTitle: p.gender === 'female' ? 'Parent / Carer (Female)' : 'Parent / Carer (Male)',
+        label: 'Relaxing on Adventure Lawn Picnic Area', icon: '🧑'
+      });
+    });
+
+    // Sector 4: Celebration Stage Live Performers (Standing ON Stage Platform Deck at y = 1.33)
+    [
+      {
+        x: 7.2, z: -1.1, role: 'adult', gender: 'male', skin: 0, body: 'athletic',
+        hair: 'dreadlocks', shirt: 0x10b981, prop: 'marimba_mallets',
+        title: 'Marimba Maestro (Male)', label: 'Playing Acoustic Zimbabwean Marimba on Stage', icon: '🎵'
+      },
+      {
+        x: 10.0, z: -0.3, role: 'adult', gender: 'female', skin: 1, body: 'curvy',
+        hair: 'braids', shirt: 0xa855f7, prop: 'microphone',
+        title: 'Lead Vocalist (Female)', label: 'Singing & Welcoming Families at Stage Center Mic', icon: '🎤'
+      },
+      {
+        x: 12.2, z: -1.2, role: 'adult', gender: 'male', skin: 2, body: 'slender',
+        hair: 'fade', shirt: 0xf59e0b, prop: 'guitar',
+        title: 'Acoustic Guitarist (Male)', label: 'Playing Live Acoustic Guitar on Stage', icon: '🎸'
+      },
+      {
+        x: 8.8, z: -1.0, role: 'adult', gender: 'female', skin: 3, body: 'petite',
+        hair: 'afro_puffs', shirt: 0xec4899, prop: 'puppet',
+        title: 'Puppet Theater Animator (Female)', label: 'Performing Gentle Magic & Storytelling on Stage', icon: '🎪'
+      }
+    ].forEach(p => {
+      createArticulatedPerson({
+        x: p.x, z: p.z, y: 1.33, role: p.role as any, gender: p.gender as 'female' | 'male',
+        skinToneIdx: p.skin, bodyType: p.body as any, hairStyle: p.hair as any,
+        shirtHex: p.shirt, pantsHex: 0x0f172a, shoeHex: 0xf8fafc,
+        behavior: 'dance', speed: 2.4, prop: p.prop as any,
+        roleTitle: p.title, label: p.label, icon: p.icon
+      });
+    });
+
+    // Audience Cheering & Dancing in front of Stage (y = 0.16) - 16 balanced men, women, and kids
     for (let c = 0; c < 16; c++) {
       const cx = 5.5 + (c % 8) * 1.4;
       const cz = 3.8 + Math.floor(c / 8) * 2.2;
+      const isFemale = c % 2 === 0;
+      const isKid = c % 3 === 0;
       createArticulatedPerson({
-        x: cx, z: cz, role: c % 2 === 0 ? 'kid' : 'adult',
-        shirtHex: flagColors[c % flagColors.length], behavior: 'dance', speed: 1.9, hasBalloon: c % 4 === 0,
-        roleTitle: c % 2 === 0 ? 'Child (3–6Y)' : 'Parent', label: 'Dancing & Cheering at Celebration Stage', icon: '🎶'
+        x: cx, z: cz, y: 0.16,
+        role: isKid ? 'kid' : 'adult',
+        gender: isFemale ? 'female' : 'male',
+        skinToneIdx: c % 6,
+        bodyType: isKid ? 'petite' : (c % 4 === 0 ? 'sturdy' : c % 4 === 1 ? 'slender' : 'curvy'),
+        hairStyle: isFemale ? (c % 3 === 0 ? 'afro_puffs' : 'braids') : (c % 2 === 0 ? 'fade' : 'cap'),
+        shirtHex: flagColors[c % flagColors.length], pantsHex: 0x1e293b, shoeHex: 0xf8fafc,
+        behavior: 'dance', speed: 1.9, hasBalloon: c % 4 === 0,
+        balloonColorHex: flagColors[(c + 1) % flagColors.length],
+        roleTitle: isKid ? (isFemale ? 'Dancing Girl (Kid)' : 'Dancing Boy (Kid)') : (isFemale ? 'Audience (Female)' : 'Audience (Male)'),
+        label: 'Dancing & Cheering at Celebration Stage', icon: '🎶'
       });
     }
 
-    // STEM Kids & Educators
-    [[23, 3.5], [25, 4.2], [21.5, 5.5], [24.2, 6.0], [26, 2.5], [27, 4.5]].forEach(([dx, dz], idx) => {
+    // Sector 5: Discovery World STEM Pavilion & Giant Chess
+    // 2 STEM Educators (1 Female Lead, 1 Male Assistant) + 6 Explorer Kids
+    createArticulatedPerson({
+      x: 23.0, z: 3.5, role: 'staff', gender: 'female', skinToneIdx: 1, bodyType: 'slender',
+      hairStyle: 'braids', shirtHex: 0xf8fafc, pantsHex: 0x1e293b, shoeHex: 0x0284c7,
+      behavior: 'walk', prop: 'clipboard',
+      roleTitle: 'STEM Lead Educator (Female)',
+      label: 'Guiding Hands-On Robotics & Science Experiments', icon: '🔬'
+    });
+    createArticulatedPerson({
+      x: 25.0, z: 4.2, role: 'staff', gender: 'male', skinToneIdx: 3, bodyType: 'athletic',
+      hairStyle: 'fade', shirtHex: 0xf8fafc, pantsHex: 0x334155, shoeHex: 0x0f172a,
+      behavior: 'walk', prop: 'clipboard',
+      roleTitle: 'STEM Lab Assistant (Male)',
+      label: 'Demonstrating Giant Lawn Chess Tactics', icon: '♟️'
+    });
+    // 6 Explorer Kids (3 Girls, 3 Boys)
+    [[21.5, 5.5], [24.2, 6.0], [26.0, 2.5], [27.0, 4.5], [22.8, 7.0], [25.5, 6.8]].forEach(([dx, dz], idx) => {
+      const isGirl = idx % 2 === 0;
       createArticulatedPerson({
-        x: dx, z: dz, role: idx === 0 ? 'staff' : 'kid', shirtHex: idx === 0 ? 0xf8fafc : 0xec4899,
-        behavior: 'walk', roleTitle: idx === 0 ? 'STEM Educator' : 'Explorer Kid (3–6Y)',
-        label: 'Hands-On Science & Giant Lawn Chess', icon: '🔬'
+        x: dx, z: dz, role: 'kid', gender: isGirl ? 'female' : 'male',
+        skinToneIdx: (idx + 2) % 6, bodyType: 'athletic',
+        hairStyle: isGirl ? 'afro_puffs' : 'cap',
+        shirtHex: flagColors[(idx + 4) % flagColors.length], pantsHex: 0x1e293b,
+        behavior: 'walk',
+        roleTitle: isGirl ? 'Explorer Girl (3–6Y)' : 'Explorer Boy (3–6Y)',
+        label: 'Discovering Giant Lawn Chess & Fossil Digs', icon: '🔍'
       });
     });
 
-    // Safety Marshals & Welcome Hosts
+    // Sector 6: Safety Marshals & Welcome Hosts (3 Female, 3 Male)
     ([
-      [-35, 39, 'Welcome Host at Main Entrance Gate'],
-      [-26, 23, 'Certified Pool Perimeter Lifeguard'],
-      [-31, -19, 'Fish Pond Perimeter Safety Marshal'],
-      [12, 34, 'Traffic Marshal at Vehicular Exit Gate'],
-      [25, -13, 'Catering & Refreshment Host'],
-      [14, -18, 'Inflatables Safety Marshal']
-    ] as [number, number, string][]).forEach(([sx, sz, desc]) => {
+      [-35, 39, 'female', 'Welcome Host at Main Entrance Gate (Female)', 0, 'braids'],
+      [-26, 23, 'male',   'Certified Pool Perimeter Lifeguard (Male)', 2, 'fade'],
+      [-31, -19, 'female', 'Fish Pond Safety Marshal (Female)', 1, 'headwrap'],
+      [ 12, 34, 'male',   'Traffic Marshal at Vehicular Exit Gate (Male)', 3, 'cap'],
+      [ 25, -13, 'female', 'Catering & Refreshment Host (Female)', 4, 'sunhat'],
+      [ 14, -18, 'male',   'Inflatables Safety Marshal (Male)', 5, 'fade']
+    ] as [number, number, 'female' | 'male', string, number, any][]).forEach(([sx, sz, gender, desc, skin, hair]) => {
       createArticulatedPerson({
-        x: sx, z: sz, role: 'staff', shirtHex: 0xf97316, behavior: 'walk',
-        roleTitle: 'Safety / Event Staff', label: desc, icon: '🦺'
+        x: sx, z: sz, role: 'staff', gender, skinToneIdx: skin, bodyType: 'athletic',
+        hairStyle: hair, shirtHex: 0xf97316, pantsHex: 0x1e293b, shoeHex: 0x0f172a,
+        behavior: 'walk',
+        roleTitle: `Safety Marshal (${gender === 'female' ? 'Female' : 'Male'})`,
+        label: desc, icon: '🦺'
       });
     });
 
-    // Walking Flow Spine Visitors & Strollers
+    // Sector 7: Walking Flow Spine Visitors & Strollers (12 Walkers + 2 Stroller Pairs)
     const mainWalkLoop = [[-36, 38], [-28, 25], [-13, 21], [-5, 15], [0, 8], [8, 12], [22, 10], [0, 8], [-13, 21], [-28, 25]];
     for (let w = 0; w < 12; w++) {
+      const isFemale = w % 2 === 0;
+      const isKid = w % 4 === 0;
       createArticulatedPerson({
-        x: -25, z: 25, role: w % 3 === 0 ? 'kid' : 'adult', shirtHex: flagColors[w % flagColors.length],
+        x: -25, z: 25,
+        role: isKid ? 'kid' : 'adult',
+        gender: isFemale ? 'female' : 'male',
+        skinToneIdx: w % 6,
+        bodyType: isKid ? 'petite' : (w % 3 === 0 ? 'slender' : w % 3 === 1 ? 'curvy' : 'sturdy'),
+        hairStyle: isFemale ? (w % 2 === 0 ? 'afro_puffs' : 'sunhat') : (w % 2 === 0 ? 'fade' : 'cap'),
+        shirtHex: flagColors[w % flagColors.length], pantsHex: 0x1e293b, shoeHex: 0xf8fafc,
         behavior: 'path', pathPts: mainWalkLoop, speed: 0.7 + (w % 3) * 0.15, hasBalloon: w % 3 === 0,
-        roleTitle: 'Festival Visitor', label: 'Walking Along Main Dotted Flow Spine', icon: '🚶'
+        balloonColorHex: flagColors[(w + 3) % flagColors.length],
+        roleTitle: isKid ? (isFemale ? 'Festival Girl Visitor' : 'Festival Boy Visitor') : (isFemale ? 'Festival Attendee (Female)' : 'Festival Attendee (Male)'),
+        label: 'Walking Along Main Dotted Flow Spine', icon: '🚶'
       });
     }
-    createStrollerPair(-30, 27, mainWalkLoop, 'Strolling Along Parents Lounge Promenade');
-    createStrollerPair(-14, -4, [[-15, -3], [-12, -6], [-16, -8], [-18, -4]], 'Arriving at Little Garden Stroller Bay');
+
+    // Two Stroller Pairs: Mother pushing pram & Father pushing pram
+    createStrollerPair(-30, 27, mainWalkLoop, 'Mother Strolling Along Parents Lounge Promenade', 'female', 1);
+    createStrollerPair(-14, -4, [[-15, -3], [-12, -6], [-16, -8], [-18, -4]], 'Father Arriving at Little Garden Stroller Bay', 'male', 3);
 
     // 7. SVG Wedges & DOM Callout Badges
     svgLayer.innerHTML = '';
@@ -1720,35 +2468,61 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       };
     });
 
-    // 8. Raycasting for Zone & Person Clicks
+    // 8. Raycasting for Zone & Person Clicks (Click vs Orbit Drag disambiguation)
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
-    const handlePointerDown = (e: MouseEvent) => {
+    let pointerDownX = 0;
+    let pointerDownY = 0;
+    let pointerDownTime = 0;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      pointerDownX = e.clientX;
+      pointerDownY = e.clientY;
+      pointerDownTime = performance.now();
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      const dist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
+      const duration = performance.now() - pointerDownTime;
+
+      // Ignore drags/orbits (> 6px movement or held longer than 450ms) so orbit controls never stutter
+      if (dist > 6 || duration > 450) {
+        return;
+      }
+
+      // Stop any scripted camera flight when tapping
+      camAnim = null;
+
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
 
-      const personHits = raycaster.intersectObjects(personClickMeshes);
+      const personHits = raycaster.intersectObjects(personClickMeshes, false);
       if (personHits.length > 0 && personHits[0].object.userData.personInfo) {
         const info = personHits[0].object.userData.personInfo;
         setInspectedPerson(info);
-        setPersonScreenPos({ x: e.clientX, y: e.clientY });
+        const clampedX = Math.max(140, Math.min(window.innerWidth - 140, e.clientX));
+        const clampedY = Math.max(110, Math.min(window.innerHeight - 80, e.clientY));
+        setPersonScreenPos({ x: clampedX, y: clampedY });
         return;
       }
 
-      const zoneHits = raycaster.intersectObjects(clickableMeshes);
+      const zoneHits = raycaster.intersectObjects(clickableMeshes, false);
       if (zoneHits.length > 0 && zoneHits[0].object.userData.zoneId) {
         const zId = zoneHits[0].object.userData.zoneId;
         onSelectZone(zId);
         const z = ZONES_DATA[zId];
-        if (z) animateCameraTo(new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z), new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z), 1000);
+        if (z) animateCameraTo(new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z), new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z), 800);
       } else {
         setInspectedPerson(null);
+        onDeselectZone?.();
       }
     };
+
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
+    renderer.domElement.addEventListener('pointerup', handlePointerUp);
 
     // 9. Close-Up Activity Cams
     const focusActivityCam = (key: string) => {
@@ -1768,19 +2542,25 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       if (p) animateCameraTo(new THREE.Vector3(p.pos.x, p.pos.y, p.pos.z), new THREE.Vector3(p.look.x, p.look.y, p.look.z), 950);
     };
 
-    // 10. Animation Loop
+    // 10. Animation Loop (Cached dimensions & zero layout-thrashing reflows)
     let animId: number;
     const clock = new THREE.Clock();
 
+    let cachedW = container.clientWidth || window.innerWidth;
+    let cachedH = container.clientHeight || window.innerHeight;
+    const tempProjVec = new THREE.Vector3();
+
     const projectToScreen = (vec3: THREE.Vector3) => {
-      const v = vec3.clone().project(camera);
-      const rect = renderer.domElement.getBoundingClientRect();
+      tempProjVec.copy(vec3).project(camera);
       return {
-        x: (v.x * 0.5 + 0.5) * rect.width,
-        y: (-(v.y * 0.5) + 0.5) * rect.height,
-        visible: v.z < 1
+        x: (tempProjVec.x * 0.5 + 0.5) * cachedW,
+        y: (-(tempProjVec.y * 0.5) + 0.5) * cachedH,
+        visible: tempProjVec.z < 1
       };
     };
+
+    const lastCamPos = new THREE.Vector3(0, 0, 0);
+    const lastTarget = new THREE.Vector3(0, 0, 0);
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
@@ -1828,26 +2608,37 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         exitBeaconMesh.material.emissiveIntensity = 0.5 + Math.abs(Math.sin(elapsed * 6)) * 0.9;
       }
 
-      // Animated agents path walking and bounce
+      // Dynamic Detail Scaling (LOD Engine):
+      // When camera is actively navigating (dragging, panning, orbiting) or for distant spectators,
+      // dynamically hide accessory sub-nodes to guarantee a locked 60 FPS without lag.
+      const isActivelyNavigating = (controls as any).state !== -1 || camAnim !== null;
+      const camPos = camera.position;
+
+      // Animated agents path walking and bounce with Dynamic LOD
       animatedAgents.forEach(ag => {
         if (!ag.root.visible) return;
+        if (ag.accessories) {
+          const distSq = ag.root.position.distanceToSquared(camPos);
+          const maxDistSq = isActivelyNavigating ? 1444 : 4225; // 38^2 and 65^2
+          ag.accessories.visible = distSq < maxDistSq;
+        }
         const t = elapsed * ag.speed + ag.phase;
         if (ag.behavior === 'path' && ag.curve) {
           ag.progress = (ag.progress + 0.00055 * ag.speed) % 1;
           const pt = ag.curve.getPointAt(ag.progress);
           const lookPt = ag.curve.getPointAt((ag.progress + 0.01) % 1);
-          ag.root.position.set(pt.x, 0.16, pt.z);
-          ag.root.lookAt(lookPt.x, 0.16, lookPt.z);
+          ag.root.position.set(pt.x, ag.baseY, pt.z);
+          ag.root.lookAt(lookPt.x, ag.baseY, lookPt.z);
           ag.leftLeg.rotation.x = Math.sin(t * 6) * 0.45;
           ag.rightLeg.rotation.x = -Math.sin(t * 6) * 0.45;
           ag.leftArm.rotation.x = -Math.sin(t * 6) * 0.35;
           ag.rightArm.rotation.x = Math.sin(t * 6) * 0.35;
         } else if (ag.behavior === 'bounce') {
-          ag.root.position.y = 0.16 + Math.abs(Math.sin(t * 4.2)) * 0.45;
+          ag.root.position.y = ag.baseY + Math.abs(Math.sin(t * 4.2)) * 0.45;
           ag.leftArm.rotation.z = Math.sin(t * 4.2) * 0.6 + 0.5;
           ag.rightArm.rotation.z = -Math.sin(t * 4.2) * 0.6 - 0.5;
         } else if (ag.behavior === 'dance') {
-          ag.root.position.y = 0.16 + Math.abs(Math.sin(t * 5)) * 0.18;
+          ag.root.position.y = ag.baseY + Math.abs(Math.sin(t * 5)) * 0.18;
           ag.root.rotation.y = Math.sin(t * 2.5) * 0.45;
           ag.leftArm.rotation.x = Math.sin(t * 5) * 0.8;
           ag.rightArm.rotation.x = -Math.sin(t * 5) * 0.8;
@@ -1860,36 +2651,53 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         }
       });
 
-      // Update 2D Callouts overlay
-      calloutRuntimes.forEach(c => {
-        if (c.hiddenByFilter) {
-          c.badgeEl.style.display = 'none';
-          c.polyEl.style.display = 'none';
-          return;
-        }
-        const aPt = projectToScreen(c.anchorVec);
-        const lPt = projectToScreen(c.labelVec);
+      // Update 2D Callouts overlay only when camera or target has moved (avoids 100% idle DOM thrashing)
+      const camMoved =
+        Math.abs(camera.position.x - lastCamPos.x) > 0.005 ||
+        Math.abs(camera.position.y - lastCamPos.y) > 0.005 ||
+        Math.abs(camera.position.z - lastCamPos.z) > 0.005 ||
+        Math.abs(controls.target.x - lastTarget.x) > 0.005 ||
+        Math.abs(controls.target.y - lastTarget.y) > 0.005 ||
+        Math.abs(controls.target.z - lastTarget.z) > 0.005;
 
-        if (!aPt.visible || !lPt.visible) {
-          c.badgeEl.style.display = 'none';
-          c.polyEl.style.display = 'none';
-          return;
-        }
+      if (camMoved) {
+        lastCamPos.copy(camera.position);
+        lastTarget.copy(controls.target);
 
-        c.badgeEl.style.display = 'inline-flex';
-        c.polyEl.style.display = 'block';
-        c.badgeEl.style.left = `${lPt.x}px`;
-        c.badgeEl.style.top = `${lPt.y}px`;
+        calloutRuntimes.forEach(c => {
+          if (c.hiddenByFilter) {
+            c.badgeEl.style.display = 'none';
+            c.polyEl.style.display = 'none';
+            return;
+          }
+          const aPt = projectToScreen(c.anchorVec);
+          const lPt = projectToScreen(c.labelVec);
 
-        const dx = aPt.x - lPt.x;
-        const dy = aPt.y - lPt.y;
-        const len = Math.hypot(dx, dy) || 1;
-        const baseWidth = 6.0;
-        const nx = (-dy / len) * baseWidth;
-        const ny = (dx / len) * baseWidth;
-        c.polyEl.setAttribute('points', `${lPt.x + nx},${lPt.y + ny} ${lPt.x - nx},${lPt.y - ny} ${aPt.x},${aPt.y}`);
-      });
+          if (!aPt.visible || !lPt.visible) {
+            c.badgeEl.style.display = 'none';
+            c.polyEl.style.display = 'none';
+            return;
+          }
 
+          c.badgeEl.style.display = 'inline-flex';
+          c.polyEl.style.display = 'block';
+          c.badgeEl.style.left = `${Math.round(lPt.x)}px`;
+          c.badgeEl.style.top = `${Math.round(lPt.y)}px`;
+
+          const dx = aPt.x - lPt.x;
+          const dy = aPt.y - lPt.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const baseWidth = 6.0;
+          const nx = (-dy / len) * baseWidth;
+          const ny = (dx / len) * baseWidth;
+          c.polyEl.setAttribute(
+            'points',
+            `${Math.round(lPt.x + nx)},${Math.round(lPt.y + ny)} ${Math.round(lPt.x - nx)},${Math.round(lPt.y - ny)} ${Math.round(aPt.x)},${Math.round(aPt.y)}`
+          );
+        });
+      }
+
+      // Clean, crystal-clear direct 3D rendering with true colors and no glare
       renderer.render(scene, camera);
     };
 
@@ -1897,11 +2705,12 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
     const handleResize = () => {
       if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
+      cachedW = container.clientWidth;
+      cachedH = container.clientHeight;
+      camera.aspect = cachedW / cachedH;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      renderer.setSize(cachedW, cachedH);
+      lastCamPos.set(0, 0, 0); // Force callouts refresh on resize
     };
     window.addEventListener('resize', handleResize);
 
@@ -1938,6 +2747,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       clearInterval(bbTimer);
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
+      renderer.domElement.removeEventListener('pointerup', handlePointerUp);
       renderer.dispose();
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
@@ -1954,6 +2764,25 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     }
   }, [activeZoneId]);
 
+  // Auto-dismiss inspected person popup after 4 seconds
+  useEffect(() => {
+    if (!inspectedPerson) return;
+    const timer = setTimeout(() => {
+      setInspectedPerson(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [inspectedPerson]);
+
+  // When Cinema Mode (3D Map View) is entered, force viewport dimension recalculation and redraw
+  useEffect(() => {
+    if (isCinemaMode) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isCinemaMode]);
+
   return (
     <div className={`relative overflow-hidden select-none bg-[#141e18] ${className}`}>
       {/* 3D WebGL Canvas Container */}
@@ -1965,22 +2794,51 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       {/* HTML Callout Badges Layer */}
       <div ref={domOverlayRef} className="absolute inset-0 w-full h-full pointer-events-none z-11" />
 
-      {/* Floating Person / Activity Inspector Pill */}
+      {/* Subtle depth vignette (clear, airy, zero glare) */}
+      <div
+        className="absolute inset-0 pointer-events-none z-12"
+        style={{
+          background: `
+            linear-gradient(to bottom,
+              rgba(10, 15, 20, 0.05) 0%,
+              transparent 12%,
+              transparent 88%,
+              rgba(10, 15, 20, 0.06) 100%
+            )
+          `
+        }}
+      />
+      {/* Soft atmospheric tilt-shift perimeter blur bars */}
+      <div
+        className="absolute top-0 left-0 right-0 h-14 pointer-events-none z-12 backdrop-blur-[1px] [mask-image:linear-gradient(to_bottom,black,transparent)]"
+      />
+      <div
+        className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none z-12 backdrop-blur-[1px] [mask-image:linear-gradient(to_top,black,transparent)]"
+      />
+
+      {/* Floating Person / Activity Inspector Pill with translucent glass */}
       {inspectedPerson && personScreenPos && (
         <div
-          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full pb-3"
+          className="fixed z-[65] pointer-events-auto transform -translate-x-1/2 -translate-y-full pb-3 animate-in fade-in zoom-in-95 duration-150"
           style={{ left: `${personScreenPos.x}px`, top: `${personScreenPos.y}px` }}
         >
-          <div className="bg-slate-950/95 text-white px-3.5 py-2 rounded-xl border-2 border-amber-400 shadow-2xl flex items-center gap-2.5 min-w-[200px]">
-            <span className="text-xl">{inspectedPerson.icon}</span>
-            <div>
-              <div className="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">
+          <div className="bg-slate-950/75 backdrop-blur-md text-white pl-3.5 pr-2 py-2 rounded-2xl border-2 border-amber-400/85 shadow-2xl flex items-center gap-2.5 max-w-[280px] sm:max-w-xs">
+            <span className="text-xl shrink-0">{inspectedPerson.icon}</span>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 truncate">
                 {inspectedPerson.roleTitle}
               </div>
-              <div className="text-xs font-semibold text-slate-100 mt-0.5">
+              <div className="text-xs font-semibold text-slate-100 mt-0.5 line-clamp-2">
                 {inspectedPerson.label}
               </div>
             </div>
+            <button
+              onClick={() => setInspectedPerson(null)}
+              className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer shrink-0 ml-1"
+              aria-label="Dismiss person details"
+            >
+              <span className="text-xs font-bold leading-none">&times;</span>
+            </button>
           </div>
         </div>
       )}

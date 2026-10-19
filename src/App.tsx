@@ -8,13 +8,14 @@ import { TheLittleFarmView } from './components/TheLittleFarmView';
 import { ZoneInspectorDrawer } from './components/ZoneInspectorDrawer';
 import { BookingModal } from './components/BookingModal';
 import { Footer } from './components/Footer';
-import { SiteMap3DHandle } from './components/SiteMap3D';
+import { SiteMap3D, SiteMap3DHandle } from './components/SiteMap3D';
 import { Booking } from './types/festival';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('home');
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
+  const [timeOfDay, setTimeOfDay] = useState<'day' | 'sunset' | 'night'>('day');
   const [bookings, setBookings] = useState<Booking[]>(() => {
     try {
       const saved = localStorage.getItem('bambino_bookings');
@@ -64,42 +65,77 @@ export default function App() {
     } catch {}
   };
 
+  const handleTabChange = (tab: string) => {
+    setCurrentTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    siteMapRef.current?.animateCameraForTab(tab);
+  };
+
+  const handleTimeOfDayChange = (mode: 'day' | 'sunset' | 'night') => {
+    setTimeOfDay(mode);
+    siteMapRef.current?.setLighting(mode);
+  };
+
   const handleInspectZone3D = (zoneId: string) => {
     setSelectedZoneId(zoneId);
-    if (currentTab !== '3d-map' && currentTab !== 'home') {
-      setCurrentTab('3d-map');
-    }
-    // Small timeout to allow 3D canvas to mount if switching tabs
+    setCurrentTab('3d-map');
+    window.scrollTo({ top: 0, behavior: 'instant' });
     setTimeout(() => {
-      siteMapRef.current?.focusZone(zoneId);
-    }, 150);
+      window.dispatchEvent(new Event('resize'));
+      if (zoneId) {
+        siteMapRef.current?.focusZone(zoneId);
+      }
+    }, 60);
   };
 
   const handleOpen3DMap = (zoneId?: string) => {
     setCurrentTab('3d-map');
-    if (zoneId) {
-      setSelectedZoneId(zoneId);
-      setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+      if (zoneId) {
+        setSelectedZoneId(zoneId);
         siteMapRef.current?.focusZone(zoneId);
-      }, 150);
-    }
+      } else {
+        siteMapRef.current?.animateCameraForTab('3d-map');
+      }
+    }, 60);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf9f5] text-slate-900 font-sans selection:bg-amber-300 selection:text-slate-950">
+    <div className="min-h-screen flex flex-col bg-[#faf9f5] text-slate-900 font-sans selection:bg-amber-300 selection:text-slate-950 relative">
+      {/* 1. SINGLE PERSISTENT 3D WORLD CANVAS (Root WebGL Scene - Persistent & Zero Unmounting) */}
+      <div
+        className={`fixed inset-0 transition-opacity duration-700 ease-in-out ${
+          currentTab === '3d-map'
+            ? 'z-20 pointer-events-auto opacity-100'
+            : 'z-0 pointer-events-none opacity-0'
+        }`}
+        aria-hidden={currentTab !== '3d-map'}
+      >
+        <SiteMap3D
+          ref={siteMapRef}
+          onSelectZone={handleInspectZone3D}
+          onDeselectZone={() => setSelectedZoneId(null)}
+          activeZoneId={selectedZoneId}
+          isCinemaMode={currentTab === '3d-map'}
+          onToggleCinema={() => handleTabChange('home')}
+          className="w-full h-full"
+        />
+      </div>
+
       {/* Top Navigation */}
       <Navigation
         currentTab={currentTab}
-        onTabChange={tab => {
-          setCurrentTab(tab);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
+        onTabChange={handleTabChange}
         onOpenBooking={() => handleOpenBooking()}
         bookingCount={bookings.length}
+        timeOfDay={timeOfDay}
+        onTimeOfDayChange={handleTimeOfDayChange}
       />
 
-      {/* Main Content Area - with safe bottom clearance on mobile for sticky booking bar */}
-      <main className={`flex-1 ${currentTab !== '3d-map' ? 'pb-16 sm:pb-0' : ''}`}>
+      {/* Main Content Area - with z-30 pointer-events-none on 3D map tab so controls are clickable above WebGL canvas */}
+      <main className={`flex-1 relative ${currentTab === '3d-map' ? 'z-30 pointer-events-none' : 'z-10 pb-16 sm:pb-0'}`}>
         {currentTab === 'home' && (
           <HomeHero
             siteMapRef={siteMapRef}
@@ -112,8 +148,11 @@ export default function App() {
         {currentTab === '3d-map' && (
           <FullScreen3DView
             siteMapRef={siteMapRef}
-            onBackToSite={() => setCurrentTab('home')}
-            onSelectZone={setSelectedZoneId}
+            onBackToSite={() => {
+              setSelectedZoneId(null);
+              handleTabChange('home');
+            }}
+            onSelectZone={handleInspectZone3D}
             activeZoneId={selectedZoneId}
             onOpenBooking={() => handleOpenBooking()}
           />

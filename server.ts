@@ -44,7 +44,7 @@ Event Details:
 Key Play Zones & Facilities:
 1. "little-garden" (The Little Garden): Baby Garden (6M–2Y). Fenced, shaded soft play, foam mats, ball pool, storytelling tent, parent seating, stroller parking bay.
 2. "adventure-zone" (Adventure Zone): 3–6 years. 5 giant bouncy castles, inflatables, animal encounters, hoop shooting, giant Tic-Tac-Toe, family picnic tables.
-3. "creative-zone" (Creative Zone): 3–6+ years. Roller-skating pit, helmet rentals, arts & crafts, painting, bracelet making.
+3. "creative-zone" (Creative Zone): 3–6+ years. Shaded outdoor art studio featuring arts & crafts, painting, bracelet making, and spelling activities.
 4. "discovery-world" (Discovery World): STEM science lab (volcano eruptions, color mixing, rocket builds, plant pots, giant lawn chess, Jenga).
 5. "celebration-stage" (Celebration Stage): Amphitheater stage for live music, clown shows, dance competitions, bubble shows, and family awards.
 6. "fish-pond" (Fish Pond): Beautiful natural farm pond strictly fenced with wire mesh and supervised by safety marshals.
@@ -124,7 +124,7 @@ app.post('/api/chat', async (req, res) => {
     const fallbackAnswers: Record<string, string> = {
       'little-garden': "The Little Garden offers shaded soft-play mats, foam obstacle blocks, and quiet storytelling for babies aged 6M–2Y.",
       'adventure-zone': "Adventure Zone features 4 giant bouncy castles, obstacle slides, and farm animal petting for kids aged 3–6.",
-      'creative-zone': "Creative Zone includes an enclosed roller-skating pit with complimentary helmets, plus painting and craft tables.",
+      'creative-zone': "Creative Zone features hands-on arts & crafts, painting, bracelet making, and spelling activities for children aged 3–6+.",
       'discovery-world': "Discovery World features volcano chemistry experiments, rocket builds, and a giant 6x6m outdoor lawn chessboard.",
       'celebration-stage': "Celebration Stage hosts live Zimbabwean marimba music, comedy clown shows, and giant floating soap bubble spectacles.",
       'swimming-pool': "The farm swimming pool is securely locked behind spear-picket security fencing with a certified lifeguard on perimeter duty.",

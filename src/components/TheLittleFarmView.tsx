@@ -1,6 +1,7 @@
 import React from 'react';
-import { MapPin, Shield, Sprout, Heart, Compass, ExternalLink, Car, Waves, ArrowRight } from 'lucide-react';
+import { MapPin, Shield, Sprout, Heart, ExternalLink, Car, Waves, ArrowRight } from 'lucide-react';
 import { Tooltip } from './Tooltip';
+import { MulticolorTitle } from './MulticolorTitle';
 
 interface TheLittleFarmViewProps {
   onOpen3DMap: () => void;
@@ -28,16 +29,19 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-16 text-white">
           <div className="max-w-2xl space-y-4">
             {/* Headline with Kid-Friendly Chubby Typography */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-kid font-black leading-tight drop-shadow-md">
-              The Little Farm, <span className="kid-tilt-l kid-pastel-yellow">Meyrick Park</span>
-            </h1>
-            <p className="text-base sm:text-lg text-slate-200 leading-relaxed drop-shadow-sm max-w-xl font-medium">
+            <MulticolorTitle
+              text="The Little Farm, Meyrick Park"
+              as="h1"
+              className="text-fluid-h1 font-kid font-black leading-tight drop-shadow-md break-words"
+              bounceOnMount={true}
+            />
+            <p className="text-fluid-lead text-slate-200 leading-relaxed drop-shadow-sm max-w-xl font-medium">
               4,000 m² of open grass lawns, mature shade trees, and purpose-built family amenities at 5 Richwell Ave, Harare, Zimbabwe.
             </p>
 
             {/* Quick Location Badge & Actions */}
             <div className="flex flex-wrap items-center gap-3 pt-2 text-xs sm:text-sm">
-              <span className="min-h-[44px] px-3.5 py-2.5 bg-slate-900/85 backdrop-blur-md rounded-xl border border-white/20 flex items-center gap-2 text-slate-100 font-semibold">
+              <span className="min-h-[44px] px-3.5 py-2.5 bg-slate-900/85 backdrop-blur-md rounded-xl border border-white/20 flex items-center gap-2 text-slate-100 font-semibold text-fluid-xs">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>5 Richwell Ave, Meyrick Park, Mabelreign</span>
               </span>
@@ -46,7 +50,7 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
                 href="https://www.google.com/maps/search/?api=1&query=-17.8093111%2C31.0038472"
                 target="_blank"
                 rel="noreferrer"
-                className="min-h-[44px] px-4 py-2.5 bg-emerald-600/90 hover:bg-emerald-600 rounded-xl text-white font-bold flex items-center gap-1.5 transition shadow-sm active:scale-98"
+                className="min-h-[44px] px-4 py-2.5 bg-emerald-600/90 hover:bg-emerald-600 rounded-xl text-white font-bold flex items-center gap-1.5 transition shadow-sm active:scale-98 text-fluid-btn"
               >
                 <span>Google Maps Directions</span>
                 <ExternalLink className="w-4 h-4" />
@@ -54,9 +58,9 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
 
               <button
                 onClick={onOpen3DMap}
-                className="min-h-[44px] px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-black flex items-center gap-1.5 transition shadow-sm cursor-pointer active:scale-98"
+                className="min-h-[44px] px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl font-black flex items-center gap-1.5 transition shadow-sm cursor-pointer active:scale-98 text-fluid-btn"
               >
-                <Compass className="w-4 h-4" />
+                <MapPin className="w-4 h-4" />
                 <span>Explore in 3D</span>
               </button>
             </div>
@@ -66,14 +70,17 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
 
       {/* EXPANSIVE VENUE AMENITIES SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
-        <h2 className="text-2xl sm:text-4xl font-kid font-black text-slate-900 tracking-wide">
-          Venue &amp; <span className="kid-tilt-l text-emerald-600">Safety</span> Infrastructure
-        </h2>
+        <MulticolorTitle
+          text="Venue & Safety Infrastructure"
+          as="h2"
+          className="text-fluid-h2 font-kid font-black text-slate-900 tracking-wide break-words"
+          bounceOnMount={false}
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { icon: Sprout, title: '4,000 m² Grounds', tip: 'Expansive grass buffers, shaded lawns & picnic pergolas' },
-            { icon: Waves, title: 'Fenced Waters', tip: '48-post wire fence around pond; spear-picket fence around pool' },
+            { icon: Waves, title: 'Fenced Waters', tip: 'Safety barrier around pond and locked fence around pool buffer' },
             { icon: Shield, title: '100% Supervised', tip: 'Staff safety marshals on patrol with child wristband matching' },
             { icon: Car, title: 'Segregated Cars', tip: 'Pedestrian arrival promenade + one-way boom gate vehicle exit' }
           ].map((item, idx) => {

@@ -1,6 +1,8 @@
 import React from 'react';
-import { SiteMap3D, SiteMap3DHandle } from './SiteMap3D';
-import { ArrowLeft, Sparkles, Ticket } from 'lucide-react';
+import { SiteMap3DHandle } from './SiteMap3D';
+import { ArrowLeft, RotateCcw, ArrowRight } from 'lucide-react';
+import { soundscape } from '../utils/soundscape';
+import { MulticolorTitle } from './MulticolorTitle';
 
 interface FullScreen3DViewProps {
   onBackToSite: () => void;
@@ -17,45 +19,103 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
   onOpenBooking,
   siteMapRef
 }) => {
+  const quickZones = [
+    { id: 'little-garden', label: 'Baby Garden (6M-2Y)', emoji: '👶' },
+    { id: 'adventure-zone', label: 'Adventure Zone', emoji: '🏰' },
+    { id: 'creative-zone', label: 'Creative Studio', emoji: '🎨' },
+    { id: 'discovery-world', label: 'STEM Discovery', emoji: '🚀' },
+    { id: 'celebration-stage', label: 'Live Stage', emoji: '🎵' }
+  ];
+
+  const handleFlyTo = (zoneId: string) => {
+    soundscape.playMarimbaClick(620, 0.08);
+    siteMapRef.current?.focusZone(zoneId);
+    onSelectZone(zoneId);
+  };
+
+  const handleResetCamera = () => {
+    soundscape.playMarimbaClick(440, 0.06);
+    siteMapRef.current?.resetView();
+  };
+
   return (
-    <div className="relative w-screen h-[calc(100dvh-64px)] sm:h-[calc(100dvh-72px)] overflow-hidden bg-[#141e18]">
-      {/* Top Floating Poster Title Banner with Safe-Area Offset & 44px Tap Targets */}
-      <div className="fixed top-[calc(4.5rem+env(safe-area-inset-top,0px))] sm:top-20 left-1/2 -translate-x-1/2 z-40 w-[96%] max-w-5xl flex items-center justify-between pointer-events-none gap-2">
+    <div className="fixed inset-0 z-30 pointer-events-none overflow-hidden flex flex-col justify-between p-3 sm:p-6 pt-[calc(4.5rem+env(safe-area-inset-top,0px))] pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+      {/* Top Floating Poster Title Banner */}
+      <div className="w-full max-w-5xl mx-auto flex items-center justify-between pointer-events-none gap-2">
         <div className="poster-title-banner px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl pointer-events-auto flex items-center gap-2.5 shadow-2xl min-h-[44px]">
           <button
-            onClick={onBackToSite}
-            className="min-h-[44px] px-3 py-1.5 bg-slate-900 text-white hover:bg-slate-800 active:scale-95 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+            onClick={() => {
+              soundscape.playMarimbaClick(440, 0.06);
+              onBackToSite();
+            }}
+            className="min-h-[38px] px-2.5 sm:px-3 py-1.5 bg-slate-900 text-white hover:bg-slate-800 active:scale-95 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0"
             aria-label="Back to Overview"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
             <span className="hidden sm:inline">Back to Overview</span>
+            <span className="inline sm:hidden">Back</span>
           </button>
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-600 ring-4 ring-emerald-600/20 shrink-0" />
-          <h1 className="text-xs sm:text-base font-kid font-bold text-slate-900 tracking-wide truncate">
-            Bambino World — 3D Grounds Preview
-          </h1>
+
+          <span className="hidden sm:inline-block w-2 h-2 rounded-full bg-emerald-600 ring-4 ring-emerald-600/20 shrink-0" />
+
+          <MulticolorTitle
+            text="Bambino World 3D Grounds"
+            as="h1"
+            className="text-fluid-xs sm:text-fluid-sm font-kid font-bold tracking-wide break-words"
+            bounceOnMount={true}
+          />
         </div>
 
-        <div className="pointer-events-auto shrink-0">
+        <div className="pointer-events-auto shrink-0 flex items-center gap-1.5 sm:gap-2">
           <button
-            onClick={onOpenBooking}
-            className="min-h-[44px] px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl text-xs sm:text-sm font-black transition flex items-center gap-1.5 shadow-xl cursor-pointer"
+            onClick={handleResetCamera}
+            className="min-h-[38px] sm:min-h-[40px] px-2.5 sm:px-3 py-1.5 bg-white/90 hover:bg-white active:scale-95 text-slate-800 rounded-xl text-fluid-xs font-bold transition flex items-center gap-1.5 shadow-lg border border-slate-200 cursor-pointer backdrop-blur-md"
+            title="Reset to Full Overview"
           >
-            <Ticket className="w-4 h-4 text-amber-300" />
-            <span>Book Tickets</span>
+            <RotateCcw className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+            <span className="hidden sm:inline">Overview</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundscape.playMarimbaClick(700, 0.08);
+              onOpenBooking();
+            }}
+            className="min-h-[38px] sm:min-h-[40px] px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 rounded-xl text-fluid-btn font-black transition flex items-center gap-1 sm:gap-1.5 shadow-xl cursor-pointer shrink-0"
+          >
+            <span>Book Passes</span>
+            <ArrowRight className="w-3.5 h-3.5 shrink-0" />
           </button>
         </div>
       </div>
 
-      {/* 3D Scene Viewport */}
-      <SiteMap3D
-        ref={siteMapRef}
-        onSelectZone={onSelectZone}
-        activeZoneId={activeZoneId}
-        isCinemaMode={true}
-        onToggleCinema={onBackToSite}
-        className="w-full h-full"
-      />
+      {/* Bottom Floating Quick Zone Selector Dock - hidden on mobile when zone drawer is active to prevent collision */}
+      <div className={`w-full max-w-3xl mx-auto pointer-events-auto transition-all duration-300 ${activeZoneId ? 'hidden sm:block' : 'block'}`}>
+        <div className="bg-slate-950/75 backdrop-blur-xl border border-white/20 rounded-2xl p-2 sm:p-2.5 shadow-2xl flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300/90 px-2 shrink-0 hidden md:inline">
+            Quick Flight:
+          </span>
+          {quickZones.map(zone => {
+            const isActive = activeZoneId === zone.id;
+            return (
+              <button
+                key={zone.id}
+                onClick={() => handleFlyTo(zone.id)}
+                className={`min-h-[36px] px-2.5 sm:px-3 py-1 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 ${
+                  isActive
+                    ? 'bg-amber-400 text-slate-950 shadow-md font-black'
+                    : 'bg-white/10 hover:bg-white/20 text-slate-200 active:scale-95'
+                }`}
+              >
+                <span>{zone.emoji}</span>
+                <span>{zone.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
+
+export default FullScreen3DView;

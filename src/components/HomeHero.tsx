@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import {
   ArrowRight,
-  Compass,
+  ChevronDown,
   Sprout,
   Baby,
   Heart,
   MapPin,
-  Ticket,
   Shield,
   Utensils,
   Music,
@@ -35,13 +34,14 @@ import {
   Plus,
   Phone
 } from 'lucide-react';
-import { SiteMap3D, SiteMap3DHandle } from './SiteMap3D';
+import { SiteMap3DHandle } from './SiteMap3D';
 import { Tooltip } from './Tooltip';
 import { PROGRAMME_SESSIONS, SIBLING_DISCOUNTS } from '../data/festivalData';
 import {
   getStoredSectionBackgrounds,
   SectionBackgroundConfig
 } from '../data/sectionBackgrounds';
+import { MulticolorTitle } from './MulticolorTitle';
 
 interface HomeHeroProps {
   onOpen3DMap: (zoneId?: string) => void;
@@ -90,7 +90,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       age: '6M – 2Y',
       tagColor: 'bg-emerald-500 text-white',
       bannerBg: 'from-emerald-950 via-teal-950 to-slate-950',
-      image: bgConfig.zoneCards['little-garden'] || 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=80',
+      image: bgConfig.zoneCards['little-garden'] || '/little-garden.jpg',
       shortDesc: 'Calm sensory sanctuary with soft foam blocks and shaded bougainvillea pergolas.',
       features: [
         { icon: Baby, label: 'Soft Play Foam', tip: 'Cushioned crawling blocks, wedges and tumble mats' },
@@ -156,7 +156,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         { icon: Music2, label: 'Live Marimba', tip: 'Acoustic Zimbabwean marimba performances all afternoon' },
         { icon: Smile, label: 'Clown Theater', tip: 'Puppetry, gentle comedy magic, and interactive storytelling' },
         { icon: Shield, label: '< 85 dB Audio', tip: 'Acoustic sound levels strictly calibrated for young ears' },
-        { icon: Compass, label: 'Bubble Finale', tip: 'Giant floating iridescent soap bubbles across the lawn' }
+        { icon: Sparkles, label: 'Bubble Finale', tip: 'Giant floating iridescent soap bubbles across the lawn' }
       ]
     }
   ];
@@ -171,43 +171,43 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
   return (
     <div className="space-y-14 sm:space-y-20 lg:space-y-24 pb-20">
-      {/* 1. HERO SECTION: Full-screen family festival imagery, short headline, date, location, scaled for mobile */}
-      <section className="relative w-full min-h-[380px] sm:min-h-[560px] lg:min-h-[680px] flex items-center overflow-hidden border-b border-emerald-950/40">
-        {/* Full-Bleed High-Resolution Panoramic Imagery */}
+      {/* 1. HERO SECTION: Full-screen family festival imagery, covering whole bottom page on phones in cinematic reveal */}
+      <section className="relative w-full min-h-[calc(100dvh-3.5rem)] sm:min-h-[580px] lg:min-h-[720px] flex items-center overflow-hidden border-b border-emerald-950/40">
+        {/* Full-Bleed High-Resolution Panoramic Imagery with Cinematic Slow Zoom */}
         <img
           src="/bambino-farm.jpg"
           alt="Bambino World Festival Grounds at The Little Farm"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-102 transition-transform duration-1000"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
         />
 
         {/* High-Contrast Editorial Scrim - strong dark scrim on mobile for instant legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/90 to-slate-950/60 sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/80 sm:to-slate-950/25" />
-        <div className="absolute inset-0 bg-slate-950/25 sm:hidden" />
+        <div className="absolute inset-0 bg-slate-950/30 sm:hidden" />
 
-        {/* Hero Content - compact mobile padding so buttons & text do not dominate the viewport */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-16 lg:py-20">
-          <div className="max-w-2xl space-y-2.5 sm:space-y-5">
-            {/* Friendly festival badge - scaled down on mobile */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] sm:text-xs font-bold tracking-wide shadow-xs">
-              <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-              <span className="truncate">Saturday 5 December 2026 · 10am – 5pm</span>
+        {/* Hero Content - vertically centered with staggered playful entrance animations */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 lg:py-20 flex flex-col justify-center">
+          <div className="max-w-2xl space-y-3 sm:space-y-5">
+            {/* 1st to appear: Friendly festival date badge */}
+            <div className="animate-hero-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400 text-slate-950 text-fluid-badge font-black tracking-wide shadow-md">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span>Saturday 5 December 2026 · 10am – 5pm</span>
             </div>
 
-            {/* Dominant Headline with Playful Accents - responsive font scaling */}
-            <h1 className="text-2xl sm:text-4xl lg:text-6xl font-kid font-black tracking-normal leading-tight text-white text-balance drop-shadow-lg break-words">
+            {/* 2nd to appear: Dominant Headline with Playful Accents & Fluid Typography */}
+            <h1 className="animate-hero-title text-fluid-display font-kid font-black tracking-normal leading-[1.08] text-white text-balance drop-shadow-xl break-words">
               Where <span className="kid-tilt-l kid-pastel-yellow">Little</span> <span className="kid-tilt-r kid-pastel-mint">Dreams</span> Come <span className="kid-tilt-l kid-pastel-coral">Alive</span>.
             </h1>
 
-            {/* Short microcopy - scaled on mobile */}
-            <p className="text-xs sm:text-base text-slate-200/95 max-w-xl leading-relaxed font-normal drop-shadow-2xs">
+            {/* 3rd to appear: Short microcopy */}
+            <p className="animate-hero-desc text-fluid-lead text-slate-200 max-w-xl leading-relaxed font-normal drop-shadow-sm">
               A day of play, discovery, and family memories across 4,000 m² of sunlit lawns at The Little Farm, Harare.
             </p>
 
-            {/* Primary Booking Action + Secondary Explore - compact row on mobile so they don't cover viewport */}
-            <div className="flex flex-row items-center gap-2 pt-0.5 max-w-md">
+            {/* 4th & 5th to appear: Book Pass button first, followed by Play Zones button */}
+            <div className="flex flex-row items-center gap-2.5 pt-1 max-w-md">
               <button
                 onClick={() => onOpenBooking(1)}
-                className="flex-1 sm:flex-none h-9 sm:h-11 px-3 sm:px-5 bg-amber-400 hover:bg-amber-300 active:scale-98 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                className="animate-hero-cta1 flex-1 sm:flex-none h-10 sm:h-12 px-4 sm:px-6 bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 font-black rounded-xl text-fluid-btn transition-all shadow-xl flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <span>Book Pass ($25)</span>
                 <ArrowRight className="w-3.5 h-3.5 shrink-0" />
@@ -215,22 +215,28 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
               <a
                 href="#play-zones"
-                className="flex-1 sm:flex-none h-9 sm:h-11 px-3 sm:px-5 bg-white/15 hover:bg-white/25 active:scale-98 text-white font-bold rounded-xl text-xs sm:text-sm transition border border-white/20 backdrop-blur-md flex items-center justify-center gap-1.5 cursor-pointer shadow-md whitespace-nowrap"
+                className="animate-hero-cta2 flex-1 sm:flex-none h-10 sm:h-12 px-4 sm:px-6 bg-white/15 hover:bg-white/25 active:scale-95 text-white font-bold rounded-xl text-fluid-btn transition border border-white/20 backdrop-blur-md flex items-center justify-center gap-1.5 cursor-pointer shadow-lg whitespace-nowrap"
               >
                 <span>Play Zones</span>
                 <ArrowRight className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               </a>
             </div>
 
-            {/* Instant Venue & Inclusions Footnote - scaled down */}
-            <div className="pt-0.5 flex items-center gap-1.5 text-[10px] sm:text-xs text-slate-300 font-medium">
-              <MapPin className="w-3 h-3 text-amber-400 shrink-0" />
-              <span className="truncate">5 Richwell Ave, Meyrick Park · All 5 zones, lunch &amp; sweet treats included</span>
+            {/* 6th to appear: Instant Venue & Inclusions Footnote */}
+            <div className="animate-hero-note pt-1 flex items-center gap-2 text-fluid-xs text-slate-300 font-medium">
+              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>5 Richwell Ave, Meyrick Park · All 5 zones, lunch &amp; sweet treats included</span>
             </div>
           </div>
         </div>
 
-        {/* Distinctive Date & Venue Stamp */}
+        {/* Floating Explore Hint on Mobile - at bottom edge of cinematic cover */}
+        <div className="absolute bottom-3 inset-x-0 sm:hidden flex flex-col items-center gap-1 text-slate-300/80 animate-bounce pointer-events-none text-[11px] font-semibold">
+          <span>Explore festival below</span>
+          <ChevronDown className="w-4 h-4 text-amber-400" />
+        </div>
+
+        {/* Distinctive Date & Venue Stamp on Large Screens */}
         <div className="hidden lg:flex absolute bottom-12 right-12 z-20 w-32 h-32 rounded-full bg-amber-400 text-slate-950 font-black flex-col items-center justify-center text-center shadow-2xl border-4 border-slate-950 transform rotate-12 hover:scale-105 transition-transform select-none">
           <span className="text-[10px] uppercase tracking-widest font-bold">Harare</span>
           <span className="text-2xl font-kid font-black leading-none my-1">5 DEC</span>
@@ -238,58 +244,95 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         </div>
       </section>
 
-      {/* 2. QUICK TRUST STRIP: 2-column on phones, 3-column on tablet, 6-column on desktop */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-5 shadow-sm">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+      {/* 2. FESTIVAL HIGHLIGHTS STRIP: Playful, bouncy, tactile cards with kid-friendly tilts & vibrant colors */}
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-br from-[#fffdf7] via-[#fefbf2] to-[#faf6ea] border-2 border-amber-200/90 rounded-3xl p-3 sm:p-6 shadow-lg shadow-amber-950/5 relative overflow-hidden">
+          {/* Whimsical Header Ribbon */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4 px-0.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-kid font-black text-xs sm:text-sm tracking-wide shadow-xs -rotate-1 self-start">
+              <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+              <span>Why Families Love Bambino World</span>
+            </div>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 font-kid tracking-wide">
+              Tap any badge for details · All included with every pass
+            </span>
+          </div>
+
+          {/* 6 Bouncy Festival Feature Badges - Mobile Optimized */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
             {[
               {
                 icon: Baby,
-                color: 'text-amber-500 bg-amber-50',
                 title: '6M – 12 Years',
+                subtitle: 'Babies to Tweens',
+                tilt: '-rotate-1',
+                badgeBg: 'bg-amber-400 text-slate-950 shadow-xs',
+                cardBg: 'bg-amber-50/90 hover:bg-amber-100/90 border-amber-200/90 text-amber-950',
                 tip: 'Dedicated age-segregated zones keep toddlers safe from active older children.'
               },
               {
                 icon: Shield,
-                color: 'text-emerald-600 bg-emerald-50',
                 title: '100% Supervised',
+                subtitle: 'Trained Marshals',
+                tilt: 'rotate-1.5',
+                badgeBg: 'bg-emerald-500 text-white shadow-xs',
+                cardBg: 'bg-emerald-50/90 hover:bg-emerald-100/90 border-emerald-200/90 text-emerald-950',
                 tip: 'Trained safety marshals, secure matching child wristbands, and fenced pond buffers.'
               },
               {
                 icon: Utensils,
-                color: 'text-sky-600 bg-sky-50',
                 title: 'Lunch & Sweets',
+                subtitle: 'Meals & Treats',
+                tilt: '-rotate-1.5',
+                badgeBg: 'bg-sky-400 text-slate-950 shadow-xs',
+                cardBg: 'bg-sky-50/90 hover:bg-sky-100/90 border-sky-200/90 text-sky-950',
                 tip: 'Child lunch pack, juice box, plus unlimited candyfloss and warm waffles included.'
               },
               {
                 icon: Sprout,
-                color: 'text-emerald-700 bg-emerald-50',
                 title: '4,000 m² Lawns',
+                subtitle: 'Sunlit Parkland',
+                tilt: 'rotate-1',
+                badgeBg: 'bg-lime-500 text-slate-950 shadow-xs',
+                cardBg: 'bg-lime-50/90 hover:bg-lime-100/90 border-lime-200/90 text-lime-950',
                 tip: 'Expansive private green parkland with mature shade trees and picnic pergolas.'
               },
               {
                 icon: Car,
-                color: 'text-purple-600 bg-purple-50',
                 title: 'Secure Parking',
+                subtitle: 'Free & Marshaled',
+                tilt: '-rotate-1',
+                badgeBg: 'bg-purple-400 text-slate-950 shadow-xs',
+                cardBg: 'bg-purple-50/90 hover:bg-purple-100/90 border-purple-200/90 text-purple-950',
                 tip: 'Dedicated on-site marshaled parking with segregated pedestrian entry.'
               },
               {
                 icon: MapPin,
-                color: 'text-rose-500 bg-rose-50',
                 title: 'Meyrick Park',
+                subtitle: 'Harare Enclave',
+                tilt: 'rotate-1.5',
+                badgeBg: 'bg-rose-400 text-slate-950 shadow-xs',
+                cardBg: 'bg-rose-50/90 hover:bg-rose-100/90 border-rose-200/90 text-rose-950',
                 tip: '5 Richwell Ave, Harare · Safe residential enclave with paved access.'
               }
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
                 <Tooltip key={idx} content={item.tip} position="top" className="w-full">
-                  <div className="min-h-[48px] flex items-center gap-2.5 sm:gap-3 p-2.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition cursor-pointer w-full border border-slate-100/80 sm:border-transparent">
-                    <div className={`w-9 h-9 rounded-xl ${item.color} flex items-center justify-center shrink-0`}>
-                      <Icon className="w-4 h-4" />
+                  <div
+                    className={`group w-full min-h-[58px] sm:min-h-[68px] p-2 sm:p-2.5 rounded-2xl border-2 ${item.cardBg} ${item.tilt} hover:rotate-0 hover:-translate-y-1 hover:scale-[1.03] active:scale-95 transition-all duration-200 ease-out cursor-pointer shadow-xs hover:shadow-md flex items-center gap-2 sm:gap-2.5`}
+                  >
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${item.badgeBg} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200`}>
+                      <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" />
                     </div>
-                    <span className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
-                      {item.title}
-                    </span>
+                    <div className="flex flex-col min-w-0 text-left flex-1 justify-center">
+                      <span className="font-kid font-bold text-[11px] sm:text-xs lg:text-sm text-slate-900 leading-[1.15] break-words">
+                        {item.title}
+                      </span>
+                      <span className="text-[9.5px] sm:text-[10.5px] font-semibold text-slate-500 leading-tight mt-0.5 break-words">
+                        {item.subtitle}
+                      </span>
+                    </div>
                   </div>
                 </Tooltip>
               );
@@ -313,9 +356,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="relative z-10 space-y-6 sm:space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-5">
               <div>
-                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black text-white tracking-wide drop-shadow-md">
-                  Five Dedicated <span className="kid-tilt-l text-amber-400">Play</span> <span className="kid-tilt-r text-emerald-400">Zones</span>
-                </h2>
+                <MulticolorTitle
+                  text="Five Dedicated Play Zones"
+                  as="h2"
+                  className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black tracking-wide drop-shadow-md"
+                  bounceOnMount={true}
+                />
                 <p className="text-base text-slate-200 mt-1 font-medium">
                   Curated by age so every child plays safely and joyfully.
                 </p>
@@ -353,15 +399,16 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                   key={zone.id}
                   className={`relative rounded-3xl overflow-hidden bg-gradient-to-r ${zone.bannerBg} text-white shadow-xl border border-slate-800/80 min-h-[300px] sm:min-h-[340px] flex items-center`}
                 >
-                  {/* Full Cover Photographic Layer */}
+                  {/* Full Bleed Image Layer with rich natural color */}
                   <img
                     src={zone.image}
                     alt={zone.name}
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-35 mix-blend-luminosity scale-102 hover:scale-105 transition-transform duration-700"
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-95 scale-100 hover:scale-103 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
                   />
 
-                  {/* High legibility warm gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-slate-950/98 via-slate-950/85 to-slate-950/50" />
+                  {/* Soft Warm Gradient Overlay - gentle on the photo, keeping text crisp while image stays vibrant */}
+                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-slate-950/70 via-slate-950/40 to-transparent pointer-events-none" />
 
                   <div className="relative z-10 w-full p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                     <div className="max-w-2xl space-y-4">
@@ -377,27 +424,28 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
                       {/* Zone Title & 1-Sentence Headline */}
                       <div>
-                        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-kid font-black tracking-wide drop-shadow-md">
-                          {zone.name}
-                        </h3>
-                        <p className="text-base text-slate-200 mt-1 font-medium leading-relaxed">
+                        <MulticolorTitle
+                          text={zone.name}
+                          as="h3"
+                          className="text-2xl sm:text-3xl lg:text-4xl font-kid font-black tracking-wide drop-shadow-md"
+                          bounceOnMount={false}
+                        />
+                        <p className="text-sm sm:text-base text-slate-200 mt-1 font-medium leading-relaxed max-w-xl">
                           {zone.shortDesc}
                         </p>
                       </div>
 
-                      {/* Clean Feature Badges with 44px touch targets */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                        {zone.features.map((feat, fIdx) => {
-                          const FIcon = feat.icon;
-                          return (
-                            <Tooltip key={fIdx} content={feat.tip} position="top" className="w-full">
-                              <div className="min-h-[44px] flex items-center gap-2 p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-900 active:bg-slate-800 border border-white/10 text-xs sm:text-sm font-semibold text-slate-100 cursor-pointer transition backdrop-blur-xs w-full">
-                                <FIcon className="w-4 h-4 text-amber-300 shrink-0" />
-                                <span className="truncate">{feat.label}</span>
-                              </div>
-                            </Tooltip>
-                          );
-                        })}
+                      {/* Clean, Uncluttered Feature Chips */}
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {zone.features.slice(0, 3).map((feat, fIdx) => (
+                          <div
+                            key={fIdx}
+                            className="min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs sm:text-sm font-semibold text-slate-100 flex items-center gap-1.5 backdrop-blur-sm shadow-sm"
+                          >
+                            <span className="text-emerald-400 font-bold">✓</span>
+                            <span>{feat.label}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
@@ -405,14 +453,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                     <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center gap-3 shrink-0 pt-2 lg:pt-0 w-full lg:w-auto">
                       <button
                         onClick={() => {
-                          onSelectZone(zone.id);
-                          siteMapRef.current?.focusZone(zone.id);
-                          const mapElem = document.getElementById('site-map-section');
-                          mapElem?.scrollIntoView({ behavior: 'smooth' });
+                          onOpen3DMap(zone.id);
                         }}
                         className="w-full lg:w-44 min-h-[48px] py-3.5 px-4 bg-white/15 hover:bg-white/25 active:scale-98 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer border border-white/20 backdrop-blur-md"
                       >
-                        <Compass className="w-4 h-4 text-amber-300 shrink-0" />
+                        <MapPin className="w-4 h-4 text-amber-300 shrink-0" />
                         <span>View in 3D Map</span>
                       </button>
 
@@ -436,31 +481,69 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       <section id="site-map-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 scroll-mt-24">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black text-slate-900 tracking-wide">
+            <h2 className="text-fluid-h2 font-kid font-black text-slate-900 tracking-wide">
               See How The Grounds Will <span className="kid-tilt-l text-amber-500">Come Alive</span>
             </h2>
-            <p className="text-base text-slate-600 mt-1 font-medium">
+            <p className="text-fluid-base text-slate-600 mt-1 font-medium">
               A glimpse of what families can expect on the day. Explore the 4,000 m² grounds, play zones, and pedestrian flow.
             </p>
           </div>
 
-          <button
-            onClick={() => onOpen3DMap()}
-            className="min-h-[44px] px-5 py-2.5 bg-slate-900 hover:bg-slate-800 active:scale-98 text-white text-xs sm:text-sm font-bold rounded-xl transition flex items-center gap-2 cursor-pointer shadow-md self-start sm:self-auto shrink-0"
-          >
-            <Compass className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Fullscreen 3D View</span>
-          </button>
         </div>
 
-        {/* 3D Map Canvas Box - responsive height to fit mobile viewports */}
-        <div className="h-[340px] sm:h-[440px] lg:h-[540px] rounded-3xl overflow-hidden shadow-xl border-2 border-slate-300 relative bg-slate-950">
-          <SiteMap3D
-            ref={siteMapRef}
-            onSelectZone={onSelectZone}
-            className="w-full h-full"
-            onToggleCinema={() => onOpen3DMap()}
-          />
+        {/* 3D Festival World Portal - connects seamlessly to the persistent root 3D canvas */}
+        <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-900 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 p-6 sm:p-10 text-white flex flex-col justify-between min-h-[360px] sm:min-h-[420px]">
+          {/* Decorative ambient glowing lights */}
+          <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
+
+          {/* Top portal header */}
+          <div className="relative z-10 max-w-xl space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-kid font-bold text-fluid-badge uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Real-Time 3D Digital Twin</span>
+            </span>
+            <h3 className="text-fluid-h3 font-kid font-black text-white">
+              Explore All 4,000 m² in Spatial 3D
+            </h3>
+            <p className="text-fluid-xs text-slate-300 font-medium leading-relaxed">
+              Fly through every sector, inspect safety barriers, view where shade pergolas sit, and follow the family pedestrian flow before arrival.
+            </p>
+          </div>
+
+          {/* Quick Zone Fly-To Shortcuts */}
+          <div className="relative z-10 pt-6 space-y-3">
+            <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">
+              Direct Sector Flights:
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { id: 'little-garden', label: 'The Little Garden (6M-2Y)', emoji: '👶' },
+                { id: 'adventure-zone', label: 'Adventure Zone (Inflatables)', emoji: '🏰' },
+                { id: 'creative-zone', label: 'Creative Studio', emoji: '🎨' },
+                { id: 'discovery-world', label: 'Discovery STEM World', emoji: '🚀' },
+                { id: 'celebration-stage', label: 'Celebration Stage', emoji: '🎵' }
+              ].map(sec => (
+                <button
+                  key={sec.id}
+                  type="button"
+                  onClick={() => onOpen3DMap(sec.id)}
+                  className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-white transition border border-white/15 flex items-center gap-1.5 cursor-pointer backdrop-blur-md shadow-sm"
+                >
+                  <span>{sec.emoji}</span>
+                  <span>{sec.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sector Flight Indicator */}
+          <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Tap any sector above to fly into the grounds in real-time 3D</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -475,15 +558,15 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-white">
           <div className="max-w-2xl space-y-5">
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-kid font-black leading-tight drop-shadow-md break-words">
+            <h2 className="text-fluid-display font-kid font-black leading-tight drop-shadow-md break-words">
               The Little Farm, <span className="kid-tilt-l kid-pastel-yellow">Meyrick Park</span>
             </h2>
 
-            <p className="text-base text-slate-200 leading-relaxed font-medium">
+            <p className="text-fluid-base text-slate-200 leading-relaxed font-medium">
               4,000 m² of secure open grass lawns, shade pergolas, and purpose-built family amenities at 5 Richwell Ave, Mabelreign, Harare.
             </p>
 
-            {/* Safety highlights with 44px min touch targets */}
+            {/* Safety highlights with fluid typography */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
               {[
                 { title: 'Fenced Waters', tip: 'Wire-fenced pond and spear-picket barrier around pool area' },
@@ -494,9 +577,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 { title: 'First Aid Post', tip: 'Dedicated certified first aid tent on site throughout' }
               ].map((item, idx) => (
                 <Tooltip key={idx} content={item.tip} position="top" className="w-full">
-                  <div className="min-h-[44px] flex items-center gap-2 p-2.5 bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-xl text-xs sm:text-sm font-semibold text-slate-100 cursor-pointer w-full">
+                  <div className="min-h-[42px] flex items-center gap-2 p-2 bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-xl text-fluid-xs font-semibold text-slate-100 cursor-pointer w-full">
                     <Shield className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span className="truncate">{item.title}</span>
+                    <span>{item.title}</span>
                   </div>
                 </Tooltip>
               ))}
@@ -539,10 +622,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="relative z-10 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-4">
               <div>
-                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black text-white tracking-wide drop-shadow-md">
+                <h2 className="text-fluid-h2 font-kid font-black text-white tracking-wide drop-shadow-md">
                   Event <span className="kid-tilt-l text-amber-400">Programme</span>
                 </h2>
-                <p className="text-base text-slate-200 mt-1 font-medium">
+                <p className="text-fluid-base text-slate-200 mt-1 font-medium">
                   Saturday 5 December 2026 · 10:00 AM – 5:00 PM CAT.
                 </p>
               </div>
@@ -615,25 +698,25 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         {/* Ticket Tier Cards */}
         <div className="bg-[#f7f5ed] border border-slate-300/80 rounded-3xl p-5 sm:p-8 lg:p-10 space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black text-slate-900 tracking-wide">
+            <h2 className="text-fluid-h2 font-kid font-black text-slate-900 tracking-wide">
               Simple, Transparent <span className="kid-tilt-l text-emerald-600">Tickets</span>
             </h2>
-            <p className="text-base text-slate-600 font-medium">
+            <p className="text-fluid-base text-slate-600 font-medium">
               Every child pass includes all play zones, meals, and sweet treats. Parents enter free.
             </p>
           </div>
 
           {/* Interactive Child Pass Slider & Live Sibling Calculator */}
-          <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-md max-w-4xl mx-auto space-y-6">
+          <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-md max-w-4xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
-                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
+                <span className="text-fluid-badge font-bold text-emerald-700 uppercase tracking-wider block">
                   Family Ticket Calculator
                 </span>
-                <h3 className="text-lg sm:text-xl font-kid font-black text-slate-900">
+                <h3 className="text-fluid-h3 font-kid font-black text-slate-900">
                   Select Number of Children
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                <p className="text-fluid-xs text-slate-500 font-medium">
                   Automatic progressive sibling discount applied per child added.
                 </p>
               </div>
@@ -942,7 +1025,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 { icon: Award, label: 'Unlimited Sweets', tip: 'Unlimited freshly spun candyfloss & artisan waffles' },
                 { icon: Music, label: 'Live Concerts', tip: 'Acoustic Zimbabwean marimba, comedy clown & puppet show' },
                 { icon: Palette, label: 'Face Paint & Art', tip: 'Glitter tattoos, washable easel art & bracelets' },
-                { icon: Compass, label: 'All Play Zones', tip: '5 age-graded zones including arts, bounce castles & lawn sports' },
+                { icon: Castle, label: 'All Play Zones', tip: '5 age-graded zones including arts, bounce castles & lawn sports' },
                 { icon: Shield, label: 'Explorer Medal', tip: 'Official Bambino Explorer Passport & take-home plant pot' }
               ].map((item, idx) => {
                 const Icon = item.icon;
@@ -964,10 +1047,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         {/* "What parents need to know" clean icon cards & tap-to-reveal tooltips */}
         <div className="space-y-5">
           <div className="border-b border-slate-200 pb-3">
-            <h3 className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black text-slate-900 tracking-wide">
+            <h3 className="text-fluid-h2 font-kid font-black text-slate-900 tracking-wide">
               What Parents <span className="kid-tilt-l text-emerald-600">Need to Know</span>
             </h3>
-            <p className="text-base text-slate-600 mt-1 font-medium">
+            <p className="text-fluid-base text-slate-600 mt-1 font-medium">
               Everything you need for an easy, stress-free family day out.
             </p>
           </div>
