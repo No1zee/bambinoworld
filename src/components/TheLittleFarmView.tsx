@@ -19,6 +19,8 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
         <img
           src="/bambino-farm.jpg"
           alt="The Little Farm Grounds Aerial View"
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
 
@@ -41,7 +43,7 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
 
             {/* Quick Location Badge & Actions */}
             <div className="flex flex-wrap items-center gap-3 pt-2 text-xs sm:text-sm">
-              <span className="min-h-[44px] px-3.5 py-2.5 bg-slate-900/85 backdrop-blur-md rounded-xl border border-white/20 flex items-center gap-2 text-slate-100 font-semibold text-fluid-xs">
+              <span className="sticker-badge min-h-[44px] px-3.5 py-2.5 bg-slate-900/85 backdrop-blur-md rounded-xl border border-white/20 flex items-center gap-2 text-slate-100 font-semibold text-fluid-xs">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>5 Richwell Ave, Meyrick Park, Mabelreign</span>
               </span>
@@ -87,7 +89,7 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
             const Icon = item.icon;
             return (
               <Tooltip key={idx} content={item.tip} position="top" className="w-full">
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs hover:border-emerald-400 transition cursor-pointer flex items-center gap-4 w-full min-h-[72px]">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs hover:border-emerald-400 transition cursor-pointer flex items-center gap-4 w-full min-h-[72px] diorama-lift diorama-shadow">
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
                     <Icon className="w-6 h-6" />
                   </div>

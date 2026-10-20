@@ -40,8 +40,18 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
 
   return (
     <div className="fixed inset-0 z-30 pointer-events-none overflow-hidden flex flex-col justify-between p-3 sm:p-6 pt-[calc(4.5rem+env(safe-area-inset-top,0px))] pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+      {/* Miniature Diorama Tilt-Shift & Soft Edge Vignette */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none z-0 select-none overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(15,23,42,0.38)_100%)]" />
+        <div className="absolute top-0 inset-x-0 h-16 sm:h-24 bg-gradient-to-b from-slate-950/40 via-slate-900/10 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+        <div className="absolute bottom-0 inset-x-0 h-16 sm:h-24 bg-gradient-to-t from-slate-950/40 via-slate-900/10 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black,transparent)]" />
+      </div>
+
       {/* Top Floating Poster Title Banner */}
-      <div className="w-full max-w-5xl mx-auto flex items-center justify-between pointer-events-none gap-2">
+      <div className="w-full max-w-5xl mx-auto flex items-center justify-between pointer-events-none gap-2 z-10">
         <div className="poster-title-banner px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl pointer-events-auto flex items-center gap-2.5 shadow-2xl min-h-[44px]">
           <button
             onClick={() => {

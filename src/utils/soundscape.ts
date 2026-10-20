@@ -24,8 +24,34 @@ class SoundscapeManager {
 
   constructor() {
     if (typeof window !== 'undefined') {
+      try {
+        const savedMute = localStorage.getItem('bambino_soundscape_muted');
+        if (savedMute !== null) {
+          this.isMuted = savedMute === 'true';
+        }
+      } catch {}
+
       this.attachInitialListeners();
+      this.attachVisibilityListener();
     }
+  }
+
+  private attachVisibilityListener() {
+    if (typeof document === 'undefined') return;
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        // Tab hidden or phone screen locked: suspend context to preserve battery & silence
+        if (this.ctx && this.ctx.state === 'running') {
+          this.ctx.suspend().catch(() => {});
+        }
+      } else {
+        // Tab active again: resume if unmuted
+        if (this.ctx && this.ctx.state === 'suspended' && !this.isMuted) {
+          this.ctx.resume().catch(() => {});
+        }
+      }
+    });
   }
 
   private initContext() {
@@ -179,6 +205,9 @@ class SoundscapeManager {
   public toggleMute(): boolean {
     this.initContext();
     this.isMuted = !this.isMuted;
+    try {
+      localStorage.setItem('bambino_soundscape_muted', String(this.isMuted));
+    } catch {}
     if (!this.isMuted) {
       this.playMarimbaClick(523.25, 0.06);
     }

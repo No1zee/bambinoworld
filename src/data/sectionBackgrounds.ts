@@ -27,6 +27,48 @@ export const DEFAULT_SECTION_BACKGROUNDS: SectionBackgroundConfig = {
   }
 };
 
+/**
+ * Storybook Festival & Miniature Diorama Dynamic Sunlit-to-Golden-Hour Ambient Gradients.
+ * Transitions smoothly from crisp morning meadow sunshine in the hero
+ * to a rich, warm golden-hour dusk near the tickets and footer.
+ */
+export interface AmbientGradientConfig {
+  hero: string;
+  highlights: string;
+  playZones: string;
+  siteMap: string;
+  farm: string;
+  programme: string;
+  tickets: string;
+  footer: string;
+}
+
+export const SECTION_AMBIENT_GRADIENTS: AmbientGradientConfig = {
+  // Crisp morning meadow sunshine bleed with soft sky radiance
+  hero: 'radial-gradient(circle at 50% 0%, rgba(254, 240, 138, 0.28), rgba(255, 255, 255, 0.05) 55%, transparent 75%)',
+  
+  // Bright mid-morning sunbeam over the tactile badges
+  highlights: 'radial-gradient(circle at 50% 10%, rgba(253, 224, 71, 0.20), transparent 70%)',
+  
+  // Warm midday festival park radiance
+  playZones: 'radial-gradient(circle at 50% 15%, rgba(251, 191, 36, 0.22), transparent 72%)',
+  
+  // Gentle afternoon diorama skylight
+  siteMap: 'radial-gradient(circle at 50% 10%, rgba(252, 211, 77, 0.18), transparent 70%)',
+  
+  // Sunny pastoral warmth with lush leaf reflections
+  farm: 'radial-gradient(circle at 45% 10%, rgba(251, 191, 36, 0.24), transparent 70%)',
+  
+  // Golden hour afternoon acoustic canopy glow
+  programme: 'radial-gradient(circle at 55% 10%, rgba(245, 158, 11, 0.26), transparent 72%)',
+  
+  // Rich golden sunset glow over the ticket stubs
+  tickets: 'radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.20), rgba(251, 191, 36, 0.12) 50%, transparent 75%)',
+  
+  // Warm evening lantern dusk
+  footer: 'radial-gradient(circle at 50% 20%, rgba(244, 63, 94, 0.12), rgba(249, 115, 22, 0.08) 50%, transparent 80%)'
+};
+
 const STORAGE_KEY = 'bambino_section_backgrounds';
 
 export function getStoredSectionBackgrounds(): SectionBackgroundConfig {

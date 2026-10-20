@@ -39,9 +39,11 @@ import { Tooltip } from './Tooltip';
 import { PROGRAMME_SESSIONS, SIBLING_DISCOUNTS } from '../data/festivalData';
 import {
   getStoredSectionBackgrounds,
-  SectionBackgroundConfig
+  SectionBackgroundConfig,
+  SECTION_AMBIENT_GRADIENTS
 } from '../data/sectionBackgrounds';
 import { MulticolorTitle } from './MulticolorTitle';
+import { SectionWaveDivider } from './SectionWaveDivider';
 
 interface HomeHeroProps {
   onOpen3DMap: (zoneId?: string) => void;
@@ -184,18 +186,60 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/90 to-slate-950/60 sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/80 sm:to-slate-950/25" />
         <div className="absolute inset-0 bg-slate-950/30 sm:hidden" />
 
+        {/* Dynamic morning meadow sunlit ambient bleed */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: SECTION_AMBIENT_GRADIENTS.hero }}
+        />
+
         {/* Hero Content - vertically centered with staggered playful entrance animations */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 lg:py-20 flex flex-col justify-center">
           <div className="max-w-2xl space-y-3 sm:space-y-5">
-            {/* 1st to appear: Friendly festival date badge */}
-            <div className="animate-hero-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400 text-slate-950 text-fluid-badge font-black tracking-wide shadow-md">
-              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-              <span>Saturday 5 December 2026 · 10am – 5pm</span>
+            {/* 1st to appear: Friendly festival date sticker badge with hand-drawn sunbeam scribble */}
+            <div className="relative inline-flex items-center self-start">
+              <div className="sticker-badge animate-hero-badge px-3.5 py-1.5 rounded-full bg-amber-400 text-slate-950 text-fluid-badge font-black tracking-wide shadow-md">
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span>Saturday 5 December 2026 · 10am – 5pm</span>
+              </div>
+              {/* Whimsical hand-drawn animated sunbeam accent */}
+              <svg
+                aria-hidden="true"
+                className="animate-sunbeam absolute -top-3.5 -right-5 w-7 h-7 text-amber-300 pointer-events-none drop-shadow-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2.5 2.5M16.5 16.5l2.5 2.5M5 19l2.5-2.5M16.5 7.5l2.5-2.5" />
+              </svg>
             </div>
 
-            {/* 2nd to appear: Dominant Headline with Playful Accents & Fluid Typography */}
+            {/* 2nd to appear: Dominant Headline with Playful Accents, Fluid Typography & Crayon Underline */}
             <h1 className="animate-hero-title text-fluid-display font-kid font-black tracking-normal leading-[1.08] text-white text-balance drop-shadow-xl break-words">
-              Where <span className="kid-tilt-l kid-pastel-yellow">Little</span> <span className="kid-tilt-r kid-pastel-mint">Dreams</span> Come <span className="kid-tilt-l kid-pastel-coral">Alive</span>.
+              Where <span className="kid-tilt-l kid-pastel-yellow">Little</span>{' '}
+              <span className="kid-tilt-r kid-pastel-mint">Dreams</span> Come{' '}
+              <span className="relative inline-block">
+                <span className="kid-tilt-l kid-pastel-coral">Alive</span>
+                {/* Whimsical hand-drawn animated crayon scribble underline */}
+                <svg
+                  aria-hidden="true"
+                  className="absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 overflow-visible pointer-events-none"
+                  viewBox="0 0 120 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3,9 C32,2 86,13 117,6"
+                    stroke="#fbbf24"
+                    strokeWidth="4.5"
+                    strokeLinecap="round"
+                    className="animate-crayon"
+                  />
+                </svg>
+              </span>
+              .
             </h1>
 
             {/* 3rd to appear: Short microcopy */}
@@ -231,25 +275,35 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         </div>
 
         {/* Floating Explore Hint on Mobile - at bottom edge of cinematic cover */}
-        <div className="absolute bottom-3 inset-x-0 sm:hidden flex flex-col items-center gap-1 text-slate-300/80 animate-bounce pointer-events-none text-[11px] font-semibold">
+        <div className="absolute bottom-10 inset-x-0 sm:hidden flex flex-col items-center gap-1 text-slate-300/80 animate-bounce pointer-events-none text-[11px] font-semibold z-20">
           <span>Explore festival below</span>
           <ChevronDown className="w-4 h-4 text-amber-400" />
         </div>
 
         {/* Distinctive Date & Venue Stamp on Large Screens */}
-        <div className="hidden lg:flex absolute bottom-12 right-12 z-20 w-32 h-32 rounded-full bg-amber-400 text-slate-950 font-black flex-col items-center justify-center text-center shadow-2xl border-4 border-slate-950 transform rotate-12 hover:scale-105 transition-transform select-none">
+        <div className="hidden lg:flex absolute bottom-14 right-12 z-20 w-32 h-32 rounded-full bg-amber-400 text-slate-950 font-black flex-col items-center justify-center text-center shadow-2xl border-4 border-slate-950 transform rotate-12 hover:scale-105 transition-transform select-none">
           <span className="text-[10px] uppercase tracking-widest font-bold">Harare</span>
           <span className="text-2xl font-kid font-black leading-none my-1">5 DEC</span>
           <span className="text-[11px] font-black text-slate-900 leading-none">2026</span>
         </div>
+
+        {/* Layered Organic Wave Transition into the next section */}
+        <SectionWaveDivider position="bottom" variant="dark-to-cream" height={40} className="absolute bottom-0 left-0 right-0 z-20" />
       </section>
 
-      {/* 2. FESTIVAL HIGHLIGHTS STRIP: Playful, bouncy, tactile cards with kid-friendly tilts & vibrant colors */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-[#fffdf7] via-[#fefbf2] to-[#faf6ea] border-2 border-amber-200/90 rounded-3xl p-3 sm:p-6 shadow-lg shadow-amber-950/5 relative overflow-hidden">
+      {/* 2. FESTIVAL HIGHLIGHTS STRIP: End-to-end full-bleed section touching both sides of viewport */}
+      <section className="relative w-full overflow-hidden border-y border-amber-200/80 bg-gradient-to-br from-[#fffdf7] via-[#fefbf2] to-[#faf6ea] py-7 sm:py-9 shadow-xs">
+        {/* Soft radial sunbeam ambient bleed */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: SECTION_AMBIENT_GRADIENTS.highlights }}
+        />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Whimsical Header Ribbon */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4 px-0.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-kid font-black text-xs sm:text-sm tracking-wide shadow-xs -rotate-1 self-start">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-4 px-0.5">
+            <div className="sticker-badge inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-400 text-slate-950 font-kid font-black text-xs sm:text-sm tracking-wide shadow-xs self-start">
               <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" />
               <span>Why Families Love Bambino World</span>
             </div>
@@ -320,7 +374,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               return (
                 <Tooltip key={idx} content={item.tip} position="top" className="w-full">
                   <div
-                    className={`group w-full min-h-[58px] sm:min-h-[68px] p-2 sm:p-2.5 rounded-2xl border-2 ${item.cardBg} ${item.tilt} hover:rotate-0 hover:-translate-y-1 hover:scale-[1.03] active:scale-95 transition-all duration-200 ease-out cursor-pointer shadow-xs hover:shadow-md flex items-center gap-2 sm:gap-2.5`}
+                    className={`group w-full min-h-[58px] sm:min-h-[68px] p-2 sm:p-2.5 rounded-2xl border-2 ${item.cardBg} ${item.tilt} hover:rotate-0 hover:-translate-y-1 hover:scale-[1.03] active:scale-95 transition-all duration-200 ease-out cursor-pointer shadow-xs hover:shadow-md flex items-center gap-2 sm:gap-2.5 diorama-lift`}
                   >
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${item.badgeBg} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200`}>
                       <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0" />
@@ -339,142 +393,157 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             })}
           </div>
         </div>
+
+        {/* Organic Wave Transition into Play Zones */}
+        <SectionWaveDivider position="bottom" variant="cream-to-meadow" height={28} className="mt-4" />
       </section>
 
-      {/* 3. PLAY ZONES: Large immersive section with background image & soft warm gradient overlay */}
-      <section id="play-zones" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden p-5 sm:p-8 lg:p-10 border border-amber-900/40 shadow-2xl space-y-6 sm:space-y-8">
-          {/* Section Photographic Background with Soft Warm Gradient Overlay */}
-          <img
-            src={bgConfig.playZonesSection}
-            alt="Play Zones Grounds"
-            className="absolute inset-0 w-full h-full object-cover object-center scale-102"
-          />
-          {/* Soft warm gradient overlay for clear contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-amber-950/85 to-slate-950/98" />
+      {/* 3. PLAY ZONES: Full-width end-to-end section touching both sides of the viewport */}
+      <section id="play-zones" className="relative w-full overflow-hidden border-y border-amber-950/40 py-12 sm:py-16 lg:py-20">
+        {/* Section Photographic Background touching both edges */}
+        <img
+          src={bgConfig.playZonesSection}
+          alt="Play Zones Grounds"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-102"
+        />
+        {/* Soft warm gradient overlay for clear contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-amber-950/85 to-slate-950/98" />
 
-          <div className="relative z-10 space-y-6 sm:space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-5">
-              <div>
-                <MulticolorTitle
-                  text="Five Dedicated Play Zones"
-                  as="h2"
-                  className="text-2xl sm:text-4xl lg:text-5xl font-kid font-black tracking-wide drop-shadow-md"
-                  bounceOnMount={true}
-                />
-                <p className="text-base text-slate-200 mt-1 font-medium">
-                  Curated by age so every child plays safely and joyfully.
-                </p>
-              </div>
+        {/* Dynamic Midday Park Sunlit Ambient Bleed */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: SECTION_AMBIENT_GRADIENTS.playZones }}
+        />
 
-              {/* Quick Zone Filter with Apple HIG 44px Touch Targets */}
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  { id: 'all', label: 'All 5 Zones' },
-                  { id: 'little-garden', label: '👶 6M–2Y' },
-                  { id: 'adventure-zone', label: '🏰 3–6Y' },
-                  { id: 'creative-zone', label: '🎨 Creative' },
-                  { id: 'discovery-world', label: '🔬 Discovery' },
-                  { id: 'celebration-stage', label: '🎪 Stage' }
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveZoneTab(tab.id)}
-                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
-                      activeZoneTab === tab.id
-                        ? 'bg-amber-400 text-slate-950 shadow-sm'
-                        : 'bg-white/10 hover:bg-white/20 text-slate-200'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-5">
+            <div>
+              <MulticolorTitle
+                text="Five Dedicated Play Zones"
+                as="h2"
+                className="text-fluid-h2 sm:text-fluid-h1 font-kid font-black tracking-wide drop-shadow-md break-words"
+                bounceOnMount={true}
+              />
+              <p className="text-fluid-base text-slate-200 mt-1 font-medium">
+                Curated by age so every child plays safely and joyfully.
+              </p>
             </div>
 
-            {/* Full-Bleed Visual Zone Cards */}
-            <div className="space-y-6">
-              {filteredZones.map(zone => (
-                <div
-                  key={zone.id}
-                  className={`relative rounded-3xl overflow-hidden bg-gradient-to-r ${zone.bannerBg} text-white shadow-xl border border-slate-800/80 min-h-[300px] sm:min-h-[340px] flex items-center`}
+            {/* Quick Zone Filter with Apple HIG 44px Touch Targets */}
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: 'all', label: 'All 5 Zones' },
+                { id: 'little-garden', label: '👶 6M–2Y' },
+                { id: 'adventure-zone', label: '🏰 3–6Y' },
+                { id: 'creative-zone', label: '🎨 Creative' },
+                { id: 'discovery-world', label: '🔬 Discovery' },
+                { id: 'celebration-stage', label: '🎪 Stage' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveZoneTab(tab.id)}
+                  className={`min-h-[44px] px-3.5 py-2 rounded-xl text-fluid-btn font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
+                    activeZoneTab === tab.id
+                      ? 'bg-amber-400 text-slate-950 shadow-sm'
+                      : 'bg-white/10 hover:bg-white/20 text-slate-200'
+                  }`}
                 >
-                  {/* Full Bleed Image Layer with rich natural color */}
-                  <img
-                    src={zone.image}
-                    alt={zone.name}
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-95 scale-100 hover:scale-103 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-
-                  {/* Soft Warm Gradient Overlay - gentle on the photo, keeping text crisp while image stays vibrant */}
-                  <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-slate-950/70 via-slate-950/40 to-transparent pointer-events-none" />
-
-                  <div className="relative z-10 w-full p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <div className="max-w-2xl space-y-4">
-                      {/* Age Badge */}
-                      <div className="flex items-center gap-3">
-                        <span className={`text-[11px] font-black uppercase px-3.5 py-1 rounded-full shadow-sm ${zone.tagColor}`}>
-                          {zone.age}
-                        </span>
-                        <span className="text-xs sm:text-sm text-slate-300 font-semibold">
-                          The Little Farm Grounds
-                        </span>
-                      </div>
-
-                      {/* Zone Title & 1-Sentence Headline */}
-                      <div>
-                        <MulticolorTitle
-                          text={zone.name}
-                          as="h3"
-                          className="text-2xl sm:text-3xl lg:text-4xl font-kid font-black tracking-wide drop-shadow-md"
-                          bounceOnMount={false}
-                        />
-                        <p className="text-sm sm:text-base text-slate-200 mt-1 font-medium leading-relaxed max-w-xl">
-                          {zone.shortDesc}
-                        </p>
-                      </div>
-
-                      {/* Clean, Uncluttered Feature Chips */}
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {zone.features.slice(0, 3).map((feat, fIdx) => (
-                          <div
-                            key={fIdx}
-                            className="min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-white/15 text-xs sm:text-sm font-semibold text-slate-100 flex items-center gap-1.5 backdrop-blur-sm shadow-sm"
-                          >
-                            <span className="text-emerald-400 font-bold">✓</span>
-                            <span>{feat.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Clear Actions - full width on phones, 48px touch targets */}
-                    <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center gap-3 shrink-0 pt-2 lg:pt-0 w-full lg:w-auto">
-                      <button
-                        onClick={() => {
-                          onOpen3DMap(zone.id);
-                        }}
-                        className="w-full lg:w-44 min-h-[48px] py-3.5 px-4 bg-white/15 hover:bg-white/25 active:scale-98 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer border border-white/20 backdrop-blur-md"
-                      >
-                        <MapPin className="w-4 h-4 text-amber-300 shrink-0" />
-                        <span>View in 3D Map</span>
-                      </button>
-
-                      <button
-                        onClick={() => onOpenBooking(1)}
-                        className="w-full lg:w-44 min-h-[44px] py-2.5 px-4 bg-amber-400 hover:bg-amber-300 active:scale-98 text-slate-950 rounded-xl text-xs sm:text-sm font-bold transition cursor-pointer shadow-md flex items-center justify-center gap-1.5"
-                      >
-                        <span>Book Pass</span>
-                        <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  {tab.label}
+                </button>
               ))}
             </div>
           </div>
+
+          {/* Full-Bleed Visual Zone Cards */}
+          <div className="space-y-6">
+            {filteredZones.map(zone => (
+              <div
+                key={zone.id}
+                className={`relative rounded-3xl overflow-hidden bg-gradient-to-r ${zone.bannerBg} text-white shadow-xl border border-slate-800/80 min-h-[300px] sm:min-h-[340px] flex items-center diorama-lift`}
+              >
+                {/* Full Bleed Image Layer with rich natural color */}
+                <img
+                  src={zone.image}
+                  alt={zone.name}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover object-center opacity-95 scale-100 hover:scale-103 transition-transform duration-700"
+                  referrerPolicy="no-referrer"
+                />
+
+                {/* Soft Warm Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-slate-950/70 via-slate-950/40 to-transparent pointer-events-none" />
+
+                <div className="relative z-10 w-full p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="max-w-2xl space-y-4">
+                    {/* Age Badge */}
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[11px] font-black uppercase px-3.5 py-1 rounded-full shadow-sm sticker-badge ${zone.tagColor}`}>
+                        {zone.age}
+                      </span>
+                      <span className="text-fluid-xs text-slate-300 font-semibold">
+                        The Little Farm Grounds
+                      </span>
+                    </div>
+
+                    {/* Zone Title & 1-Sentence Headline */}
+                    <div>
+                      <MulticolorTitle
+                        text={zone.name}
+                        as="h3"
+                        className="text-fluid-h3 sm:text-fluid-h2 font-kid font-black tracking-wide drop-shadow-md break-words"
+                        bounceOnMount={false}
+                      />
+                      <p className="text-fluid-base text-slate-200 mt-1 font-medium leading-relaxed max-w-xl">
+                        {zone.shortDesc}
+                      </p>
+                    </div>
+
+                    {/* Clean, Uncluttered Feature Chips */}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {zone.features.slice(0, 3).map((feat, fIdx) => (
+                        <div
+                          key={fIdx}
+                          className="min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-white/15 text-fluid-xs font-semibold text-slate-100 flex items-center gap-1.5 backdrop-blur-sm shadow-sm"
+                        >
+                          <span className="text-emerald-400 font-bold">✓</span>
+                          <span>{feat.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Clear Actions - full width on phones, 48px touch targets */}
+                  <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center gap-3 shrink-0 pt-2 lg:pt-0 w-full lg:w-auto">
+                    <button
+                      onClick={() => {
+                        onOpen3DMap(zone.id);
+                      }}
+                      className="w-full lg:w-44 min-h-[48px] py-3.5 px-4 bg-white/15 hover:bg-white/25 active:scale-98 text-white rounded-xl text-fluid-btn font-bold transition flex items-center justify-center gap-2 cursor-pointer border border-white/20 backdrop-blur-md"
+                    >
+                      <MapPin className="w-4 h-4 text-amber-300 shrink-0" />
+                      <span>View in 3D Map</span>
+                    </button>
+
+                    <button
+                      onClick={() => onOpenBooking(1)}
+                      className="w-full lg:w-44 min-h-[44px] py-2.5 px-4 bg-amber-400 hover:bg-amber-300 active:scale-98 text-slate-950 rounded-xl text-fluid-btn font-bold transition cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+                    >
+                      <span>Book Pass</span>
+                      <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Wave divider into Site Map */}
+        <SectionWaveDivider position="bottom" variant="meadow-to-cream" height={32} className="mt-8" />
       </section>
 
       {/* 4. 3D SITE MAP: Responsive container, no horizontal overflow, clean preview framing */}
@@ -488,7 +557,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               A glimpse of what families can expect on the day. Explore the 4,000 m² grounds, play zones, and pedestrian flow.
             </p>
           </div>
-
         </div>
 
         {/* 3D Festival World Portal - connects seamlessly to the persistent root 3D canvas */}
@@ -552,9 +620,18 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         <img
           src="/bambino-farm.jpg"
           alt="The Little Farm Grounds Aerial View"
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-slate-950/98 via-slate-950/80 to-slate-950/40" />
+
+        {/* Dynamic Afternoon Farm Ambient Bleed */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: SECTION_AMBIENT_GRADIENTS.farm }}
+        />
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-white">
           <div className="max-w-2xl space-y-5">
@@ -605,92 +682,105 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Organic Wave Transition into Programme */}
+        <SectionWaveDivider position="bottom" variant="meadow-to-amber" height={34} className="absolute bottom-0 left-0 right-0 z-20" />
       </section>
 
-      {/* 6. PROGRAMME: Clean, scannable schedule with scenic background image & warm gradient overlay */}
-      <section id="programme" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden p-5 sm:p-8 lg:p-10 border border-emerald-900/40 shadow-2xl space-y-6">
-          {/* Section Photographic Background with Soft Warm Gradient Overlay */}
-          <img
-            src={bgConfig.programmeSection}
-            alt="Event Programme Stage Backdrop"
-            className="absolute inset-0 w-full h-full object-cover object-center scale-102"
-          />
-          {/* Soft warm gradient overlay for clear contrast */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-amber-950/85 to-emerald-950/92" />
+      {/* 6. PROGRAMME: Full-width end-to-end section touching both sides of the viewport */}
+      <section id="programme" className="relative w-full overflow-hidden border-y border-emerald-950/40 py-12 sm:py-16 lg:py-20">
+        {/* Section Photographic Background touching both edges */}
+        <img
+          src={bgConfig.programmeSection}
+          alt="Event Programme Stage Backdrop"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-102"
+        />
+        {/* Soft warm gradient overlay for clear contrast */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-amber-950/85 to-emerald-950/92" />
 
-          <div className="relative z-10 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-4">
-              <div>
-                <h2 className="text-fluid-h2 font-kid font-black text-white tracking-wide drop-shadow-md">
-                  Event <span className="kid-tilt-l text-amber-400">Programme</span>
-                </h2>
-                <p className="text-fluid-base text-slate-200 mt-1 font-medium">
-                  Saturday 5 December 2026 · 10:00 AM – 5:00 PM CAT.
-                </p>
-              </div>
+        {/* Dynamic Golden Hour Programme Ambient Bleed */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: SECTION_AMBIENT_GRADIENTS.programme }}
+        />
 
-              {/* Zone filter with 44px min touch targets */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                {[
-                  { id: 'all', label: 'All Sessions' },
-                  { id: 'stage', label: 'Stage' },
-                  { id: 'baby', label: 'Baby' },
-                  { id: 'adventure', label: 'Adventure' },
-                  { id: 'creative', label: 'Creative' },
-                  { id: 'discovery', label: 'Discovery' }
-                ].map(f => (
-                  <button
-                    key={f.id}
-                    onClick={() => setActiveProgZone(f.id)}
-                    className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
-                      activeProgZone === f.id
-                        ? 'bg-amber-400 text-slate-950 shadow-sm'
-                        : 'bg-white/10 hover:bg-white/20 text-slate-200'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-4">
+            <div>
+              <h2 className="text-fluid-h2 font-kid font-black text-white tracking-wide drop-shadow-md break-words">
+                Event <span className="kid-tilt-l text-amber-400">Programme</span>
+              </h2>
+              <p className="text-fluid-base text-slate-200 mt-1 font-medium">
+                Saturday 5 December 2026 · 10:00 AM – 5:00 PM CAT.
+              </p>
             </div>
 
-            {/* Programme Timeline Cards with Frosted Glassmorphic Styling */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {filteredSchedule.slice(0, 9).map((session) => (
-                <div
-                  key={session.id}
-                  className="p-4 sm:p-5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 hover:border-amber-400/50 shadow-md transition space-y-2.5 flex flex-col justify-between text-white"
+            {/* Zone filter with 44px min touch targets */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {[
+                { id: 'all', label: 'All Sessions' },
+                { id: 'stage', label: 'Stage' },
+                { id: 'baby', label: 'Baby' },
+                { id: 'adventure', label: 'Adventure' },
+                { id: 'creative', label: 'Creative' },
+                { id: 'discovery', label: 'Discovery' }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setActiveProgZone(f.id)}
+                  className={`min-h-[44px] px-3.5 py-2 rounded-xl text-fluid-btn font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
+                    activeProgZone === f.id
+                      ? 'bg-amber-400 text-slate-950 shadow-sm'
+                      : 'bg-white/10 hover:bg-white/20 text-slate-200'
+                  }`}
                 >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-amber-300 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-                        <span>{session.start} – {session.end}</span>
-                      </span>
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/20">
-                        {session.zoneName}
-                      </span>
-                    </div>
-                    <h4 className="text-base font-bold text-white leading-snug drop-shadow-xs">
-                      {session.title}
-                    </h4>
-                    {session.description && (
-                      <p className="text-sm sm:text-base text-slate-200 line-clamp-2">
-                        {session.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="pt-2 flex items-center justify-between border-t border-white/10 text-xs text-slate-300">
-                    <span>{session.age || 'All Ages'}</span>
-                    <span className="font-semibold text-emerald-300">Included in Pass</span>
-                  </div>
-                </div>
+                  {f.label}
+                </button>
               ))}
             </div>
           </div>
+
+          {/* Programme Timeline Cards with Frosted Glassmorphic Styling and Diorama Lift */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {filteredSchedule.slice(0, 9).map((session) => (
+              <div
+                key={session.id}
+                className="p-4 sm:p-5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 hover:border-amber-400/50 shadow-md transition space-y-2.5 flex flex-col justify-between text-white diorama-lift"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-amber-300 flex items-center gap-1.5 text-fluid-xs">
+                      <Clock className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                      <span>{session.start} – {session.end}</span>
+                    </span>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/20 sticker-badge">
+                      {session.zoneName}
+                    </span>
+                  </div>
+                  <h4 className="text-fluid-base font-bold text-white leading-snug drop-shadow-xs break-words">
+                    {session.title}
+                  </h4>
+                  {session.description && (
+                    <p className="text-fluid-xs text-slate-200 line-clamp-2">
+                      {session.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-2 flex items-center justify-between border-t border-white/10 text-fluid-xs text-slate-300">
+                  <span>{session.age || 'All Ages'}</span>
+                  <span className="font-semibold text-emerald-300">Included in Pass</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Wave divider into Tickets */}
+        <SectionWaveDivider position="bottom" variant="amber-to-cream" height={32} className="mt-8" />
       </section>
 
       {/* 7. TICKETS & "WHAT PARENTS NEED TO KNOW": Transparent pricing, inclusions, and parent trust */}

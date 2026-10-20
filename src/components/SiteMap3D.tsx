@@ -37,6 +37,20 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
   // UI state
   const [inspectedPerson, setInspectedPerson] = useState<{ icon: string; roleTitle: string; label: string } | null>(null);
   const [personScreenPos, setPersonScreenPos] = useState<{ x: number; y: number } | null>(null);
+  const [mobileInteractionActive, setMobileInteractionActive] = useState<boolean>(isCinemaMode);
+
+  useEffect(() => {
+    if (isCinemaMode) {
+      setMobileInteractionActive(true);
+    }
+  }, [isCinemaMode]);
+
+  useEffect(() => {
+    if (internalsRef.current) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      internalsRef.current.controls.enabled = !isMobile || isCinemaMode || mobileInteractionActive;
+    }
+  }, [mobileInteractionActive, isCinemaMode]);
 
   // References to Three.js runtime internals
   const internalsRef = useRef<{
@@ -2784,7 +2798,10 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
   }, [isCinemaMode]);
 
   return (
-    <div className={`relative overflow-hidden select-none bg-[#141e18] ${className}`}>
+    <div
+      className={`relative overflow-hidden select-none bg-[#141e18] ${className}`}
+      style={{ touchAction: mobileInteractionActive || isCinemaMode ? 'none' : 'pan-y' }}
+    >
       {/* 3D WebGL Canvas Container */}
       <div ref={mountRef} className="absolute inset-0 w-full h-full" />
 
@@ -2794,27 +2811,49 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       {/* HTML Callout Badges Layer */}
       <div ref={domOverlayRef} className="absolute inset-0 w-full h-full pointer-events-none z-11" />
 
-      {/* Subtle depth vignette (clear, airy, zero glare) */}
+      {/* Miniature Toy Diorama Look: Tilt-Shift Blur Masks & Soft Edge Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none z-12"
-        style={{
-          background: `
-            linear-gradient(to bottom,
-              rgba(10, 15, 20, 0.05) 0%,
-              transparent 12%,
-              transparent 88%,
-              rgba(10, 15, 20, 0.06) 100%
-            )
-          `
-        }}
-      />
-      {/* Soft atmospheric tilt-shift perimeter blur bars */}
-      <div
-        className="absolute top-0 left-0 right-0 h-14 pointer-events-none z-12 backdrop-blur-[1px] [mask-image:linear-gradient(to_bottom,black,transparent)]"
-      />
-      <div
-        className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none z-12 backdrop-blur-[1px] [mask-image:linear-gradient(to_top,black,transparent)]"
-      />
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none z-12 select-none overflow-hidden"
+      >
+        {/* Soft edge radial vignette for focused diorama look */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_52%,rgba(15,23,42,0.42)_100%)]" />
+
+        {/* Top Tilt-Shift Blur Gradient */}
+        <div className="absolute top-0 inset-x-0 h-16 sm:h-24 bg-gradient-to-b from-slate-950/45 via-slate-900/10 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+
+        {/* Bottom Tilt-Shift Blur Gradient */}
+        <div className="absolute bottom-0 inset-x-0 h-16 sm:h-24 bg-gradient-to-t from-slate-950/45 via-slate-900/10 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black,transparent)]" />
+      </div>
+
+      {/* Mobile Scroll-Trapping Guard (< 768px):
+          Allows natural vertical page scrolling on phones unless user explicitly taps to orbit */}
+      {!isCinemaMode && !mobileInteractionActive && (
+        <div
+          onClick={() => {
+            setMobileInteractionActive(true);
+            if (internalsRef.current) internalsRef.current.controls.enabled = true;
+          }}
+          className="md:hidden absolute inset-0 z-30 bg-slate-950/20 backdrop-blur-[1px] flex items-center justify-center pointer-events-auto cursor-pointer"
+        >
+          <div className="sticker-badge px-4 py-2 bg-amber-400 text-slate-950 font-kid font-black text-xs shadow-xl flex items-center gap-2">
+            <span>👆 Tap to Interact with 3D Map</span>
+          </div>
+        </div>
+      )}
+
+      {!isCinemaMode && mobileInteractionActive && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setMobileInteractionActive(false);
+            if (internalsRef.current) internalsRef.current.controls.enabled = false;
+          }}
+          className="md:hidden absolute top-3 right-3 z-30 px-3 py-1.5 bg-slate-900/85 text-white text-[11px] font-bold rounded-xl border border-white/20 shadow-lg pointer-events-auto flex items-center gap-1.5"
+        >
+          <span>🔒 Lock Orbit (Scroll Page)</span>
+        </button>
+      )}
 
       {/* Floating Person / Activity Inspector Pill with translucent glass */}
       {inspectedPerson && personScreenPos && (
@@ -2845,3 +2884,5 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     </div>
   );
 });
+
+export default SiteMap3D;

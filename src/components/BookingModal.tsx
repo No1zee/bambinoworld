@@ -136,7 +136,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             </div>
 
             <div>
-              <h2 className="text-2xl sm:text-4xl font-kid font-black text-slate-900 mt-1">
+              <h2 className="text-fluid-h2 sm:text-fluid-h1 font-kid font-black text-slate-900 mt-1 break-words">
                 See You at <span className="kid-tilt-l text-emerald-600">The Little Farm</span>!
               </h2>
               <p className="text-sm text-slate-600 mt-1 max-w-md mx-auto">
@@ -145,8 +145,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               </p>
             </div>
 
-            {/* Digital Wristband Card */}
-            <div className="bg-slate-900 text-white rounded-2xl p-5 max-w-md mx-auto text-left space-y-3 shadow-xl border border-slate-800">
+            {/* Perforated Digital Wristband Stub */}
+            <div className="ticket-stub bg-slate-900 text-white rounded-2xl p-5 max-w-md mx-auto text-left space-y-3 shadow-xl border border-slate-800 overflow-hidden">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
                   <div className="text-[11px] text-amber-400 font-extrabold uppercase">
@@ -179,7 +179,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <div className="ticket-tear-line my-3" />
+
+              <div className="flex items-center justify-between text-xs text-slate-400">
                 <span className="flex items-center gap-1">
                   <QrCode className="w-4 h-4 text-amber-400" /> Show on arrival at Main Gate
                 </span>
@@ -187,10 +189,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-3">
+            <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  `🎉 We got our Bambino World Festival Passes for Saturday 5 Dec 2026 at The Little Farm! Wristband Code: ${completedBooking.wristbandCode}. See you there! 🎪`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="min-h-[44px] px-5 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold rounded-xl transition cursor-pointer text-xs sm:text-sm shadow-md flex items-center gap-2"
+              >
+                <Phone className="w-4 h-4 fill-current shrink-0" />
+                <span>Share on WhatsApp</span>
+              </a>
+
               <button
                 onClick={onClose}
-                className="min-h-[44px] px-7 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl transition cursor-pointer text-sm shadow-md"
+                className="min-h-[44px] px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition cursor-pointer text-xs sm:text-sm shadow-md"
               >
                 Done &amp; Explore 3D Map
               </button>
@@ -200,61 +214,67 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           /* Booking Form */
           <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5">
             <div className="pr-10">
-              <h2 className="text-2xl sm:text-4xl font-kid font-black text-slate-900 mt-1">
+              <h2 className="text-fluid-h2 sm:text-fluid-h1 font-kid font-black text-slate-900 mt-1 break-words">
                 Bambino <span className="kid-tilt-l text-amber-500">Wonder Day</span> Tickets
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              <p className="text-fluid-xs text-slate-600 mt-1">
                 Saturday 5 December 2026 · All passes include lunch, unlimited candyfloss &amp; waffles, live shows &amp; all zones.
               </p>
             </div>
 
-            {/* Interactive Holographic Souvenir Pass Preview */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-200 via-rose-200 to-sky-200 p-[2px] shadow-lg shadow-amber-950/10 transition-all">
-              <div className="relative rounded-[14px] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-4 sm:p-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 overflow-hidden">
-                {/* Iridescent shimmer overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-amber-400/10 via-rose-400/15 to-sky-400/15 pointer-events-none" />
-                <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-amber-400/10 blur-2xl pointer-events-none" />
-
+            {/* Perforated Physical Festival Ticket Stub Preview */}
+            <div className="ticket-stub p-4 sm:p-5 relative bg-white border border-slate-300 shadow-md diorama-lift overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                 {/* Left: Pass Brand, Guest Name & Date */}
-                <div className="relative z-10 space-y-1.5 flex-1 min-w-0">
+                <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-xs">
+                    <span className="sticker-badge inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-xs">
                       <Sparkles className="w-3 h-3 text-slate-950" />
                       <span>{ticketType.replace('-', ' ')} Pass</span>
                     </span>
-                    <span className="text-[10px] font-mono font-bold text-amber-300/80">
+                    <span className="text-[10px] font-mono font-bold text-slate-500">
                       5 DEC 2026 · HARARE
                     </span>
                   </div>
 
-                  <h3 className="font-kid font-black text-lg sm:text-xl text-white tracking-wide truncate">
-                    {name.trim() ? name : 'Little Adventurer'} &amp; Family
+                  <h3 className="font-kid font-black text-fluid-h4 text-slate-900 tracking-wide break-words">
+                    {name.trim() ? name : 'Family Explorer'} Pass
                   </h3>
 
-                  <p className="text-xs text-slate-300 font-medium flex items-center gap-2">
+                  <p className="text-xs text-slate-600 font-medium flex items-center gap-2">
                     <span>{childCount} Child Pass{childCount > 1 ? 'es' : ''}</span>
                     {underTwoCount > 0 && <span>· {underTwoCount} Under 2 (Free)</span>}
                     <span>· All 5 Zones Included</span>
                   </p>
                 </div>
 
-                {/* Perforated Divider (dashed on larger screens) */}
-                <div className="hidden sm:block border-l-2 border-dashed border-slate-700/80 h-16 self-center relative">
-                  <div className="absolute -top-6 -left-[7px] w-3 h-3 rounded-full bg-white" />
-                  <div className="absolute -bottom-6 -left-[7px] w-3 h-3 rounded-full bg-white" />
-                </div>
-
-                {/* Right: Price & Barcode */}
-                <div className="relative z-10 sm:text-right shrink-0 flex items-center sm:flex-col justify-between sm:justify-center border-t sm:border-t-0 border-slate-800 pt-2 sm:pt-0">
+                {/* Right: Price */}
+                <div className="sm:text-right shrink-0 flex items-center sm:flex-col justify-between sm:justify-center border-t sm:border-t-0 border-slate-200 pt-2 sm:pt-0">
                   <div>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Total Due</span>
-                    <span className="font-kid font-black text-2xl sm:text-3xl text-amber-400 leading-tight">
+                    <span className="font-kid font-black text-2xl sm:text-3xl text-emerald-700 leading-tight">
                       ${total}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/80">
+                  <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     EcoCash &amp; USD
                   </span>
+                </div>
+              </div>
+
+              {/* Perforated Tear Line with side notches */}
+              <div className="ticket-tear-line my-3" />
+
+              {/* Bottom: Stylized Barcode / Wristband ID */}
+              <div className="flex items-center justify-between gap-3 text-slate-500">
+                <div className="flex items-center gap-2 text-[10px] font-mono font-bold">
+                  <QrCode className="w-4 h-4 text-slate-700" />
+                  <span>BW-FEST-2026-HARARE</span>
+                </div>
+                <div className="ticket-barcode w-24">
+                  {[3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 1, 3, 2, 1, 3].map((w, idx) => (
+                    <span key={idx} style={{ width: `${w}px` }} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -278,7 +298,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 >
                   <div className="text-xs text-slate-500 font-semibold">{tier.label}</div>
                   <div className="text-xl sm:text-2xl font-black font-['Outfit'] my-0.5">{tier.price}</div>
-                  <div className="text-[10px] text-emerald-700 font-medium truncate">{tier.note}</div>
+                  <div className="text-[10px] text-emerald-700 font-medium break-words">{tier.note}</div>
                 </button>
               ))}
             </div>
@@ -451,7 +471,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
             )}
 
             {/* Total and Submit */}
-            <div className="bg-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="bg-slate-100 rounded-2xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               <div>
                 <div className="text-xs text-slate-500 font-semibold">Total Amount</div>
                 <div className="text-2xl font-black text-slate-900 font-['Outfit']">
@@ -461,13 +481,35 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   )}
                 </div>
               </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="min-h-[48px] px-7 py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-extrabold rounded-xl transition cursor-pointer text-sm shadow-md active:scale-98 flex items-center justify-center"
-              >
-                {isSubmitting ? 'Confirming...' : 'Confirm Family Pass'}
-              </button>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <a
+                  href={`https://wa.me/263779140417?text=${encodeURIComponent(
+                    `🎪 Bambino World Festival Booking Request:\n` +
+                    `• Parent/Name: ${name.trim() || 'Parent'}\n` +
+                    `• Children: ${childCount} Child Pass(es)${underTwoCount > 0 ? ` + ${underTwoCount} Under 2 (Free)` : ''}\n` +
+                    `• Pass Type: ${ticketType.replace('-', ' ').toUpperCase()}\n` +
+                    `• Total Due: $${total} USD\n` +
+                    `• Date: Saturday 5 Dec 2026 (10 AM - 5 PM)\n` +
+                    `• Venue: The Little Farm, Meyrick Park, Harare\n` +
+                    `• Payment: ${paymentMethod.toUpperCase()}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="min-h-[48px] px-4 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black rounded-xl transition cursor-pointer text-xs sm:text-sm shadow-md active:scale-98 flex items-center justify-center gap-2"
+                >
+                  <Phone className="w-4 h-4 fill-current shrink-0" />
+                  <span>Book via WhatsApp</span>
+                </a>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="min-h-[48px] px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-extrabold rounded-xl transition cursor-pointer text-sm shadow-md active:scale-98 flex items-center justify-center"
+                >
+                  {isSubmitting ? 'Confirming...' : 'Confirm Family Pass'}
+                </button>
+              </div>
             </div>
           </form>
         )}

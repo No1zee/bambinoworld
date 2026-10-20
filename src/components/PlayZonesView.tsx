@@ -142,31 +142,34 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
         </div>
       </div>
 
-      {/* FULL-WIDTH IMMERSIVE SECTIONS: Wrap with section background image and soft warm overlay */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden p-5 sm:p-8 border border-amber-900/30 shadow-2xl space-y-6">
-          {/* Section Atmosphere Background */}
-          <img
-            src={bgConfig.playZonesSection}
-            alt="Play Zones Grounds"
-            className="absolute inset-0 w-full h-full object-cover object-center scale-102"
-          />
+      {/* FULL-WIDTH IMMERSIVE SECTION: End-to-end touching both sides of viewport */}
+      <div className="relative w-full overflow-hidden border-y border-amber-950/30 py-10 sm:py-14">
+        {/* Section Atmosphere Background touching edges */}
+        <img
+          src={bgConfig.playZonesSection}
+          alt="Play Zones Grounds"
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-102"
+        />
 
-          {/* Soft warm gradient overlay for clear contrast and vibrant atmosphere */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-amber-950/60 to-slate-950/85" />
+        {/* Soft warm gradient overlay for clear contrast and vibrant atmosphere */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-amber-950/60 to-slate-950/85" />
 
-          <div className="relative z-10 space-y-6">
-            {filteredZones.map(zone => {
-              return (
-                <section
-                  key={zone.id}
-                  id={zone.id}
-                  className={`relative w-full rounded-3xl overflow-hidden bg-gradient-to-r ${zone.bannerBg} text-white shadow-xl border border-slate-800 flex flex-col justify-between min-h-[280px] sm:min-h-[320px]`}
-                >
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          {filteredZones.map(zone => {
+            return (
+              <section
+                key={zone.id}
+                id={zone.id}
+                className={`relative w-full rounded-3xl overflow-hidden bg-gradient-to-r ${zone.bannerBg} text-white shadow-xl border border-slate-800 flex flex-col justify-between min-h-[280px] sm:min-h-[320px] diorama-lift diorama-shadow`}
+              >
                   {/* Full Bleed Image Layer with rich natural color */}
                   <img
                     src={zone.image}
                     alt={zone.name}
+                    loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover object-center opacity-95 scale-100 hover:scale-103 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
@@ -178,7 +181,7 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
                   <div className="relative z-10 p-5 sm:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 w-full">
                     <div className="max-w-2xl space-y-3">
                       <div className="flex items-center gap-2.5">
-                        <span className={`text-[11px] font-black uppercase px-3.5 py-1 rounded-full shadow-sm ${zone.tagColor}`}>
+                        <span className={`sticker-badge text-[11px] font-black uppercase px-3.5 py-1 shadow-sm font-kid ${zone.tagColor}`}>
                           {zone.age}
                         </span>
                         <span className="text-xs sm:text-sm text-slate-300 font-medium">The Little Farm Grounds</span>
@@ -194,12 +197,12 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
                         {zone.shortDesc}
                       </p>
 
-                      {/* Clean, Uncluttered Feature Chips */}
+                      {/* Clean, Uncluttered Feature Chips styled with sticker-badge */}
                       <div className="flex flex-wrap gap-2 pt-1">
                         {zone.features.map((feat, fIdx) => (
                           <div
                             key={fIdx}
-                            className="min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-white/15 text-fluid-xs font-semibold text-slate-100 flex items-center gap-1.5 backdrop-blur-sm shadow-sm"
+                            className="sticker-badge min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-900/85 border border-white/20 text-fluid-xs font-semibold text-slate-100 flex items-center gap-1.5 backdrop-blur-sm shadow-sm"
                           >
                             <span className="text-emerald-400 font-bold">✓</span>
                             <span>{feat}</span>
@@ -233,7 +236,6 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

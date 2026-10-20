@@ -19,6 +19,20 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
+  const isTouchDevice = () => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
+  };
+
+  // Auto-dismiss on touch devices after 3.2s
+  useEffect(() => {
+    if (!isOpen || !isTouchDevice()) return;
+    const timer = setTimeout(() => {
+      setIsOpen(false);
+    }, 3200);
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
   // Close on outside touch or click
   useEffect(() => {
     if (!isOpen) return;
@@ -62,12 +76,17 @@ export const Tooltip: React.FC<TooltipProps> = ({
     <div
       ref={containerRef}
       className={`relative inline-flex items-center ${className}`}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-      onFocus={() => setIsOpen(true)}
+      onMouseEnter={() => {
+        if (!isTouchDevice()) setIsOpen(true);
+      }}
+      onMouseLeave={() => {
+        if (!isTouchDevice()) setIsOpen(false);
+      }}
+      onFocus={() => {
+        if (!isTouchDevice()) setIsOpen(true);
+      }}
       onBlur={() => setIsOpen(false)}
-      onClick={(e) => {
-        // Toggle on touch/click
+      onClick={() => {
         setIsOpen(prev => !prev);
       }}
       aria-expanded={isOpen}

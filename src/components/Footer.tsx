@@ -120,10 +120,10 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenBooking }) =>
               <li>
                 <a
                   href="mailto:bambinoworldzw@gmail.com"
-                  className="min-h-[44px] flex items-center gap-2.5 hover:text-white transition active:opacity-75 truncate"
+                  className="min-h-[44px] flex items-center gap-2.5 hover:text-white transition active:opacity-75"
                 >
                   <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span className="truncate">bambinoworldzw@gmail.com</span>
+                  <span className="break-all text-fluid-xs">bambinoworldzw@gmail.com</span>
                 </a>
               </li>
               <li className="flex items-start gap-2.5 pt-2 text-xs text-slate-400 leading-relaxed">

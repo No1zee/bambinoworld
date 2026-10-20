@@ -90,6 +90,47 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
   };
   const activeImage = customZoneImage || zoneMedia.image;
 
+  // Zone Color Themes for dynamic tinting
+  const ZONE_THEMES: Record<string, {
+    accentHex: string;
+    badgeBg: string;
+    ctaClass: string;
+    borderTint: string;
+  }> = {
+    'little-garden': {
+      accentHex: '#10b981',
+      badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      ctaClass: 'bg-emerald-500 hover:bg-emerald-400 text-white',
+      borderTint: 'border-t-emerald-500'
+    },
+    'adventure-zone': {
+      accentHex: '#f59e0b',
+      badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+      ctaClass: 'bg-amber-400 hover:bg-amber-300 text-slate-950',
+      borderTint: 'border-t-amber-400'
+    },
+    'creative-zone': {
+      accentHex: '#38bdf8',
+      badgeBg: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+      ctaClass: 'bg-sky-400 hover:bg-sky-300 text-slate-950',
+      borderTint: 'border-t-sky-400'
+    },
+    'discovery-world': {
+      accentHex: '#fb7185',
+      badgeBg: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+      ctaClass: 'bg-rose-500 hover:bg-rose-400 text-white',
+      borderTint: 'border-t-rose-400'
+    },
+    'celebration-stage': {
+      accentHex: '#c084fc',
+      badgeBg: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+      ctaClass: 'bg-purple-500 hover:bg-purple-400 text-white',
+      borderTint: 'border-t-purple-400'
+    }
+  };
+
+  const theme = ZONE_THEMES[zoneId] || ZONE_THEMES['adventure-zone'];
+
   const handleDismiss = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     e?.preventDefault();
@@ -98,16 +139,17 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
   };
 
   return (
-    /* Floating HUD Card: Zero full-screen backdrop so the 3D map is 100% interactive with mouse/touch at all times! */
+    /* Floating HUD Card: Warm Frosted Glass treatment (.glass-warm-dark) with dynamic zone tint */
     <aside
       ref={sheetRef}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className="fixed inset-x-3 bottom-3 top-auto sm:top-20 sm:bottom-auto sm:right-6 sm:left-auto sm:w-[370px] max-h-[55dvh] sm:max-h-[82dvh] bg-slate-900/95 backdrop-blur-xl border border-white/25 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] z-50 flex flex-col overflow-hidden text-slate-100 animate-in slide-in-from-bottom sm:slide-in-from-right duration-200 pointer-events-auto"
+      style={{ borderTopColor: theme.accentHex }}
+      className={`fixed inset-x-3 bottom-3 top-auto sm:top-20 sm:bottom-auto sm:right-6 sm:left-auto sm:w-[370px] max-h-[55dvh] sm:max-h-[82dvh] glass-warm-dark border border-white/20 border-t-4 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.65)] z-50 flex flex-col overflow-hidden text-slate-100 animate-in slide-in-from-bottom sm:slide-in-from-right duration-200 pointer-events-auto`}
     >
       {/* Clean Header: Multicolored Bouncing Title, Age Subtitle, and High-Contrast Close Button */}
-      <div className="px-4 py-2.5 sm:py-3 border-b border-white/10 flex items-center justify-between gap-3 bg-slate-950/70">
+      <div className="px-4 py-2.5 sm:py-3 border-b border-white/10 flex items-center justify-between gap-3 bg-slate-950/60">
         <div className="min-w-0 flex-1">
           <MulticolorTitle
             text={z.title}
@@ -115,7 +157,7 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
             className="text-fluid-base sm:text-fluid-h3 font-black font-['Outfit'] leading-tight break-words"
             bounceOnMount={true}
           />
-          <p className="text-fluid-xs text-amber-300 font-semibold mt-0.5 break-words">
+          <p className="text-fluid-xs font-semibold mt-0.5 break-words" style={{ color: theme.accentHex }}>
             {z.ageGroup} · {z.subtitle}
           </p>
         </div>
@@ -139,9 +181,9 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
           className="w-full h-full object-cover object-center"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
         <div className="absolute bottom-2 left-3 flex items-center gap-1.5 pointer-events-none">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 shadow-sm">
+          <span className={`sticker-badge text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 shadow-sm border ${theme.badgeBg}`}>
             {zoneMedia.tag}
           </span>
         </div>
@@ -154,14 +196,14 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
           {z.description}
         </p>
 
-        {/* 3 Concise Feature Chips */}
+        {/* 3 Concise Feature Chips styled with zone tint */}
         <div className="flex flex-wrap gap-1.5 pt-0.5">
           {(z.features || []).slice(0, 3).map((feat: string, idx: number) => (
             <span
               key={idx}
               className="px-2.5 py-1 rounded-lg bg-white/10 text-slate-100 text-[11px] font-medium border border-white/10 flex items-center gap-1"
             >
-              <span className="text-emerald-400 font-bold">✓</span>
+              <span style={{ color: theme.accentHex }} className="font-bold">✓</span>
               <span>{feat}</span>
             </span>
           ))}
@@ -169,7 +211,7 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
       </div>
 
       {/* Clear Action Footer: Close & Explore Map / Book Passes */}
-      <div className="p-2.5 sm:p-3 border-t border-white/10 bg-slate-950/70 flex items-center justify-between gap-2 shrink-0">
+      <div className="p-2.5 sm:p-3 border-t border-white/10 bg-slate-950/60 flex items-center justify-between gap-2 shrink-0">
         <button
           type="button"
           onClick={handleDismiss}
@@ -186,7 +228,7 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
             soundscape.playMarimbaClick(700, 0.08);
             onOpenBooking();
           }}
-          className="min-h-[40px] px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 text-xs font-black transition flex items-center justify-center gap-1 cursor-pointer flex-1 shadow-md"
+          className={`min-h-[40px] px-3.5 py-2 rounded-xl active:scale-95 text-xs font-black transition flex items-center justify-center gap-1 cursor-pointer flex-1 shadow-md ${theme.ctaClass}`}
         >
           <span>Book Passes</span>
           <ArrowRight className="w-3.5 h-3.5" />

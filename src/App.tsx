@@ -1,19 +1,62 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { Navigation } from './components/Navigation';
 import { HomeHero } from './components/HomeHero';
-import { FullScreen3DView } from './components/FullScreen3DView';
 import { PlayZonesView } from './components/PlayZonesView';
 import { EventProgrammeView } from './components/EventProgrammeView';
 import { TheLittleFarmView } from './components/TheLittleFarmView';
 import { ZoneInspectorDrawer } from './components/ZoneInspectorDrawer';
 import { BookingModal } from './components/BookingModal';
 import { Footer } from './components/Footer';
-import { SiteMap3D, SiteMap3DHandle } from './components/SiteMap3D';
+import type { SiteMap3DHandle } from './components/SiteMap3D';
+import { FestivalBloomOverlay } from './components/FestivalBloom';
 import { Booking } from './types/festival';
 
+// Code-split 3D engine components via React.lazy() for fast initial load
+const SiteMap3D = lazy(() => import('./components/SiteMap3D'));
+const FullScreen3DView = lazy(() =>
+  import('./components/FullScreen3DView').then(m => ({ default: m.FullScreen3DView }))
+);
+
+/**
+ * Storybook Farm-Map Loading Skeleton
+ */
+const FarmMapSkeleton: React.FC = () => (
+  <div className="absolute inset-0 bg-[#141e18] flex flex-col items-center justify-center p-6 text-white z-20">
+    <div className="sticker-badge p-6 sm:p-8 bg-slate-900/90 border-2 border-amber-400 rounded-3xl shadow-2xl flex flex-col items-center gap-4 max-w-sm text-center backdrop-blur-md animate-pulse">
+      <div className="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-300 border border-amber-400/40 flex items-center justify-center text-3xl shadow-inner">
+        🎪
+      </div>
+      <div className="space-y-1">
+        <h3 className="font-kid font-black text-lg text-amber-300">
+          Entering The Little Farm
+        </h3>
+        <p className="text-xs text-slate-300 font-medium leading-relaxed">
+          Rendering miniature diorama grounds, shaded pergolas, and active play zones...
+        </p>
+      </div>
+      <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-white/10 mt-1">
+        <div className="bg-gradient-to-r from-amber-400 to-emerald-400 h-full w-2/3 rounded-full animate-pulse" />
+      </div>
+    </div>
+  </div>
+);
+
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<string>('home');
-  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  // Read initial tab and zone from URL query parameters
+  const [currentTab, setCurrentTab] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'home';
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    const validTabs = ['home', '3d-map', 'december-5', 'zones', 'farm'];
+    return view && validTabs.includes(view) ? view : 'home';
+  });
+
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('zone');
+  });
+
   const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
   const [timeOfDay, setTimeOfDay] = useState<'day' | 'sunset' | 'night'>('day');
   const [bookings, setBookings] = useState<Booking[]>(() => {
@@ -26,6 +69,41 @@ export default function App() {
   });
 
   const siteMapRef = useRef<SiteMap3DHandle | null>(null);
+
+  // Sync state changes with URL query parameters (?view=...&zone=...)
+  const updateUrlParams = (tab: string, zone: string | null) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      if (tab === 'home') {
+        url.searchParams.delete('view');
+      } else {
+        url.searchParams.set('view', tab);
+      }
+      if (zone) {
+        url.searchParams.set('zone', zone);
+      } else {
+        url.searchParams.delete('zone');
+      }
+      window.history.pushState({ tab, zone }, '', url.toString());
+    } catch {}
+  };
+
+  // Support natural browser Back / Forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get('view') || 'home';
+      const zone = params.get('zone');
+      setCurrentTab(view);
+      setSelectedZoneId(zone);
+      setIsBookingOpen(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Load existing bookings from server
   useEffect(() => {
@@ -67,6 +145,8 @@ export default function App() {
 
   const handleTabChange = (tab: string) => {
     setCurrentTab(tab);
+    setSelectedZoneId(null);
+    updateUrlParams(tab, null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     siteMapRef.current?.animateCameraForTab(tab);
   };
@@ -79,6 +159,7 @@ export default function App() {
   const handleInspectZone3D = (zoneId: string) => {
     setSelectedZoneId(zoneId);
     setCurrentTab('3d-map');
+    updateUrlParams('3d-map', zoneId);
     window.scrollTo({ top: 0, behavior: 'instant' });
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
@@ -90,6 +171,7 @@ export default function App() {
 
   const handleOpen3DMap = (zoneId?: string) => {
     setCurrentTab('3d-map');
+    updateUrlParams('3d-map', zoneId || null);
     window.scrollTo({ top: 0, behavior: 'instant' });
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
@@ -104,6 +186,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f5] text-slate-900 font-sans selection:bg-amber-300 selection:text-slate-950 relative">
+      {/* Interactive Tap/Click Petal Burst Layer */}
+      <FestivalBloomOverlay />
+
       {/* 1. SINGLE PERSISTENT 3D WORLD CANVAS (Root WebGL Scene - Persistent & Zero Unmounting) */}
       <div
         className={`fixed inset-0 transition-opacity duration-700 ease-in-out ${
@@ -113,15 +198,20 @@ export default function App() {
         }`}
         aria-hidden={currentTab !== '3d-map'}
       >
-        <SiteMap3D
-          ref={siteMapRef}
-          onSelectZone={handleInspectZone3D}
-          onDeselectZone={() => setSelectedZoneId(null)}
-          activeZoneId={selectedZoneId}
-          isCinemaMode={currentTab === '3d-map'}
-          onToggleCinema={() => handleTabChange('home')}
-          className="w-full h-full"
-        />
+        <Suspense fallback={<FarmMapSkeleton />}>
+          <SiteMap3D
+            ref={siteMapRef}
+            onSelectZone={handleInspectZone3D}
+            onDeselectZone={() => {
+              setSelectedZoneId(null);
+              updateUrlParams('3d-map', null);
+            }}
+            activeZoneId={selectedZoneId}
+            isCinemaMode={currentTab === '3d-map'}
+            onToggleCinema={() => handleTabChange('home')}
+            className="w-full h-full"
+          />
+        </Suspense>
       </div>
 
       {/* Top Navigation */}
@@ -134,7 +224,7 @@ export default function App() {
         onTimeOfDayChange={handleTimeOfDayChange}
       />
 
-      {/* Main Content Area - with z-30 pointer-events-none on 3D map tab so controls are clickable above WebGL canvas */}
+      {/* Main Content Area */}
       <main className={`flex-1 relative ${currentTab === '3d-map' ? 'z-30 pointer-events-none' : 'z-10 pb-16 sm:pb-0'}`}>
         {currentTab === 'home' && (
           <HomeHero
@@ -146,16 +236,18 @@ export default function App() {
         )}
 
         {currentTab === '3d-map' && (
-          <FullScreen3DView
-            siteMapRef={siteMapRef}
-            onBackToSite={() => {
-              setSelectedZoneId(null);
-              handleTabChange('home');
-            }}
-            onSelectZone={handleInspectZone3D}
-            activeZoneId={selectedZoneId}
-            onOpenBooking={() => handleOpenBooking()}
-          />
+          <Suspense fallback={null}>
+            <FullScreen3DView
+              siteMapRef={siteMapRef}
+              onBackToSite={() => {
+                setSelectedZoneId(null);
+                handleTabChange('home');
+              }}
+              onSelectZone={handleInspectZone3D}
+              activeZoneId={selectedZoneId}
+              onOpenBooking={() => handleOpenBooking()}
+            />
+          </Suspense>
         )}
 
         {currentTab === 'december-5' && (
@@ -183,7 +275,10 @@ export default function App() {
       {/* Slide-over Zone Inspector Drawer */}
       <ZoneInspectorDrawer
         zoneId={selectedZoneId}
-        onClose={() => setSelectedZoneId(null)}
+        onClose={() => {
+          setSelectedZoneId(null);
+          updateUrlParams(currentTab, null);
+        }}
         onSelectZone={handleInspectZone3D}
         onOpenBooking={() => handleOpenBooking()}
       />
@@ -196,7 +291,7 @@ export default function App() {
         onBookingSuccess={handleBookingSuccess}
       />
 
-      {/* Mobile Sticky Booking Bar (omitted on 3D map tab so it never obscures the map) */}
+      {/* Mobile Sticky Booking Bar */}
       {currentTab !== '3d-map' && (
         <aside
           aria-label="Quick Booking"
@@ -209,10 +304,10 @@ export default function App() {
         >
           <div className="flex items-center justify-between gap-2.5 max-w-md mx-auto">
             <div className="flex flex-col min-w-0">
-              <span className="font-kid font-bold text-xs text-white leading-tight truncate">
+              <span className="font-kid font-bold text-fluid-xs text-white leading-tight">
                 Bambino World
               </span>
-              <span className="text-[10px] text-amber-300 font-semibold leading-tight truncate">
+              <span className="text-fluid-badge text-amber-300 font-semibold leading-tight">
                 5 Dec · Early Bird $25
               </span>
             </div>
@@ -228,12 +323,11 @@ export default function App() {
         </aside>
       )}
 
-      {/* Footer (omitted on full-screen 3D map for maximum viewport immersion) */}
+      {/* Footer */}
       {currentTab !== '3d-map' && (
         <Footer
           onTabChange={tab => {
-            setCurrentTab(tab);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            handleTabChange(tab);
           }}
           onOpenBooking={() => setIsBookingOpen(true)}
         />
