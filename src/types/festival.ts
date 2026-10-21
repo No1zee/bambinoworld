@@ -16,6 +16,8 @@ export type ZoneId =
 export interface ZoneData {
   id: ZoneId;
   title: string;
+  shortName?: string;
+  emoji?: string;
   subtitle: string;
   category: '6m-2y' | '3-6y' | 'family' | 'safety';
   badgeColor: string;
@@ -66,12 +68,4 @@ export interface Booking {
   wristbandCode: string;
   createdAt: string;
   notes?: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  text: string;
-  timestamp: string;
-  focusZone?: string | null;
 }

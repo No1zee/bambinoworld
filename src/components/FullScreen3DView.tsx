@@ -4,6 +4,9 @@ import { ArrowLeft, RotateCcw, ArrowRight } from 'lucide-react';
 import { soundscape } from '../utils/soundscape';
 import { MulticolorTitle } from './MulticolorTitle';
 
+import { ZONES_DATA } from '../data/festivalData';
+import { ZoneId } from '../types/festival';
+
 interface FullScreen3DViewProps {
   onBackToSite: () => void;
   onSelectZone: (zoneId: string) => void;
@@ -12,6 +15,14 @@ interface FullScreen3DViewProps {
   siteMapRef: React.RefObject<SiteMap3DHandle | null>;
 }
 
+const PLAY_ZONE_IDS: ZoneId[] = [
+  'little-garden',
+  'adventure-zone',
+  'creative-zone',
+  'discovery-world',
+  'celebration-stage'
+];
+
 export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
   onBackToSite,
   onSelectZone,
@@ -19,13 +30,11 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
   onOpenBooking,
   siteMapRef
 }) => {
-  const quickZones = [
-    { id: 'little-garden', label: 'Baby Garden (6M-2Y)', emoji: '👶' },
-    { id: 'adventure-zone', label: 'Adventure Zone', emoji: '🏰' },
-    { id: 'creative-zone', label: 'Creative Studio', emoji: '🎨' },
-    { id: 'discovery-world', label: 'STEM Discovery', emoji: '🚀' },
-    { id: 'celebration-stage', label: 'Live Stage', emoji: '🎵' }
-  ];
+  const quickZones = PLAY_ZONE_IDS.map(id => ({
+    id,
+    label: ZONES_DATA[id]?.shortName || ZONES_DATA[id]?.title || id,
+    emoji: ZONES_DATA[id]?.emoji || '🎪'
+  }));
 
   const handleFlyTo = (zoneId: string) => {
     soundscape.playMarimbaClick(620, 0.08);

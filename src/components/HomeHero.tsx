@@ -63,6 +63,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   const [bgConfig] = useState<SectionBackgroundConfig>(getStoredSectionBackgrounds);
   const [ticketChildCount, setTicketChildCount] = useState<number>(2);
   const [copiedEcoCash, setCopiedEcoCash] = useState<boolean>(false);
+  const [previewSectorId, setPreviewSectorId] = useState<string>('little-garden');
 
   // Dynamic ticket price calculation with progressive sibling discount
   const calculatePassTotal = (count: number) => {
@@ -170,6 +171,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   const filteredSchedule = activeProgZone === 'all'
     ? PROGRAMME_SESSIONS
     : PROGRAMME_SESSIONS.filter(s => s.zone === activeProgZone);
+
+  const activePreviewSector = zones.find(z => z.id === previewSectorId) || zones[0];
 
   return (
     <div className="space-y-14 sm:space-y-20 lg:space-y-24 pb-20">
@@ -546,7 +549,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         <SectionWaveDivider position="bottom" variant="meadow-to-cream" height={32} className="mt-8" />
       </section>
 
-      {/* 4. 3D SITE MAP: Responsive container, no horizontal overflow, clean preview framing */}
+      {/* 4. 3D SITE MAP: Responsive container with Split Live Sector Showcase */}
       <section id="site-map-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 scroll-mt-24">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
@@ -554,62 +557,170 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               See How The Grounds Will <span className="kid-tilt-l text-amber-500">Come Alive</span>
             </h2>
             <p className="text-fluid-base text-slate-600 mt-1 font-medium">
-              A glimpse of what families can expect on the day. Explore the 4,000 m² grounds, play zones, and pedestrian flow.
+              Explore the 4,000 m² grounds, play zones, and pedestrian flow before arrival.
             </p>
           </div>
         </div>
 
-        {/* 3D Festival World Portal - connects seamlessly to the persistent root 3D canvas */}
-        <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-900 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 p-6 sm:p-10 text-white flex flex-col justify-between min-h-[360px] sm:min-h-[420px]">
+        {/* 3D Festival World Portal - Split interactive layout filling the entire card */}
+        <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-900 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 p-6 sm:p-8 lg:p-10 text-white">
           {/* Decorative ambient glowing lights */}
-          <div className="absolute top-0 right-1/4 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/4 w-72 h-72 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-1/4 w-80 h-80 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
 
-          {/* Top portal header */}
-          <div className="relative z-10 max-w-xl space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-kid font-bold text-fluid-badge uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Real-Time 3D Digital Twin</span>
-            </span>
-            <h3 className="text-fluid-h3 font-kid font-black text-white">
-              Explore All 4,000 m² in Spatial 3D
-            </h3>
-            <p className="text-fluid-xs text-slate-300 font-medium leading-relaxed">
-              Fly through every sector, inspect safety barriers, view where shade pergolas sit, and follow the family pedestrian flow before arrival.
-            </p>
-          </div>
+          <div className="relative z-10 flex flex-col lg:flex-row items-stretch justify-between gap-8 lg:gap-10">
+            {/* Left Column: Spatial 3D Introduction, Sector Selector & Launch Action */}
+            <div className="flex-1 flex flex-col justify-between space-y-6 max-w-xl">
+              <div className="space-y-3">
+                <span className="sticker-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-kid font-bold text-fluid-badge uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Real-Time 3D Digital Twin</span>
+                </span>
+                <h3 className="text-fluid-h3 sm:text-fluid-h2 font-kid font-black text-white leading-tight">
+                  Explore All 4,000 m² in Spatial 3D
+                </h3>
+                <p className="text-fluid-xs sm:text-fluid-sm text-slate-300 font-medium leading-relaxed">
+                  Fly through every sector, inspect safety barriers, view where shade pergolas sit, and follow the family pedestrian flow before arrival.
+                </p>
+              </div>
 
-          {/* Quick Zone Fly-To Shortcuts */}
-          <div className="relative z-10 pt-6 space-y-3">
-            <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">
-              Direct Sector Flights:
-            </span>
-            <div className="flex flex-wrap items-center gap-2">
-              {[
-                { id: 'little-garden', label: 'The Little Garden (6M-2Y)', emoji: '👶' },
-                { id: 'adventure-zone', label: 'Adventure Zone (Inflatables)', emoji: '🏰' },
-                { id: 'creative-zone', label: 'Creative Studio', emoji: '🎨' },
-                { id: 'discovery-world', label: 'Discovery STEM World', emoji: '🚀' },
-                { id: 'celebration-stage', label: 'Celebration Stage', emoji: '🎵' }
-              ].map(sec => (
+              {/* Direct Sector Flights Selector Tabs */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-amber-300 uppercase tracking-wider">
+                  <span>Direct Sector Flights:</span>
+                  <span className="text-[11px] text-slate-400 font-normal">Click to preview</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { id: 'little-garden', label: 'The Little Garden', emoji: '👶', sub: '6M–2Y' },
+                    { id: 'adventure-zone', label: 'Adventure Zone', emoji: '🏰', sub: '3–6Y' },
+                    { id: 'creative-zone', label: 'Creative Studio', emoji: '🎨', sub: 'Art & Crafts' },
+                    { id: 'discovery-world', label: 'Discovery STEM', emoji: '🚀', sub: 'Inventions' },
+                    { id: 'celebration-stage', label: 'Celebration Stage', emoji: '🎵', sub: 'Live Shows' }
+                  ].map(sec => {
+                    const isSelected = previewSectorId === sec.id;
+                    return (
+                      <button
+                        key={sec.id}
+                        type="button"
+                        onClick={() => setPreviewSectorId(sec.id)}
+                        className={`min-h-[44px] p-2 rounded-xl text-left transition flex items-center gap-2 cursor-pointer border ${
+                          isSelected
+                            ? 'bg-amber-400 text-slate-950 font-bold border-amber-300 shadow-md scale-102'
+                            : 'bg-white/10 hover:bg-white/20 text-white border-white/15 active:scale-98'
+                        }`}
+                      >
+                        <span className="text-lg shrink-0">{sec.emoji}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs font-bold truncate leading-tight">{sec.label}</div>
+                          <div className={`text-[10px] truncate ${isSelected ? 'text-slate-800 font-semibold' : 'text-slate-300'}`}>
+                            {sec.sub}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Trust and Key Ground Highlights */}
+              <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/10 text-[11px] font-semibold text-slate-300">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-emerald-400 text-sm font-bold">✓</span>
+                  <span>4,000 m² Lawns</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-emerald-400 text-sm font-bold">✓</span>
+                  <span>Fenced Waters</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-emerald-400 text-sm font-bold">✓</span>
+                  <span>100% Supervised</span>
+                </div>
+              </div>
+
+              {/* Primary CTA Flight Button */}
+              <div className="pt-2">
                 <button
-                  key={sec.id}
                   type="button"
-                  onClick={() => onOpen3DMap(sec.id)}
-                  className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-white transition border border-white/15 flex items-center gap-1.5 cursor-pointer backdrop-blur-md shadow-sm"
+                  onClick={() => onOpen3DMap(activePreviewSector.id)}
+                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 bg-amber-400 hover:bg-amber-300 active:scale-98 text-slate-950 font-kid font-black text-sm sm:text-base rounded-xl transition flex items-center justify-center gap-2 shadow-xl cursor-pointer"
                 >
-                  <span>{sec.emoji}</span>
-                  <span>{sec.label}</span>
+                  <MapPin className="w-4 h-4 text-slate-950 shrink-0" />
+                  <span>Launch 3D Flight into {activePreviewSector.name} &rarr;</span>
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
 
-          {/* Sector Flight Indicator */}
-          <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Tap any sector above to fly into the grounds in real-time 3D</span>
+            {/* Right Column: Live Interactive Sector Showcase Card (Fills the entire right side!) */}
+            <div className="flex-1 w-full lg:max-w-lg flex flex-col justify-between">
+              <div className="relative rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-slate-900 group min-h-[340px] sm:min-h-[380px] flex flex-col justify-between p-5 text-white diorama-lift diorama-shadow">
+                {/* Full-bleed active sector photo */}
+                <img
+                  src={activePreviewSector.image}
+                  alt={activePreviewSector.name}
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/55 to-slate-950/30 pointer-events-none" />
+
+                {/* Top badges on preview card */}
+                <div className="relative z-10 flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-mono font-bold tracking-wider uppercase px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/20 text-amber-300">
+                    📍 Live Sector Preview
+                  </span>
+                  <span className={`sticker-badge text-[11px] font-kid font-black uppercase px-3 py-1 shadow-md ${activePreviewSector.tagColor}`}>
+                    {activePreviewSector.age}
+                  </span>
+                </div>
+
+                {/* Bottom details on preview card */}
+                <div className="relative z-10 space-y-3 pt-12">
+                  <div>
+                    <h4 className="text-xl sm:text-2xl font-kid font-black text-white drop-shadow-md">
+                      {activePreviewSector.name}
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-200 mt-1 line-clamp-2 font-medium leading-relaxed">
+                      {activePreviewSector.shortDesc}
+                    </p>
+                  </div>
+
+                  {/* Feature chips */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {activePreviewSector.features.slice(0, 3).map((feat, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-[11px] font-semibold border border-white/15 flex items-center gap-1 shadow-xs"
+                      >
+                        <span className="text-emerald-400 font-bold">✓</span>
+                        <span>{feat.label}</span>
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Fly-to direct button */}
+                  <div className="pt-2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onOpen3DMap(activePreviewSector.id)}
+                      className="flex-1 min-h-[42px] px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md cursor-pointer"
+                    >
+                      <span>Fly to this Sector in 3D</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onSelectZone(activePreviewSector.id)}
+                      className="min-h-[42px] px-3.5 py-2 bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold rounded-xl text-xs transition border border-white/20 cursor-pointer backdrop-blur-md"
+                      title="Inspect zone details"
+                    >
+                      Details
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

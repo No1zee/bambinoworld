@@ -12,51 +12,18 @@ interface ZoneInspectorDrawerProps {
   onOpenBooking: () => void;
 }
 
-const DEFAULT_ZONE_MEDIA: Record<string, { image: string; tag: string }> = {
-  'little-garden': {
-    image: '/little-garden.jpg',
-    tag: 'Ground Photo'
-  },
-  'adventure-zone': {
-    image: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Active Lawn'
-  },
-  'creative-zone': {
-    image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Art Studio'
-  },
-  'discovery-world': {
-    image: 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80',
-    tag: 'STEM Discovery'
-  },
-  'celebration-stage': {
-    image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Main Stage'
-  },
-  'parents-lounge': {
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Family Rest'
-  },
-  'food-drinks': {
-    image: 'https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Refreshments'
-  },
-  'fish-pond': {
-    image: 'https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Nature Landmark'
-  },
-  'swimming-pool': {
-    image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Safety Buffer'
-  },
-  'main-entrance': {
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Welcome Gate'
-  },
-  'info-adverts': {
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80',
-    tag: 'Information'
-  }
+const DEFAULT_ZONE_IMAGES: Record<string, string> = {
+  'little-garden': '/little-garden.jpg',
+  'adventure-zone': 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80',
+  'creative-zone': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80',
+  'discovery-world': 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80',
+  'celebration-stage': 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80',
+  'parents-lounge': 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80',
+  'food-drinks': 'https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=1600&q=80',
+  'fish-pond': 'https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=1600&q=80',
+  'swimming-pool': 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=1600&q=80',
+  'main-entrance': 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80',
+  'info-adverts': 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=80'
 };
 
 export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
@@ -84,11 +51,8 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
   // Resolve photo
   const storedConfig = getStoredSectionBackgrounds();
   const customZoneImage = (storedConfig.zoneCards as Record<string, string> | undefined)?.[zoneId];
-  const zoneMedia = DEFAULT_ZONE_MEDIA[zoneId] || {
-    image: customZoneImage || '/little-garden.jpg',
-    tag: 'Zone'
-  };
-  const activeImage = customZoneImage || zoneMedia.image;
+  const activeImage = customZoneImage || DEFAULT_ZONE_IMAGES[zoneId] || '/little-garden.jpg';
+  const zoneTag = z.shortName || z.status || 'Zone';
 
   // Zone Color Themes for dynamic tinting
   const ZONE_THEMES: Record<string, {
@@ -184,7 +148,7 @@ export const ZoneInspectorDrawer: React.FC<ZoneInspectorDrawerProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent pointer-events-none" />
         <div className="absolute bottom-2 left-3 flex items-center gap-1.5 pointer-events-none">
           <span className={`sticker-badge text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 shadow-sm border ${theme.badgeBg}`}>
-            {zoneMedia.tag}
+            {zoneTag}
           </span>
         </div>
       </div>

@@ -14,77 +14,87 @@ import {
 } from '../data/sectionBackgrounds';
 import { MulticolorTitle } from './MulticolorTitle';
 
+import { ZONES_DATA } from '../data/festivalData';
+import { ZoneId } from '../types/festival';
+
 interface PlayZonesViewProps {
   onInspectZone3D: (zoneId: string) => void;
   onOpenBooking: () => void;
 }
 
+const PLAY_ZONE_EXTRAS: Record<string, {
+  tone: string;
+  icon: React.ComponentType<{ className?: string }>;
+  tagColor: string;
+  bannerBg: string;
+  defaultImage: string;
+}> = {
+  'little-garden': {
+    tone: 'baby',
+    icon: Baby,
+    tagColor: 'bg-emerald-500 text-white',
+    bannerBg: 'from-emerald-950 via-teal-950 to-slate-950',
+    defaultImage: '/little-garden.jpg'
+  },
+  'adventure-zone': {
+    tone: 'adventure',
+    icon: Castle,
+    tagColor: 'bg-amber-400 text-slate-950',
+    bannerBg: 'from-amber-950 via-orange-950 to-slate-950',
+    defaultImage: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80'
+  },
+  'creative-zone': {
+    tone: 'creative',
+    icon: Palette,
+    tagColor: 'bg-sky-400 text-slate-950',
+    bannerBg: 'from-sky-950 via-blue-950 to-slate-950',
+    defaultImage: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80'
+  },
+  'discovery-world': {
+    tone: 'discovery',
+    icon: FlaskConical,
+    tagColor: 'bg-rose-400 text-slate-950',
+    bannerBg: 'from-rose-950 via-purple-950 to-slate-950',
+    defaultImage: 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80'
+  },
+  'celebration-stage': {
+    tone: 'stage',
+    icon: Music2,
+    tagColor: 'bg-purple-400 text-slate-950',
+    bannerBg: 'from-purple-950 via-indigo-950 to-slate-950',
+    defaultImage: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80'
+  }
+};
+
+const PLAY_ZONE_IDS: ZoneId[] = [
+  'little-garden',
+  'adventure-zone',
+  'creative-zone',
+  'discovery-world',
+  'celebration-stage'
+];
+
 export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, onOpenBooking }) => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [bgConfig] = useState<SectionBackgroundConfig>(getStoredSectionBackgrounds);
 
-  const zones = [
-    {
-      id: 'little-garden',
-      name: 'The Little Garden',
-      age: '6M – 2Y',
-      tone: 'baby',
-      icon: Baby,
-      tagColor: 'bg-emerald-500 text-white',
-      bannerBg: 'from-emerald-950 via-teal-950 to-slate-950',
-      image: bgConfig.zoneCards['little-garden'] || '/little-garden.jpg',
-      shortDesc: 'Calm sensory sanctuary with shaded soft-play foam blocks and crawling mats.',
-      features: ['Soft Play Foam Shapes', 'Shaded Baby Crawl Mats', 'Shoe-Free Enclosed Area']
-    },
-    {
-      id: 'adventure-zone',
-      name: 'Adventure Zone',
-      age: '3 – 6Y',
-      tone: 'adventure',
-      icon: Castle,
-      tagColor: 'bg-amber-400 text-slate-950',
-      bannerBg: 'from-amber-950 via-orange-950 to-slate-950',
-      image: bgConfig.zoneCards['adventure-zone'] || 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Expansive lawn featuring giant bouncy castles, obstacle slides, and animal petting.',
-      features: ['Bouncy Castles & Slides', 'Gentle Animal Petting', 'Carnival Lawn Games']
-    },
-    {
-      id: 'creative-zone',
-      name: 'Creative Zone',
-      age: '3 – 6+Y',
-      tone: 'creative',
-      icon: Palette,
-      tagColor: 'bg-sky-400 text-slate-950',
-      bannerBg: 'from-sky-950 via-blue-950 to-slate-950',
-      image: bgConfig.zoneCards['creative-zone'] || 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Outdoor art studio featuring hands-on painting, bracelet making, and spelling activities.',
-      features: ['Washable Easel Painting', 'Friendship Bracelet Making', 'Fun Spelling Activities']
-    },
-    {
-      id: 'discovery-world',
-      name: 'Discovery World',
-      age: '3 – 6+Y',
-      tone: 'discovery',
-      icon: FlaskConical,
-      tagColor: 'bg-rose-400 text-slate-950',
-      bannerBg: 'from-rose-950 via-purple-950 to-slate-950',
-      image: bgConfig.zoneCards['discovery-world'] || 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Exciting STEM discovery hub with fizzy mini-volcanoes, cardboard rockets, and giant chess.',
-      features: ['Mini-Volcano Experiments', 'Cardboard Rocket Crafts', 'Giant Outdoor Lawn Chess']
-    },
-    {
-      id: 'celebration-stage',
-      name: 'Celebration Stage',
-      age: 'All Ages',
-      tone: 'stage',
-      icon: Music2,
-      tagColor: 'bg-purple-400 text-slate-950',
-      bannerBg: 'from-purple-950 via-indigo-950 to-slate-950',
-      image: bgConfig.zoneCards['celebration-stage'] || 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Outdoor amphitheater lawn with live acoustic marimba, comedy clown theater, and bubble shows.',
-      features: ['Live Zimbabwean Marimba', 'Puppet & Clown Theater', 'Giant Soap Bubbles']
-    }
-  ];
+  const zones = PLAY_ZONE_IDS.map(id => {
+    const data = ZONES_DATA[id];
+    const extras = PLAY_ZONE_EXTRAS[id];
+    return {
+      id,
+      name: data.title,
+      shortName: data.shortName || data.title,
+      age: data.ageGroup,
+      tone: extras.tone,
+      icon: extras.icon,
+      tagColor: extras.tagColor,
+      bannerBg: extras.bannerBg,
+      image: bgConfig.zoneCards[id] || extras.defaultImage,
+      shortDesc: data.description,
+      features: data.features
+    };
+  });
 
   const filteredZones = activeTab === 'all' ? zones : zones.filter(z => z.tone === activeTab);
 
@@ -121,11 +131,11 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
         <div className="flex flex-wrap gap-1.5">
           {[
             { id: 'all', label: 'All 5 Zones' },
-            { id: 'baby', label: '👶 Baby (6M–2Y)' },
-            { id: 'adventure', label: '🏰 Adventure (3–6Y)' },
-            { id: 'creative', label: '🎨 Creative' },
-            { id: 'discovery', label: '🔬 Discovery' },
-            { id: 'stage', label: '🎪 Stage' }
+            { id: 'baby', label: `${ZONES_DATA['little-garden'].emoji} ${ZONES_DATA['little-garden'].shortName}` },
+            { id: 'adventure', label: `${ZONES_DATA['adventure-zone'].emoji} ${ZONES_DATA['adventure-zone'].shortName}` },
+            { id: 'creative', label: `${ZONES_DATA['creative-zone'].emoji} ${ZONES_DATA['creative-zone'].shortName}` },
+            { id: 'discovery', label: `${ZONES_DATA['discovery-world'].emoji} ${ZONES_DATA['discovery-world'].shortName}` },
+            { id: 'stage', label: `${ZONES_DATA['celebration-stage'].emoji} ${ZONES_DATA['celebration-stage'].shortName}` }
           ].map(f => (
             <button
               key={f.id}
