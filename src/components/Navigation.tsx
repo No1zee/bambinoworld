@@ -83,25 +83,18 @@ export const Navigation: React.FC<NavigationProps> = ({
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 sm:gap-4">
-          {/* Zone 1: Brand wordmark lockup - WORLD closer to BAMBINO, nicely aligned and rotated */}
+          {/* Zone 1: Official Brand Logo */}
           <button
             onClick={() => handleSelectTab('home')}
-            className="brand inline-flex flex-col items-end cursor-pointer group whitespace-nowrap shrink-0 py-0.5 transition-transform hover:scale-[1.02]"
+            className="inline-flex items-center cursor-pointer group py-1 transition-transform hover:scale-[1.02] active:scale-95"
             title="Bambino World Home"
-            style={{ transform: 'rotate(-3deg)', transformOrigin: 'center center' }}
           >
-            <span className="brand-name font-kid font-black tracking-normal text-2xl sm:text-3xl leading-none flex items-center">
-              <span className="text-[#C85A32] kid-bounce">B</span>
-              <span className="text-[#D97706] kid-bounce">A</span>
-              <span className="text-[#2D5A43] kid-bounce">M</span>
-              <span className="text-[#E06D3B] kid-bounce">B</span>
-              <span className="text-[#5B4E77] kid-bounce">I</span>
-              <span className="text-[#B45309] kid-bounce">N</span>
-              <span className="text-[#237A72] kid-bounce">O</span>
-            </span>
-            <span className="brand-world font-kid text-[9px] sm:text-[10.5px] font-black tracking-[0.3em] text-[#1A231E] -mt-1 sm:-mt-1.5 pr-0.5 leading-none uppercase">
-              WORLD
-            </span>
+            <img
+              src="/bambino-logo.png"
+              alt="Bambino World"
+              className="h-10 sm:h-12 w-auto object-contain drop-shadow-xs"
+              loading="eager"
+            />
           </button>
 
           {/* Zone 2: Desktop clean single-line navigation links */}
@@ -206,22 +199,12 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             {/* Top drawer header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div
-                className="brand inline-flex flex-col items-end"
-                style={{ transform: 'rotate(-3deg)', transformOrigin: 'center center' }}
-              >
-                <span className="brand-name font-kid font-black text-2xl leading-none flex items-center">
-                  <span className="text-[#ef4444]">B</span>
-                  <span className="text-[#facc15]">A</span>
-                  <span className="text-[#3b82f6]">M</span>
-                  <span className="text-[#10b981]">B</span>
-                  <span className="text-[#a855f7]">I</span>
-                  <span className="text-[#f97316]">N</span>
-                  <span className="text-[#06b6d4]">O</span>
-                </span>
-                <span className="brand-world font-kid text-[9px] font-black tracking-[0.28em] text-[#1e293b] -mt-1 pr-0.5 leading-none uppercase">
-                  WORLD
-                </span>
+              <div className="inline-flex items-center">
+                <img
+                  src="/bambino-logo.png"
+                  alt="Bambino World"
+                  className="h-9 sm:h-10 w-auto object-contain"
+                />
               </div>
 
               <button

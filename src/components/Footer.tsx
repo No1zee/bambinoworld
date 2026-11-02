@@ -45,22 +45,15 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenBooking }) =>
                 onTabChange('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="brand inline-flex flex-col items-start cursor-pointer group whitespace-nowrap shrink-0 py-0.5 transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center cursor-pointer group py-1 transition-transform hover:scale-[1.02] active:scale-95"
               title="Bambino World Home"
-              style={{ transform: 'rotate(-2deg)', transformOrigin: 'left center' }}
             >
-              <span className="brand-name font-kid font-black tracking-normal text-2xl sm:text-4xl leading-none flex items-center">
-                <span className="text-[#C85A32] kid-bounce">B</span>
-                <span className="text-[#D97706] kid-bounce">A</span>
-                <span className="text-[#2D5A43] kid-bounce">M</span>
-                <span className="text-[#E06D3B] kid-bounce">B</span>
-                <span className="text-[#5B4E77] kid-bounce">I</span>
-                <span className="text-[#B45309] kid-bounce">N</span>
-                <span className="text-[#237A72] kid-bounce">O</span>
-              </span>
-              <span className="brand-world font-kid text-[9px] sm:text-[11px] font-black tracking-[0.35em] text-white mt-1 leading-none uppercase">
-                WORLD
-              </span>
+              <img
+                src="/bambino-logo.png"
+                alt="Bambino World"
+                className="h-12 sm:h-14 w-auto object-contain brightness-105"
+                loading="lazy"
+              />
             </button>
 
             <p className="text-sm text-slate-400 leading-relaxed font-medium max-w-sm">
