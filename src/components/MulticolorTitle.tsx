@@ -11,14 +11,14 @@ interface MulticolorTitleProps {
 
 // Joyful, high-contrast, kid-friendly palette
 const FESTIVAL_COLORS = [
-  '#ef4444', // Coral Red
-  '#f59e0b', // Warm Amber
-  '#3b82f6', // Sky Blue
-  '#10b981', // Mint Emerald
-  '#a855f7', // Playful Purple
-  '#f97316', // Tangerine
-  '#06b6d4', // Bright Cyan
-  '#ec4899'  // Bubblegum Pink
+  '#C85A32', // Terracotta Clay
+  '#D97706', // Warm Amber Honey
+  '#2D5A43', // Deep Eucalyptus Leaf
+  '#E06D3B', // Sunlit Apricot
+  '#5B4E77', // Soft Jacaranda
+  '#237A72', // Shaded Farm Jade
+  '#B45309', // Warm Ochre
+  '#C2410C'  // Harare Rust
 ];
 
 export const MulticolorTitle: React.FC<MulticolorTitleProps> = ({
@@ -83,7 +83,7 @@ export const MulticolorTitle: React.FC<MulticolorTitleProps> = ({
                   style={{
                     color,
                     animationDelay: delay,
-                    textShadow: '0 2px 4px rgba(0,0,0,0.22)'
+                    textShadow: '0 1px 2px rgba(26, 35, 30, 0.12)'
                   }}
                 >
                   {char}

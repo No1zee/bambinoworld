@@ -289,8 +289,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <button
                   key={tier.type}
                   type="button"
-                  onClick={() => setTicketType(tier.type as any)}
-                  className={`min-h-[64px] p-2.5 sm:p-3 rounded-2xl border text-center transition cursor-pointer active:scale-98 ${
+                  onClick={() => {
+                    soundscape.playMarimbaClick(tier.type === 'early-bird' ? 620 : 520, 0.05);
+                    setTicketType(tier.type as any);
+                  }}
+                  className={`min-h-[64px] p-2.5 sm:p-3 rounded-2xl border text-center transition cursor-pointer active:scale-98 diorama-lift ${
                     ticketType === tier.type
                       ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-sm'
                       : 'border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -303,7 +306,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               ))}
             </div>
 
-            {/* Counters with Apple HIG 44x44px Buttons */}
+            {/* Counters with Apple HIG 44x44px Buttons & Tactile Feedback */}
             <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <div>
@@ -313,7 +316,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setChildCount(Math.max(1, childCount - 1))}
+                    onClick={() => {
+                      soundscape.playMarimbaClick(440, 0.04);
+                      setChildCount(Math.max(1, childCount - 1));
+                    }}
                     className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
                     aria-label="Decrease child count"
                   >
@@ -322,7 +328,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <span className="w-8 text-center font-bold text-base">{childCount}</span>
                   <button
                     type="button"
-                    onClick={() => setChildCount(childCount + 1)}
+                    onClick={() => {
+                      soundscape.playMarimbaClick(560, 0.05);
+                      setChildCount(childCount + 1);
+                    }}
                     className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
                     aria-label="Increase child count"
                   >
@@ -339,7 +348,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setUnderTwoCount(Math.max(0, underTwoCount - 1))}
+                    onClick={() => {
+                      soundscape.playMarimbaClick(420, 0.04);
+                      setUnderTwoCount(Math.max(0, underTwoCount - 1));
+                    }}
                     className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
                     aria-label="Decrease toddler count"
                   >
@@ -348,7 +360,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   <span className="w-8 text-center font-bold text-base">{underTwoCount}</span>
                   <button
                     type="button"
-                    onClick={() => setUnderTwoCount(underTwoCount + 1)}
+                    onClick={() => {
+                      soundscape.playMarimbaClick(540, 0.05);
+                      setUnderTwoCount(underTwoCount + 1);
+                    }}
                     className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 font-black flex items-center justify-center cursor-pointer text-lg"
                     aria-label="Increase toddler count"
                   >
@@ -463,7 +478,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     type="text"
                     value={ecoCashRef}
                     onChange={e => setEcoCashRef(e.target.value)}
-                    placeholder="Enter EcoCash approval / reference code (optional)"
+                    placeholder="Approval / reference code"
                     className="w-full mt-1 px-3 py-2 text-base sm:text-xs bg-white border border-amber-300 rounded-xl text-slate-900 min-h-[44px]"
                   />
                 </div>
@@ -505,7 +520,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="min-h-[48px] px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-extrabold rounded-xl transition cursor-pointer text-sm shadow-md active:scale-98 flex items-center justify-center"
+                  className="min-h-[48px] px-6 py-3.5 bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:translate-y-0.5 disabled:opacity-50 text-white font-extrabold rounded-xl transition-all cursor-pointer text-sm shadow-[0_8px_20px_-4px_rgba(5,150,105,0.4)] flex items-center justify-center"
                 >
                   {isSubmitting ? 'Confirming...' : 'Confirm Family Pass'}
                 </button>

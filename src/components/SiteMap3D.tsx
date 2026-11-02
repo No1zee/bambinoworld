@@ -164,13 +164,25 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       powerPreference: 'high-performance',
       logarithmicDepthBuffer: false
     });
+    // KODE-style GPU Unmasking & Dynamic Quality Calibration
+    const gl = renderer.getContext();
+    const dbgExt = gl.getExtension('WEBGL_debug_renderer_info');
+    const unmaskedGpu = dbgExt ? gl.getParameter(dbgExt.UNMASKED_RENDERER_WEBGL).toLowerCase() : '';
+    const isLowPowerGPU = (
+      unmaskedGpu.includes('intel') ||
+      unmaskedGpu.includes('mali') ||
+      unmaskedGpu.includes('adreno 5') ||
+      unmaskedGpu.includes('adreno 61') ||
+      (typeof window !== 'undefined' && window.innerWidth < 768)
+    );
+
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.setPixelRatio(isLowPowerGPU ? 1.0 : Math.min(window.devicePixelRatio, 1.5));
+    renderer.shadowMap.enabled = !isLowPowerGPU;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.05;
     container.appendChild(renderer.domElement);
 
     // Studio Environment Reflections
@@ -181,10 +193,11 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.copy(POSTER_CAM_TARGET);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.maxPolarAngle = Math.PI / 2 - 0.04;
-    controls.minDistance = 6;
-    controls.maxDistance = 180;
+    controls.dampingFactor = 0.05; // Silky KODE-style momentum
+    controls.minPolarAngle = Math.PI / 5.5; // Prevent straight top-down flattening
+    controls.maxPolarAngle = Math.PI / 2.3; // Prevent dipping below ground / horizon
+    controls.minDistance = 14; // Prevent clipping into geometry
+    controls.maxDistance = 110; // Prevent disorienting void zoom out
     controls.addEventListener('start', () => {
       camAnim = null;
       setInspectedPerson(null);
@@ -192,14 +205,14 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     controls.update();
 
     // Lighting Setup - Calibrated for high clarity, warm richness, and zero glare
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.42);
+    const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.55); // KODE soft daylight bounce
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x3f6212, 0.35);
+    const hemiLight = new THREE.HemisphereLight(0xfef3c7, 0x475569, 0.45);
     hemiLight.position.set(0, 80, 0);
     scene.add(hemiLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfffbeb, 0.95);
+    const sunLight = new THREE.DirectionalLight(0xffedd5, 0.82);
     sunLight.position.set(-45, 78, 42);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 1024;
@@ -504,13 +517,23 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       return group;
     };
 
+    // Shared geometry cache for fences (eliminates hundreds of separate Box allocations)
+    const sharedFencePostGeo = new THREE.BoxGeometry(0.24, 1.35, 0.24);
+    const sharedFenceCapGeo = new THREE.BoxGeometry(0.28, 0.08, 0.28);
+    const sharedSafetyPostGeo = new THREE.CylinderGeometry(0.09, 0.09, 1.25, 6);
+    const sharedWoodPostMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
+    const sharedWoodRailMat = new THREE.MeshStandardMaterial({ color: 0x7c5230, roughness: 0.8 });
+    const sharedCapMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 0.2 });
+    const sharedOrangeMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.5 });
+    const sharedWhiteMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+
     const createDetailedFence = (points: number[][], style = 'farm-timber', skipSegments: number[] = []) => {
       const grp = new THREE.Group();
-      const woodPostMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
-      const woodRailMat = new THREE.MeshStandardMaterial({ color: 0x7c5230, roughness: 0.8 });
-      const capMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 0.2 });
-      const orangeMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.5 });
-      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+      const woodPostMat = sharedWoodPostMat;
+      const woodRailMat = sharedWoodRailMat;
+      const capMat = sharedCapMat;
+      const orangeMat = sharedOrangeMat;
+      const whiteMat = sharedWhiteMat;
 
       for (let i = 0; i < points.length - 1; i++) {
         if (skipSegments.includes(i)) continue;
@@ -525,11 +548,11 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           const numPosts = Math.max(2, Math.floor(dist / postSpacing));
           for (let p = 0; p <= numPosts; p++) {
             const pos = p1.clone().lerp(p2, p / numPosts);
-            const post = new THREE.Mesh(new THREE.BoxGeometry(0.24, 1.35, 0.24), woodPostMat);
+            const post = new THREE.Mesh(sharedFencePostGeo, woodPostMat);
             post.position.set(pos.x, 0.68, pos.z);
             post.rotation.y = angleY;
             post.castShadow = true;
-            const cap = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.08, 0.28), capMat);
+            const cap = new THREE.Mesh(sharedFenceCapGeo, capMat);
             cap.position.set(pos.x, 1.38, pos.z);
             cap.rotation.y = angleY;
             grp.add(post, cap);
@@ -547,7 +570,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           const numPosts = Math.max(2, Math.floor(dist / postSpacing));
           for (let p = 0; p <= numPosts; p++) {
             const pos = p1.clone().lerp(p2, p / numPosts);
-            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 1.25, 8), orangeMat);
+            const post = new THREE.Mesh(sharedSafetyPostGeo, orangeMat);
             post.position.set(pos.x, 0.62, pos.z);
             grp.add(post);
           }
@@ -2535,8 +2558,40 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       }
     };
 
+    // KODE Interactive Hover Cursor & Pavilion Highlight
+    let hoveredMesh: THREE.Mesh | null = null;
+    const handlePointerMove = (e: PointerEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+
+      const hits = raycaster.intersectObjects(clickableMeshes, false);
+      if (hits.length > 0) {
+        renderer.domElement.style.cursor = 'pointer';
+        const targetMesh = hits[0].object as THREE.Mesh;
+        if (hoveredMesh !== targetMesh) {
+          if (hoveredMesh && (hoveredMesh.material as any)?.emissive) {
+            (hoveredMesh.material as any).emissiveIntensity = 0.0;
+          }
+          hoveredMesh = targetMesh;
+          if ((hoveredMesh.material as any)?.emissive) {
+            (hoveredMesh.material as any).emissive.setHex(0xf59e0b);
+            (hoveredMesh.material as any).emissiveIntensity = 0.25;
+          }
+        }
+      } else {
+        renderer.domElement.style.cursor = 'grab';
+        if (hoveredMesh && (hoveredMesh.material as any)?.emissive) {
+          (hoveredMesh.material as any).emissiveIntensity = 0.0;
+          hoveredMesh = null;
+        }
+      }
+    };
+
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
     renderer.domElement.addEventListener('pointerup', handlePointerUp);
+    renderer.domElement.addEventListener('pointermove', handlePointerMove, { passive: true });
 
     // 9. Close-Up Activity Cams
     const focusActivityCam = (key: string) => {
@@ -2573,6 +2628,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       };
     };
 
+    let lastCalloutTime = 0;
     const lastCamPos = new THREE.Vector3(0, 0, 0);
     const lastTarget = new THREE.Vector3(0, 0, 0);
 
@@ -2583,7 +2639,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       // Camera flight smoothing
       if (camAnim) {
         const t = Math.min(1, (performance.now() - camAnim.startTime) / camAnim.duration);
-        const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        // KODE cubic smooth bezier ease-in-out for cinematic camera transition
+        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         camera.position.lerpVectors(camAnim.startPos, camAnim.endPos, ease);
         controls.target.lerpVectors(camAnim.startLook, camAnim.endLook, ease);
         if (t >= 1) camAnim = null;
@@ -2667,14 +2724,16 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
       // Update 2D Callouts overlay only when camera or target has moved (avoids 100% idle DOM thrashing)
       const camMoved =
-        Math.abs(camera.position.x - lastCamPos.x) > 0.005 ||
-        Math.abs(camera.position.y - lastCamPos.y) > 0.005 ||
-        Math.abs(camera.position.z - lastCamPos.z) > 0.005 ||
-        Math.abs(controls.target.x - lastTarget.x) > 0.005 ||
-        Math.abs(controls.target.y - lastTarget.y) > 0.005 ||
-        Math.abs(controls.target.z - lastTarget.z) > 0.005;
+        Math.abs(camera.position.x - lastCamPos.x) > 0.02 ||
+        Math.abs(camera.position.y - lastCamPos.y) > 0.02 ||
+        Math.abs(camera.position.z - lastCamPos.z) > 0.02 ||
+        Math.abs(controls.target.x - lastTarget.x) > 0.02 ||
+        Math.abs(controls.target.y - lastTarget.y) > 0.02 ||
+        Math.abs(controls.target.z - lastTarget.z) > 0.02;
 
-      if (camMoved) {
+      const nowMs = performance.now();
+      if (camMoved && (nowMs - lastCalloutTime > 32)) {
+        lastCalloutTime = nowMs;
         lastCamPos.copy(camera.position);
         lastTarget.copy(controls.target);
 
@@ -2715,6 +2774,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       renderer.render(scene, camera);
     };
 
+    // Precompile all shaders to eliminate initial frame drop
+    renderer.compile(scene, camera);
     animate();
 
     const handleResize = () => {
@@ -2762,6 +2823,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
       renderer.domElement.removeEventListener('pointerup', handlePointerUp);
+      renderer.domElement.removeEventListener('pointermove', handlePointerMove);
       renderer.dispose();
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
@@ -2817,43 +2879,16 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         className="absolute inset-0 pointer-events-none z-12 select-none overflow-hidden"
       >
         {/* Soft edge radial vignette for focused diorama look */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_52%,rgba(15,23,42,0.42)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_58%,rgba(15,23,42,0.28)_100%)]" />
 
-        {/* Top Tilt-Shift Blur Gradient */}
-        <div className="absolute top-0 inset-x-0 h-16 sm:h-24 bg-gradient-to-b from-slate-950/45 via-slate-900/10 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
+        {/* Top Tilt-Shift Optical Lens Defocus */}
+        <div className="absolute top-0 inset-x-0 h-16 sm:h-24 backdrop-blur-[2px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
 
-        {/* Bottom Tilt-Shift Blur Gradient */}
-        <div className="absolute bottom-0 inset-x-0 h-16 sm:h-24 bg-gradient-to-t from-slate-950/45 via-slate-900/10 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black,transparent)]" />
+        {/* Bottom Tilt-Shift Optical Lens Defocus */}
+        <div className="absolute bottom-0 inset-x-0 h-16 sm:h-24 backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black,transparent)]" />
       </div>
 
-      {/* Mobile Scroll-Trapping Guard (< 768px):
-          Allows natural vertical page scrolling on phones unless user explicitly taps to orbit */}
-      {!isCinemaMode && !mobileInteractionActive && (
-        <div
-          onClick={() => {
-            setMobileInteractionActive(true);
-            if (internalsRef.current) internalsRef.current.controls.enabled = true;
-          }}
-          className="md:hidden absolute inset-0 z-30 bg-slate-950/20 backdrop-blur-[1px] flex items-center justify-center pointer-events-auto cursor-pointer"
-        >
-          <div className="sticker-badge px-4 py-2 bg-amber-400 text-slate-950 font-kid font-black text-xs shadow-xl flex items-center gap-2">
-            <span>👆 Tap to Interact with 3D Map</span>
-          </div>
-        </div>
-      )}
-
-      {!isCinemaMode && mobileInteractionActive && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setMobileInteractionActive(false);
-            if (internalsRef.current) internalsRef.current.controls.enabled = false;
-          }}
-          className="md:hidden absolute top-3 right-3 z-30 px-3 py-1.5 bg-slate-900/85 text-white text-[11px] font-bold rounded-xl border border-white/20 shadow-lg pointer-events-auto flex items-center gap-1.5"
-        >
-          <span>🔒 Lock Orbit (Scroll Page)</span>
-        </button>
-      )}
+      
 
       {/* Floating Person / Activity Inspector Pill with translucent glass */}
       {inspectedPerson && personScreenPos && (

@@ -76,7 +76,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <>
       <header
-        className="sticky top-0 z-50 bg-[#faf9f5]/95 backdrop-blur-md border-b border-[#e2e8f0] pt-[env(safe-area-inset-top,0px)]"
+        className="sticky top-0 z-50 bg-[#FAF8F4]/90 backdrop-blur-xl border-b border-[#E8E2D6] pt-[env(safe-area-inset-top,0px)] transition-colors duration-300"
         style={{
           paddingLeft: 'env(safe-area-inset-left, 0px)',
           paddingRight: 'env(safe-area-inset-right, 0px)'
@@ -87,19 +87,19 @@ export const Navigation: React.FC<NavigationProps> = ({
           <button
             onClick={() => handleSelectTab('home')}
             className="brand inline-flex flex-col items-end cursor-pointer group whitespace-nowrap shrink-0 py-0.5 transition-transform hover:scale-[1.02]"
-            aria-label="Bambino World Home"
+            title="Bambino World Home"
             style={{ transform: 'rotate(-3deg)', transformOrigin: 'center center' }}
           >
             <span className="brand-name font-kid font-black tracking-normal text-2xl sm:text-3xl leading-none flex items-center">
-              <span className="text-[#ef4444] kid-bounce">B</span>
-              <span className="text-[#facc15] kid-bounce">A</span>
-              <span className="text-[#3b82f6] kid-bounce">M</span>
-              <span className="text-[#10b981] kid-bounce">B</span>
-              <span className="text-[#a855f7] kid-bounce">I</span>
-              <span className="text-[#f97316] kid-bounce">N</span>
-              <span className="text-[#06b6d4] kid-bounce">O</span>
+              <span className="text-[#C85A32] kid-bounce">B</span>
+              <span className="text-[#D97706] kid-bounce">A</span>
+              <span className="text-[#2D5A43] kid-bounce">M</span>
+              <span className="text-[#E06D3B] kid-bounce">B</span>
+              <span className="text-[#5B4E77] kid-bounce">I</span>
+              <span className="text-[#B45309] kid-bounce">N</span>
+              <span className="text-[#237A72] kid-bounce">O</span>
             </span>
-            <span className="brand-world font-kid text-[9px] sm:text-[10.5px] font-black tracking-[0.28em] text-[#1e293b] -mt-1 sm:-mt-1.5 pr-0.5 leading-none uppercase">
+            <span className="brand-world font-kid text-[9px] sm:text-[10.5px] font-black tracking-[0.3em] text-[#1A231E] -mt-1 sm:-mt-1.5 pr-0.5 leading-none uppercase">
               WORLD
             </span>
           </button>
@@ -135,8 +135,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                 type="button"
                 onClick={handleCycleTimeOfDay}
                 className="h-9 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center gap-1.5 text-xs font-bold transition border border-slate-200/80 cursor-pointer"
-                title={`Atmosphere: ${timeOfDay} (Click to switch)`}
-                aria-label={`Current lighting: ${timeOfDay}. Tap to cycle.`}
+                title={`Atmosphere: ${timeOfDay}`}
+                aria-label={`Atmosphere: ${timeOfDay}`}
               >
                 {timeOfDay === 'day' && <Sun className="w-3.5 h-3.5 text-amber-500" />}
                 {timeOfDay === 'sunset' && <Sunset className="w-3.5 h-3.5 text-rose-500" />}
@@ -155,11 +155,11 @@ export const Navigation: React.FC<NavigationProps> = ({
                   : 'bg-slate-100 border-slate-200/80 text-slate-600 hover:bg-slate-200'
               }`}
               title={isAudioMuted ? 'Turn Sound On' : 'Mute Sound'}
-              aria-label={isAudioMuted ? 'Sound is off. Tap to enable festival soundscape.' : 'Sound is on. Tap to mute.'}
+              aria-label={isAudioMuted ? 'Sound Off' : 'Sound On'}
             >
               {!isAudioMuted ? (
                 <>
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+                  <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
                   <span className="hidden sm:inline">Sound On</span>
                 </>
               ) : (

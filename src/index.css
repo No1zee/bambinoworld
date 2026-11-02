@@ -269,19 +269,19 @@ body::before {
 
 /* Puffy Soft Drop Shadows */
 .kid-shadow-warm {
-  text-shadow: 0 4px 0 rgba(245, 158, 11, 0.35), 0 8px 18px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(245, 158, 11, 0.25), 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .kid-shadow-dark {
-  text-shadow: 0 4px 0 rgba(15, 23, 42, 0.4), 0 10px 24px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 2px 4px rgba(15, 23, 42, 0.25), 0 6px 14px rgba(0, 0, 0, 0.2);
 }
 .kid-shadow-light {
   text-shadow: 0 3px 0 rgba(255, 255, 255, 0.8), 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 .kid-shadow-amber {
-  text-shadow: 0 4px 0 rgba(217, 119, 6, 0.35), 0 8px 16px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(217, 119, 6, 0.22), 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 .kid-shadow-emerald {
-  text-shadow: 0 4px 0 rgba(5, 150, 105, 0.35), 0 8px 16px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(5, 150, 105, 0.22), 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 /* Chunky Multi-colored Pastel Highlights */
@@ -751,3 +751,21 @@ body.expanded-cards .map-callout .pin-tooltip {
 }
 
 
+
+/* ==========================================================================
+   Awwwards Kinetic Marquee / Editorial Ticker
+   ========================================================================== */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 35s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

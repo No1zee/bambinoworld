@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import type { SiteMap3DHandle } from './components/SiteMap3D';
 import { FestivalBloomOverlay } from './components/FestivalBloom';
 import { Booking } from './types/festival';
+import { initSmoothScroll, getSmoothScroll } from './utils/smoothScroll';
 
 // Code-split 3D engine components via React.lazy() for fast initial load
 const SiteMap3D = lazy(() => import('./components/SiteMap3D'));
@@ -105,6 +106,21 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Initialize smooth momentum scrolling (Lenis)
+  useEffect(() => {
+    initSmoothScroll();
+  }, []);
+
+  // Pause smooth scroll during 3D map mode so OrbitControls has full control
+  useEffect(() => {
+    const lenis = getSmoothScroll();
+    if (currentTab === '3d-map') {
+      lenis?.stop();
+    } else {
+      lenis?.start();
+    }
+  }, [currentTab]);
+
   // Load existing bookings from server
   useEffect(() => {
     fetch('/api/bookings')
@@ -125,6 +141,7 @@ export default function App() {
         // Fallback to local state
       });
   }, []);
+
 
   const [bookingChildCount, setBookingChildCount] = useState<number>(1);
 
@@ -295,7 +312,7 @@ export default function App() {
       {currentTab !== '3d-map' && (
         <aside
           aria-label="Quick Booking"
-          className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 shadow-2xl py-2 px-3 transition-all duration-200"
+          className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-[#122219]/95 backdrop-blur-xl border-t border-emerald-800/40 shadow-2xl py-2 px-3 transition-all duration-200"
           style={{
             paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
             paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',

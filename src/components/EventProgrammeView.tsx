@@ -17,12 +17,12 @@ import {
   Calendar
 } from 'lucide-react';
 import { PROGRAMME_SESSIONS } from '../data/festivalData';
-import { Tooltip } from './Tooltip';
 import {
   getStoredSectionBackgrounds,
   SectionBackgroundConfig
 } from '../data/sectionBackgrounds';
 import { MulticolorTitle } from './MulticolorTitle';
+import { soundscape } from '../utils/soundscape';
 
 interface EventProgrammeViewProps {
   onInspectZone3D: (zoneId: string) => void;
@@ -97,37 +97,51 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6 pb-16">
-      {/* Streamlined Event Banner with Photographic Background & Warm Scrim */}
-      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 border border-amber-900/40 shadow-2xl">
-        <img
-          src={bgConfig.programmeSection}
-          alt="Festival Grounds"
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-102"
+      {/* Radiant Sunlit Event Marquee (Zero Mud Scrim) */}
+      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 border border-[#E8E2D6] bg-[#FAF8F4] shadow-[0_20px_50px_-15px_rgba(45,35,25,0.12)]">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 60% 0%, rgba(254, 240, 138, 0.25), transparent 70%)' }}
         />
-        {/* Soft warm gradient overlay for clear contrast */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-amber-950/80 to-emerald-950/85" />
 
-        <div className="relative z-10 space-y-2 max-w-xl">
-          <MulticolorTitle
-            text="Festival Programme"
-            as="h1"
-            className="text-fluid-h1 font-kid font-black tracking-wide drop-shadow-md break-words"
-            bounceOnMount={true}
-          />
-          <p className="text-fluid-base text-slate-200 font-medium">
-            Saturday 5 December 2026 · 10:00 AM – 5:00 PM CAT. 22 sessions across five play sectors at The Little Farm.
-          </p>
-        </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-bold text-amber-800">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 uppercase tracking-widest">
+                <Calendar className="w-3.5 h-3.5 text-amber-700" />
+                <span>5 Dec 2026 · 10am – 5pm CAT</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 font-sans font-semibold">
+                <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                <span>The Little Farm, Meyrick Park</span>
+              </span>
+            </div>
 
-        <div className="relative z-10 flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={onOpenBooking}
-            className="min-h-[44px] px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-fluid-btn transition cursor-pointer shadow-md active:scale-98 flex items-center justify-center"
-          >
-            Book Passes ($25)
-          </button>
+            <MulticolorTitle
+              text="Festival Programme"
+              as="h1"
+              className="text-fluid-h1 font-kid font-black tracking-normal drop-shadow-xs break-words text-slate-900"
+              bounceOnMount={true}
+            />
+
+            <p className="text-fluid-base text-slate-600 font-medium leading-relaxed">
+              22 curated live sessions across five play sectors. Every single stage show, storybook performance, and discovery workshop is 100% included with your admission pass.
+            </p>
+          </div>
+
+          <div className="relative z-10 flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              onClick={() => {
+                soundscape.playMarimbaClick(650, 0.08);
+                onOpenBooking();
+              }}
+              className="min-h-[48px] px-6 py-2.5 bg-gradient-to-b from-amber-300 to-amber-400 hover:from-amber-200 hover:to-amber-300 active:translate-y-0.5 text-slate-950 font-kid font-black rounded-xl text-fluid-btn transition-all cursor-pointer shadow-[0_8px_20px_-4px_rgba(245,158,11,0.45)] flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 stroke-[2.5]" />
+              <span>Book Passes ($25)</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -135,7 +149,7 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column: Filterable Schedule */}
         <div className="lg:col-span-2 space-y-5">
-          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+          <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#E8E2D6] shadow-[0_12px_36px_-8px_rgba(40,30,20,0.06)] space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <h2 className="text-xl sm:text-2xl font-kid font-black text-slate-900 tracking-wide flex items-center gap-2">
                 <span>Festival Footpath</span>
@@ -250,13 +264,11 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
                     </div>
 
                     {/* Session Card */}
-                    <div className="flex-1 bg-white border border-slate-200 hover:border-amber-400 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 diorama-lift">
+                    <div className="flex-1 bg-white border border-[#E8E2D6] hover:border-[#D97706]/60 rounded-2xl p-4 sm:p-5 shadow-[0_4px_16px_-4px_rgba(40,30,20,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(40,30,20,0.1)] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 diorama-lift">
                       <div className="flex items-start sm:items-center gap-3">
-                        <Tooltip content={`Sector: ${session.zoneName}`}>
                           <div className="w-11 h-11 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0 cursor-help border border-slate-200">
                             <ZoneIcon className="w-5 h-5 text-emerald-700" />
                           </div>
-                        </Tooltip>
 
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
@@ -269,7 +281,7 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
                             </span>
                           </div>
 
-                          <h3 className="text-base font-bold text-slate-900 font-['Outfit'] mt-1 leading-snug">
+                          <h3 className="text-base font-bold text-slate-900 font-kid mt-1 leading-snug">
                             {session.title}
                           </h3>
 
@@ -282,23 +294,28 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0 self-end sm:self-center pt-2 sm:pt-0">
-                        <Tooltip content="Fly camera to this zone in 3D">
                           <button
                             type="button"
-                            onClick={() => onInspectZone3D(zoneMapId)}
-                            className="w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer flex items-center justify-center active:scale-95 border border-slate-200"
-                            aria-label="3D View"
+                            onClick={() => {
+                              soundscape.playMarimbaClick(620, 0.05);
+                              onInspectZone3D(zoneMapId);
+                            }}
+                            className="min-h-[40px] px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100/90 text-amber-900 border border-amber-300/80 font-kid font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(217,119,6,0.15)] group"
+                            aria-label={`Inspect ${session.zoneName} in 3D`}
                           >
-                            <MapPin className="w-4 h-4 text-amber-600" />
+                            <span>{session.zoneName}</span>
+                            <span className="text-amber-600 font-bold transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
                           </button>
-                        </Tooltip>
 
                         <button
                           type="button"
-                          onClick={() => toggleSession(session.id)}
-                          className={`min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-2xs ${
+                          onClick={() => {
+                            soundscape.playMarimbaClick(isAdded ? 480 : 660, 0.06);
+                            toggleSession(session.id);
+                          }}
+                          className={`min-h-[40px] px-4 py-2 rounded-xl text-xs sm:text-sm font-kid font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-xs ${
                             isAdded
-                              ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                              ? 'bg-emerald-800 hover:bg-emerald-700 text-white'
                               : 'bg-slate-900 hover:bg-slate-800 text-white'
                           }`}
                         >
@@ -315,7 +332,7 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
         </div>
 
         {/* Right Column: Planner & Summary */}
-        <div className="bg-[#f5f4ee] border border-slate-300 rounded-3xl p-5 space-y-4 sticky top-24">
+        <div className="bg-[#FAF8F4] border border-[#E8E2D6] rounded-3xl p-5 sm:p-6 space-y-4 shadow-[0_16px_40px_-10px_rgba(40,30,20,0.07)] sticky top-24">
           <div className="flex items-center justify-between border-b border-slate-300/80 pb-2.5">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block">
@@ -340,7 +357,7 @@ export const EventProgrammeView: React.FC<EventProgrammeViewProps> = ({
             <div className="text-center py-8 space-y-2">
               <span className="text-2xl block">🎒</span>
               <p className="text-xs text-slate-600 font-medium">
-                Tap <strong>+ Add to Day</strong> on any activity along the footpath to build your family schedule!
+                Your personalized family timetable.
               </p>
             </div>
           ) : (
