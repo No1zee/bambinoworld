@@ -48,13 +48,13 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-30 pointer-events-none overflow-hidden flex flex-col justify-between p-4 sm:p-8 pt-[calc(4rem+env(safe-area-inset-top,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
+    <div className="fixed inset-0 z-30 pointer-events-none overflow-hidden flex flex-col justify-between p-4 sm:p-8 pt-[calc(4rem+env(safe-area-inset-top,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] font-poppins">
       {/* Subtle Atmospheric Depth Vignette (Zero Heavy Blur) */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none z-0 select-none overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(15,23,42,0.18)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_65%,rgba(49,0,111,0.2)_100%)]" />
       </div>
 
       {/* Top Architectural Navigation Bar */}
@@ -65,14 +65,14 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
               soundscape.playMarimbaClick(440, 0.06);
               onBackToSite();
             }}
-            className="px-4 py-2 bg-slate-900/90 hover:bg-slate-900 active:scale-95 text-white rounded-full text-xs font-semibold tracking-wide transition flex items-center gap-2 cursor-pointer shadow-md backdrop-blur-md"
+            className="thompson-pill-btn thompson-pill-purple px-4 py-2 text-xs font-bold shadow-md"
             aria-label="Back to Overview"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Overview</span>
           </button>
 
-          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs text-xs font-mono text-slate-700 font-medium">
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-xs text-xs font-poppins text-slate-800 font-semibold">
             <span>Interactive Grounds · 5 Richwell Ave</span>
           </div>
         </div>
@@ -80,7 +80,7 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
         <div className="pointer-events-auto shrink-0 flex items-center gap-2">
           <button
             onClick={handleResetCamera}
-            className="px-3.5 py-2 bg-white/90 hover:bg-white active:scale-95 text-slate-700 rounded-full text-xs font-semibold transition flex items-center gap-1.5 shadow-sm border border-slate-200 cursor-pointer backdrop-blur-md"
+            className="thompson-pill-btn bg-white/90 hover:bg-white text-slate-700 border border-slate-200 px-3.5 py-2 text-xs font-bold shadow-xs backdrop-blur-md"
             title="Reset to Full Overview"
           >
             <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
@@ -92,7 +92,7 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
               soundscape.playMarimbaClick(700, 0.08);
               onOpenBooking();
             }}
-            className="px-5 py-2 bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 rounded-full text-xs font-bold tracking-wide transition flex items-center gap-1.5 shadow-md cursor-pointer"
+            className="thompson-pill-btn thompson-pill-orange px-5 py-2 text-xs font-bold tracking-wide shadow-md"
           >
             <span>Book Pass</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -100,22 +100,22 @@ export const FullScreen3DView: React.FC<FullScreen3DViewProps> = ({
         </div>
       </div>
 
-      {/* Bottom KODE-Style Clean Sector Dock */}
+      {/* Bottom KODE-Style Clean Sector Dock in Thompson styling */}
       <div className="w-full max-w-2xl mx-auto pointer-events-auto">
-        <div className="bg-slate-950/85 backdrop-blur-xl border border-white/10 rounded-full p-1.5 sm:p-2 shadow-2xl flex items-center justify-between gap-1 sm:gap-2">
+        <div className="bg-[#31006F]/90 backdrop-blur-xl border border-white/20 rounded-full p-1.5 sm:p-2 shadow-2xl flex items-center justify-between gap-1 sm:gap-2">
           {quickZones.map(zone => {
             const isActive = activeZoneId === zone.id;
             return (
               <button
                 key={zone.id}
                 onClick={() => handleFlyTo(zone.id)}
-                className={`flex-1 py-2 px-2.5 rounded-full text-xs transition duration-200 cursor-pointer flex flex-col items-center justify-center ${
+                className={`flex-1 py-2 px-2.5 rounded-full text-xs transition duration-200 cursor-pointer flex flex-col items-center justify-center font-poppins ${
                   isActive
-                    ? 'bg-white text-slate-950 shadow-md font-bold'
-                    : 'text-slate-300 hover:text-white hover:bg-white/10 font-medium'
+                    ? 'bg-[#FF6720] text-white shadow-md font-bold'
+                    : 'text-white/80 hover:text-white hover:bg-white/15 font-medium'
                 }`}
               >
-                <span className="text-[10px] font-mono opacity-60 leading-none">
+                <span className="text-[10px] font-mono opacity-80 leading-none">
                   {zone.number}
                 </span>
                 <span className="truncate max-w-[85px] sm:max-w-none text-[11px] sm:text-xs leading-tight">

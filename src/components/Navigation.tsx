@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Calendar, Sprout, Home, Castle, MapPin, Sparkles, Volume2, VolumeX, Sun, Sunset, Moon } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Calendar,
+  Sprout,
+  Home,
+  Castle,
+  MapPin,
+  Volume2,
+  VolumeX,
+  Sun,
+  Sunset,
+  Moon,
+  Ticket
+} from 'lucide-react';
 import { soundscape } from '../utils/soundscape';
 
 interface NavigationProps {
@@ -14,6 +28,7 @@ interface NavigationProps {
 export const Navigation: React.FC<NavigationProps> = ({
   currentTab,
   onTabChange,
+  onOpenBooking,
   timeOfDay = 'day',
   onTimeOfDayChange
 }) => {
@@ -75,31 +90,65 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <>
+      {/* 1. THOMPSON SIGNATURE SKY BLUE UTILITY TOP BAR (#00A3E0) */}
+      <div className="bg-[#00A3E0] text-white text-[11px] sm:text-xs font-poppins font-semibold py-2 px-4 border-b border-[#008fca] transition-colors select-none">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 tracking-wide truncate">
+            <span className="font-bold text-white uppercase tracking-wider">Festival Hotline:</span>
+            <a href="tel:+263779140417" className="underline hover:text-white/90 font-bold">
+              +263 779 140 417
+            </a>
+            <span className="opacity-60 hidden md:inline">|</span>
+            <span className="hidden md:inline font-medium">Saturday 5 Dec 2026 · 10am – 5pm</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={onOpenBooking}
+              className="bg-[#D82374] hover:bg-[#c01863] text-white font-black px-3.5 py-1 text-[10px] sm:text-[11px] tracking-wider uppercase transition cursor-pointer shadow-xs active:scale-95"
+            >
+              Early Bird Passes
+            </button>
+            <button
+              onClick={() => handleSelectTab('farm')}
+              className="bg-[#31006F] hover:bg-[#250058] text-white font-black px-3 py-1 text-[10px] sm:text-[11px] tracking-wider uppercase transition cursor-pointer hidden sm:inline-block active:scale-95"
+            >
+              Directions
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. THOMPSON CLEAN WHITE MAIN NAVIGATION */}
       <header
-        className="sticky top-0 z-50 bg-[#FAF8F4]/90 backdrop-blur-xl border-b border-[#E8E2D6] pt-[env(safe-area-inset-top,0px)] transition-colors duration-300"
+        className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 pt-[env(safe-area-inset-top,0px)] shadow-xs transition-colors duration-300"
         style={{
           paddingLeft: 'env(safe-area-inset-left, 0px)',
           paddingRight: 'env(safe-area-inset-right, 0px)'
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 sm:gap-4">
-          {/* Zone 1: Official Brand Logo */}
-          <button
-            onClick={() => handleSelectTab('home')}
-            className="inline-flex items-center cursor-pointer group py-1 transition-transform hover:scale-[1.02] active:scale-95"
-            title="Bambino World Home"
-          >
-            <img
-              src="/bambino-logo.png"
-              alt="Bambino World"
-              className="h-10 sm:h-12 w-auto object-contain drop-shadow-xs"
-              loading="eager"
-            />
-          </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
+          {/* Brand Logo with Thompson-Style Vertical Divider Lockup */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleSelectTab('home')}
+              className="inline-flex items-center cursor-pointer group py-1 transition-transform hover:scale-[1.02] active:scale-95 shrink-0"
+              title="Bambino World Home"
+            >
+              <img
+                src="/bambino-logo.png"
+                alt="Bambino World"
+                className="h-10 sm:h-12 w-auto object-contain drop-shadow-xs"
+                loading="eager"
+              />
+            </button>
+            <div className="hidden sm:flex items-center h-8 pl-4 ml-1 border-l-2 border-slate-300 text-xs font-poppins font-black text-[#31006F] tracking-wider uppercase">
+              <span>HARARE · 2026</span>
+            </div>
+          </div>
 
-          {/* Zone 2: Desktop clean single-line navigation links */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-7 text-sm font-semibold text-slate-600">
-            {navItems.map(item => {
+          {/* Desktop Navigation Links in Poppins font */}
+          <nav className="hidden lg:flex items-center gap-7 text-sm font-poppins font-bold text-slate-700">
+            {navItems.filter(item => item.id !== "home").map(item => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
               return (
@@ -107,45 +156,45 @@ export const Navigation: React.FC<NavigationProps> = ({
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
                   onMouseEnter={() => soundscape.playMarimbaClick(580, 0.02)}
-                  className={`min-h-[40px] flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`min-h-[44px] flex items-center gap-2 transition-all whitespace-nowrap shrink-0 cursor-pointer relative py-1 ${
                     isActive
-                      ? 'text-emerald-700 font-bold border-b-2 border-emerald-600'
-                      : 'hover:text-slate-900 hover:-translate-y-0.5'
+                      ? 'text-[#31006F] font-black border-b-2 border-[#31006F]'
+                      : 'hover:text-[#FF6720] hover:-translate-y-0.5'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF6720]' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
                 </button>
               );
             })}
           </nav>
 
-          {/* Zone 3: Awwwards Polish Controls - Atmosphere Switcher, Web Audio Soundscape, & Mobile Menu */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Time of Day Atmosphere Switcher */}
+          {/* Controls & CTA */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Atmosphere Switcher */}
             {onTimeOfDayChange && (
               <button
                 type="button"
                 onClick={handleCycleTimeOfDay}
-                className="h-9 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center gap-1.5 text-xs font-bold transition border border-slate-200/80 cursor-pointer"
+                className="h-10 px-3 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center gap-1.5 text-xs font-poppins font-bold transition border border-slate-200 cursor-pointer"
                 title={`Atmosphere: ${timeOfDay}`}
                 aria-label={`Atmosphere: ${timeOfDay}`}
               >
-                {timeOfDay === 'day' && <Sun className="w-3.5 h-3.5 text-amber-500" />}
-                {timeOfDay === 'sunset' && <Sunset className="w-3.5 h-3.5 text-rose-500" />}
-                {timeOfDay === 'night' && <Moon className="w-3.5 h-3.5 text-indigo-500" />}
+                {timeOfDay === 'day' && <Sun className="w-3.5 h-3.5 text-[#F6BE00]" />}
+                {timeOfDay === 'sunset' && <Sunset className="w-3.5 h-3.5 text-[#FF6720]" />}
+                {timeOfDay === 'night' && <Moon className="w-3.5 h-3.5 text-[#31006F]" />}
                 <span className="hidden sm:inline capitalize">{timeOfDay}</span>
               </button>
             )}
 
-            {/* Web Audio API Soundscape Toggle */}
+            {/* Soundscape Toggle */}
             <button
               type="button"
               onClick={handleToggleSound}
-              className={`h-9 px-2.5 rounded-xl flex items-center gap-1.5 text-xs font-bold transition active:scale-95 border cursor-pointer ${
+              className={`h-10 px-3 rounded-full flex items-center gap-1.5 text-xs font-poppins font-bold transition active:scale-95 border cursor-pointer ${
                 !isAudioMuted
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                  : 'bg-slate-100 border-slate-200/80 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
               }`}
               title={isAudioMuted ? 'Turn Sound On' : 'Mute Sound'}
               aria-label={isAudioMuted ? 'Sound Off' : 'Sound On'}
@@ -153,7 +202,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               {!isAudioMuted ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="hidden sm:inline">Sound On</span>
+                  <span className="hidden sm:inline">Sound</span>
                 </>
               ) : (
                 <>
@@ -163,108 +212,97 @@ export const Navigation: React.FC<NavigationProps> = ({
               )}
             </button>
 
-            {/* Mobile Hamburger Menu Toggle Button */}
-            <div className="flex md:hidden items-center">
+            {/* Thompson Signature Tangerine Orange CTA Button */}
+            <button
+              type="button"
+              onClick={() => {
+                soundscape.playMarimbaClick(720, 0.08);
+                onOpenBooking();
+              }}
+              className="h-10 sm:h-11 px-5 sm:px-6 rounded-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black text-xs sm:text-sm tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer whitespace-nowrap"
+            >
+              <Ticket className="w-4 h-4 stroke-[2.5]" />
+              <span>Book Pass ($25)</span>
+            </button>
+
+            {/* Mobile Hamburger Toggle */}
+            <div className="flex lg:hidden items-center ml-1">
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center justify-center cursor-pointer transition shadow-2xs border border-slate-200/80"
+                className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center justify-center cursor-pointer transition border border-slate-200"
                 aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
                 aria-expanded={isMobileMenuOpen}
               >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5 text-slate-900" />
-                ) : (
-                  <Menu className="w-5 h-5 text-slate-900" />
-                )}
+                {isMobileMenuOpen ? <X className="w-5 h-5 text-slate-900" /> : <Menu className="w-5 h-5 text-slate-900" />}
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Navigation Drawer Overlay */}
+      {/* 3. MOBILE DRAWER MENU */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex flex-col">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Menu Drawer Content */}
-          <div
-            className="relative z-10 bg-[#faf9f5] border-b border-slate-300 shadow-2xl p-5 pt-[max(1.25rem,env(safe-area-inset-top,0px))] space-y-5 animate-in slide-in-from-top duration-250 ease-out"
-          >
-            {/* Top drawer header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div className="relative z-10 bg-white border-b border-slate-200 shadow-2xl p-6 pt-[max(1.25rem,env(safe-area-inset-top,0px))] space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <div className="inline-flex items-center">
                 <img
                   src="/bambino-logo.png"
                   alt="Bambino World"
-                  className="h-9 sm:h-10 w-auto object-contain"
+                  className="h-9 w-auto object-contain"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-10 h-10 rounded-full bg-slate-200/80 hover:bg-slate-300 active:scale-95 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center transition cursor-pointer"
                 aria-label="Close navigation"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Navigation links inside hamburger menu */}
-            <nav className="flex flex-col gap-2">
-              {navItems.map(item => {
+            <nav className="flex flex-col gap-2 font-poppins font-bold text-base text-slate-800">
+              {navItems.filter(item => item.id !== "home").map(item => {
                 const Icon = item.icon;
                 const isActive = currentTab === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={() => handleSelectTab(item.id)}
-                    className={`min-h-[48px] px-4 py-3 rounded-2xl flex items-center justify-between text-left transition active:scale-98 cursor-pointer ${
+                    className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition text-left cursor-pointer ${
                       isActive
-                        ? 'bg-emerald-700 text-white font-bold shadow-sm'
-                        : 'bg-white hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-semibold'
+                        ? 'bg-[#31006F] text-white font-black'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                          isActive
-                            ? 'bg-emerald-800 text-amber-300'
-                            : 'bg-emerald-50 text-emerald-700'
-                        }`}
-                      >
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <span className="text-base font-bold">{item.label}</span>
-                    </div>
-
-                    {isActive && (
-                      <span className="text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white">
-                        Current
-                      </span>
-                    )}
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-[#FF6720]' : 'text-slate-400'}`} />
+                    <span>{item.label}</span>
                   </button>
                 );
               })}
             </nav>
 
-            {/* Event Details snippet inside drawer */}
-            <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
-              <span className="flex items-center gap-1.5 text-slate-700 font-semibold">
-                <Calendar className="w-4 h-4 text-amber-500" />
-                <span>5 Dec 2026</span>
-              </span>
-              <span className="flex items-center gap-1 text-slate-600">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                <span>The Little Farm, Harare</span>
-              </span>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenBooking();
+                }}
+                className="w-full py-3.5 px-5 rounded-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black text-sm tracking-wide shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Ticket className="w-4 h-4 stroke-[2.5]" />
+                <span>Book Pass ($25)</span>
+              </button>
             </div>
           </div>
         </div>
@@ -272,3 +310,5 @@ export const Navigation: React.FC<NavigationProps> = ({
     </>
   );
 };
+
+export default Navigation;

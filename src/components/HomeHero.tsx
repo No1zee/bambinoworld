@@ -1,54 +1,37 @@
-import { TicketWizard } from './TicketWizard';
 import React, { useState } from 'react';
 import {
   ArrowRight,
   ChevronDown,
-  Sprout,
-  Baby,
-  Heart,
+  Plus,
+  Minus,
   MapPin,
-  Shield,
-  Utensils,
-  Music,
-  Palette,
-  Award,
   Calendar,
-  TreePine,
-  Sun,
-  Castle,
-  FlaskConical,
-  Music2,
+  Compass,
+  Sparkles,
+  Baby,
   BookOpen,
   ToyBrick,
+  Castle,
   Rocket,
-  Smile,
+  Shield,
+  Palette,
+  Music,
+  FlaskConical,
   ExternalLink,
   Car,
   Clock,
-  Sparkles,
-  Users,
-  Coffee,
+  Heart,
   HelpCircle,
   Copy,
-  Minus,
-  Plus,
-  Phone,
-  Compass,
-  ShieldCheck,
-  Waves,
-  HeartHandshake
+  Ticket
 } from 'lucide-react';
 import { SiteMap3DHandle } from './SiteMap3D';
-import { Tooltip } from './Tooltip';
 import { FarmHotspotsCanvas } from './FarmHotspotsCanvas';
 import { PROGRAMME_SESSIONS, SIBLING_DISCOUNTS } from '../data/festivalData';
 import {
   getStoredSectionBackgrounds,
-  SectionBackgroundConfig,
-  SECTION_AMBIENT_GRADIENTS
+  SectionBackgroundConfig
 } from '../data/sectionBackgrounds';
-import { MulticolorTitle } from './MulticolorTitle';
-import { FloatingCursorPortal, CursorPortalItem } from './FloatingCursorPortal';
 import { soundscape } from '../utils/soundscape';
 
 interface HomeHeroProps {
@@ -58,63 +41,17 @@ interface HomeHeroProps {
   siteMapRef: React.RefObject<SiteMap3DHandle | null>;
 }
 
-// Tactile Botanical Zone Pass Tone Resolver (Zero Dots, Fredoka Typography, Specular Bevel)
-const getZonePassStyle = (zoneName: string) => {
-  const zn = (zoneName || '').toLowerCase();
-  if (zn.includes('creative') || zn.includes('art') || zn.includes('craft')) {
-    return {
-      gradient: 'from-[#C85A32]/35 to-[#C85A32]/15 hover:from-[#C85A32]/50 hover:to-[#C85A32]/25',
-      border: 'border-[#C85A32]/60 hover:border-[#C85A32]',
-      text: 'text-orange-200 hover:text-white',
-      arrow: 'text-orange-300'
-    };
-  }
-  if (zn.includes('garden') || zn.includes('little') || zn.includes('farm')) {
-    return {
-      gradient: 'from-[#2D5A43]/40 to-[#2D5A43]/15 hover:from-[#2D5A43]/60 hover:to-[#2D5A43]/30',
-      border: 'border-emerald-500/50 hover:border-emerald-400',
-      text: 'text-emerald-200 hover:text-white',
-      arrow: 'text-emerald-300'
-    };
-  }
-  if (zn.includes('adventure') || zn.includes('arena') || zn.includes('bounce')) {
-    return {
-      gradient: 'from-[#D97706]/35 to-[#D97706]/15 hover:from-[#D97706]/50 hover:to-[#D97706]/25',
-      border: 'border-amber-500/50 hover:border-amber-400',
-      text: 'text-amber-200 hover:text-white',
-      arrow: 'text-amber-300'
-    };
-  }
-  if (zn.includes('stage') || zn.includes('music') || zn.includes('celebration')) {
-    return {
-      gradient: 'from-[#7C3AED]/35 to-[#7C3AED]/15 hover:from-[#7C3AED]/50 hover:to-[#7C3AED]/25',
-      border: 'border-purple-500/50 hover:border-purple-400',
-      text: 'text-purple-200 hover:text-white',
-      arrow: 'text-purple-300'
-    };
-  }
-  return {
-    gradient: 'from-white/20 to-white/5 hover:from-amber-400/25 hover:to-amber-400/10',
-    border: 'border-white/25 hover:border-amber-400/50',
-    text: 'text-slate-200 hover:text-amber-300',
-    arrow: 'text-amber-300'
-  };
-};
-
 export const HomeHero: React.FC<HomeHeroProps> = ({
   onOpen3DMap,
   onOpenBooking,
-  onSelectZone,
-  siteMapRef
+  onSelectZone
 }) => {
-  const [activeZoneTab, setActiveZoneTab] = useState<string>('all');
+  const [expandedSector, setExpandedSector] = useState<string | null>('little-garden');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const [hoveredZonePortal, setHoveredZonePortal] = useState<CursorPortalItem | null>(null);
-  const [activeProgZone, setActiveProgZone] = useState<string>('all');
   const [bgConfig] = useState<SectionBackgroundConfig>(getStoredSectionBackgrounds);
   const [ticketChildCount, setTicketChildCount] = useState<number>(2);
   const [copiedEcoCash, setCopiedEcoCash] = useState<boolean>(false);
-  
+
   // Dynamic ticket price calculation with progressive sibling discount
   const calculatePassTotal = (count: number) => {
     if (count <= 1) return 25;
@@ -136,344 +73,628 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     setTimeout(() => setCopiedEcoCash(false), 2500);
   };
 
-  const zones = [
+  const sectors = [
     {
       id: 'little-garden',
+      number: '01',
       name: 'The Little Garden',
       age: '6M – 2Y',
-      tagColor: 'bg-emerald-500 text-white',
+      tagline: 'Calm sensory sanctuary with soft play foam blocks and shaded bougainvillea pergolas.',
       image: bgConfig.zoneCards['little-garden'] || '/little-garden.jpg',
-      shortDesc: 'Calm sensory sanctuary with soft foam blocks and shaded bougainvillea pergolas.',
+      color: 'bg-[#00A3E0]',
       features: [
-        { icon: Baby, label: 'Soft Play Foam', tip: 'Cushioned crawling blocks, wedges and tumble mats' },
-        { icon: BookOpen, label: 'Story Pergola', tip: 'Gentle storybook readings under bougainvillea shade' },
-        { icon: ToyBrick, label: 'Foam Ball Pit', tip: 'Clean, sanitized soft foam play pit for tiny explorers' },
-        { icon: Shield, label: 'Shoe-Free Lawn', tip: 'Padded safety flooring with dedicated perimeter fence' }
+        { label: 'Soft Play Foam', tip: 'Cushioned crawling blocks, wedges and tumble mats' },
+        { label: 'Story Pergola', tip: 'Gentle storybook readings under bougainvillea shade' },
+        { label: 'Foam Ball Pit', tip: 'Clean, sanitized soft foam play pit for tiny explorers' }
       ]
     },
     {
       id: 'adventure-zone',
-      name: 'Adventure Zone',
+      number: '02',
+      name: 'Adventure Arena',
       age: '3 – 6Y',
-      tagColor: 'bg-amber-400 text-slate-950',
-      image: bgConfig.zoneCards['adventure-zone'] || 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Open lawn with four giant bouncy castles, obstacle slides, and gentle animal encounters.',
+      tagline: 'High-energy timber obstacle courses, low rope balance paths, and giant bouncy slides.',
+      image: bgConfig.zoneCards['adventure-zone'],
+      color: 'bg-[#FF6720]',
       features: [
-        { icon: Castle, label: '4 Inflatables', tip: 'Commercial bouncy castles & dual-lane slides' },
-        { icon: Smile, label: 'Petting Meadow', tip: 'Gentle supervised animal petting with bunnies & chicks' },
-        { icon: Shield, label: 'Safety Marshals', tip: 'Dedicated marshals stationed at every inflatable entry' },
-        { icon: ToyBrick, label: 'Lawn Games', tip: 'Giant foam checkers, ring toss & mini basketball hoops' }
+        { label: 'Timber Obstacles', tip: 'All-natural eucalyptus timber climbing course' },
+        { label: 'Bouncy Slides', tip: 'Monitored inflatable slides with safety crash pads' },
+        { label: 'Mini Zipline', tip: 'Low-slung toddler zipline with double spotters' }
       ]
     },
     {
       id: 'creative-zone',
-      name: 'Creative Zone',
-      age: '3 – 6+Y',
-      tagColor: 'bg-sky-400 text-slate-950',
-      image: bgConfig.zoneCards['creative-zone'] || 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Outdoor art studio featuring hands-on arts & crafts, painting, bracelet making, and spelling activities.',
+      number: '03',
+      name: 'Creative Corner',
+      age: 'All Ages',
+      tagline: 'Open-air craft studio with pottery clay, giant communal easels, and natural dyes.',
+      image: bgConfig.zoneCards['creative-zone'],
+      color: 'bg-[#D82374]',
       features: [
-        { icon: Palette, label: 'Arts & Crafts', tip: 'Hands-on creative craft stations, collage making, and take-home art' },
-        { icon: Sparkles, label: 'Painting', tip: 'Washable watercolors, easel art studio, and canvas painting' },
-        { icon: Heart, label: 'Bracelet Making', tip: 'Friendship bead weaving and colorful charm bracelet crafting' },
-        { icon: BookOpen, label: 'Spelling Activities', tip: 'Fun wooden spelling tiles, word games, and letter discovery' }
+        { label: 'Clay Sculpting', tip: 'Non-toxic pottery clay modeling stations' },
+        { label: 'Nature Collages', tip: 'Botanical leaf and petal crafts on canvas' },
+        { label: 'Giant Easels', tip: 'Finger painting with washable organic paints' }
       ]
     },
     {
       id: 'discovery-world',
+      number: '04',
       name: 'Discovery World',
-      age: '3 – 6+Y',
-      tagColor: 'bg-rose-400 text-slate-950',
-      image: bgConfig.zoneCards['discovery-world'] || 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Sensory volcano experiments, cardboard rocket crafts, and a 6x6m lawn chessboard.',
+      age: 'All Ages',
+      tagline: 'Hands-on sensory exploration with water locks, bubble physics, and safe science benches.',
+      image: bgConfig.zoneCards['discovery-world'],
+      color: 'bg-[#00A3E0]',
       features: [
-        { icon: FlaskConical, label: 'Science Lab', tip: 'Fizzing mini volcanoes & safe bubbling color potions' },
-        { icon: Rocket, label: 'Rocket Craft', tip: 'Cardboard rover building with aerodynamic lawn launch' },
-        { icon: ToyBrick, label: '6x6m Lawn Chess', tip: 'Oversized lawn chessboard, giant Jenga & Connect-4' },
-        { icon: Shield, label: 'Sunflower Pot', tip: 'Biodegradable planting pot with seeds to grow at home' }
+        { label: 'Giant Bubble Lab', tip: 'Giant bubble wands and surface tension experiments' },
+        { label: 'Sensory Water Ways', tip: 'Water mills and natural hydraulic lock gates' },
+        { label: 'Nature Microscopes', tip: 'Kid-safe optical magnifiers for leaves and minerals' }
       ]
     },
     {
       id: 'celebration-stage',
+      number: '05',
       name: 'Celebration Stage',
-      age: 'All Ages',
-      tagColor: 'bg-purple-400 text-slate-950',
-      image: bgConfig.zoneCards['celebration-stage'] || 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80',
-      shortDesc: 'Outdoor amphitheater lawn with live acoustic marimba, comedy clown theater, and bubble shows.',
+      age: 'Family',
+      tagline: 'Shaded acoustic amphitheater featuring puppet theatre, marimba beats, and interactive storytelling.',
+      image: bgConfig.zoneCards['celebration-stage'],
+      color: 'bg-[#31006F]',
       features: [
-        { icon: Music2, label: 'Live Marimba', tip: 'Acoustic Zimbabwean marimba performances all afternoon' },
-        { icon: Smile, label: 'Clown Theater', tip: 'Puppetry, gentle comedy magic, and interactive storytelling' },
-        { icon: Shield, label: '< 85 dB Audio', tip: 'Acoustic sound levels strictly calibrated for young ears' },
-        { icon: Sparkles, label: 'Bubble Finale', tip: 'Giant floating iridescent soap bubbles across the lawn' }
+        { label: 'Puppet Theatre', tip: 'Interactive folk tale performances with animal puppets' },
+        { label: 'Live Marimba Beats', tip: 'Acoustic youth percussion ensemble and drum circles' },
+        { label: 'Family Singalong', tip: 'Gentle acoustic singalongs on picnic lawn blankets' }
       ]
     }
   ];
 
-  const filteredZones = activeZoneTab === 'all'
-    ? zones
-    : zones.filter(z => z.id === activeZoneTab);
+  const faqs = [
+    {
+      q: 'Do accompanying parents or infants pay admission?',
+      a: 'No. Parents and infants aged 0 to 2 years enter completely free. Every child pass ($25 early bird) covers admission, all 5 play zones, lunch, and sweet treats.'
+    },
+    {
+      q: 'What is included with each child pass?',
+      a: 'Passes include unlimited entry to all 5 play zones (The Little Garden, Adventure Arena, Creative Corner, Discovery World, and Celebration Stage), a hot nutritious lunch, and afternoon treats.'
+    },
+    {
+      q: 'What safety and perimeter measures are enforced?',
+      a: 'The Little Farm is 100% fenced with secure checkpoint entrances. All children and parents receive matching security wristbands at entry. Certified zone marshals and certified paediatric first aid responders are on-site all day.'
+    },
+    {
+      q: 'Can we pay with EcoCash or at the gate?',
+      a: 'Yes. EcoCash is supported with instant reference verification. Early bird passes ($25) are discounted online in advance. Standard gate admission on festival day is $30 per child.'
+    }
+  ];
 
-  const filteredSchedule = activeProgZone === 'all'
-    ? PROGRAMME_SESSIONS
-    : PROGRAMME_SESSIONS.filter(s => s.zone === activeProgZone);
-
-  
   return (
-    <div className="space-y-24 sm:space-y-32 lg:space-y-40 pb-36">
-      {/* 1. HERO SECTION: Full-screen family festival imagery, covering whole bottom page on phones in cinematic reveal */}
-      <section className="relative w-full min-h-[calc(100dvh-3.5rem)] sm:min-h-[580px] lg:min-h-[720px] flex items-center overflow-hidden border-b border-emerald-950/40">
-        {/* Full-Bleed High-Resolution Panoramic Imagery with Cinematic Slow Zoom */}
-        <img
-          src="/bambino-farm.jpg"
-          alt="Bambino World Festival Grounds at The Little Farm"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
-        />
+    <div className="w-full bg-white text-slate-900 font-sans">
+      
+      {/* =========================================================================
+          1. THOMPSON SIGNATURE INTERLOCKING BENTO MOSAIC HERO GRID
+          (Exact reverse-engineered structure from https://www.thompsoncff.org/)
+          ========================================================================= */}
+      <section className="w-full overflow-hidden border-b border-slate-200">
+        
+        {/* ROW 1: Left Photo (28%) + Right Royal Purple Block (72%) */}
+        <div className="flex flex-col md:flex-row w-full min-h-[340px] md:min-h-[400px]">
+          <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[260px] md:min-h-[400px]">
+            <img
+              src="/little-garden.jpg"
+              alt="Happy children outdoor play at Bambino World"
+              className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-black/10" />
+          </div>
 
-        {/* Radiant Sunlit Ambient Radiance & Gentle Botanical Framing (Zero Mud Scrim) */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(circle at 75% 25%, rgba(254, 240, 138, 0.25), transparent 55%), linear-gradient(to right, rgba(11, 22, 16, 0.78) 0%, rgba(11, 22, 16, 0.52) 48%, rgba(11, 22, 16, 0.12) 80%, transparent 100%)'
-          }}
-        />
+          <div className="w-full md:w-[72%] bg-[#31006F] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+            <div className="space-y-4 max-w-3xl">
+              <h1 className="font-poppins font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-white">
+                where little dreams come alive.
+              </h1>
+              <p className="text-white/85 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl pt-2">
+                Zimbabwe’s premier outdoor celebration for curious explorers aged 6 months to 12 years across 4,000 m² of protected parkland.
+              </p>
+            </div>
 
-        {/* Dynamic morning meadow sunlit ambient bleed */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: SECTION_AMBIENT_GRADIENTS.hero }}
-        />
-
-        {/* Hero Content - vertically centered with luminous botanical glass backplate for high legibility */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 lg:py-20 flex flex-col justify-center">
-          <div className="max-w-2xl space-y-4 sm:space-y-6">
-            {/* 1st to appear: Friendly festival date sticker badge with hand-drawn sunbeam scribble */}
-            <div className="relative inline-flex items-center self-start">
-              <div className="sticker-badge animate-hero-badge px-3.5 py-1.5 rounded-full bg-amber-400 text-slate-950 text-fluid-badge font-black tracking-wide shadow-md">
-                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                <span>Saturday 5 December 2026 · 10am – 5pm</span>
+            <div className="pt-8 flex flex-wrap items-center gap-4 justify-between border-t border-white/15 mt-8">
+              <div className="text-xs sm:text-sm font-poppins font-semibold text-white/90">
+                <span>All 5 play zones, hot lunch &amp; sweet treats included</span>
               </div>
-              
-            </div>
-
-            {/* 2nd to appear: Dominant Headline with Playful Accents, Fluid Typography & Crayon Underline */}
-            <div className="animate-hero-title">
-              <MulticolorTitle
-                text="Where Little Dreams Come Alive"
-                as="h1"
-                className="text-fluid-display font-kid font-black tracking-normal leading-[1.08] text-white drop-shadow-xl break-words"
-                bounceOnMount={true}
-                playMarimbaOnHover={true}
-              />
-            </div>
-
-            {/* 3rd to appear: Short microcopy */}
-            <p className="animate-hero-desc text-fluid-lead text-slate-100 max-w-xl leading-relaxed font-normal drop-shadow-sm">
-              4,000 m² of sunlit parkland, timber obstacle courses & open-air play in Meyrick Park, Harare.
-            </p>
-
-            {/* 4th & 5th to appear: Tactile 3D Buttons with Spring Physics */}
-            <div className="flex flex-row items-center gap-2.5 pt-1 max-w-md">
-              <button
-                onClick={() => {
-                  soundscape.playMarimbaClick(640, 0.08);
-                  onOpenBooking(1);
-                }}
-                className="animate-hero-cta1 flex-1 sm:flex-none h-11 sm:h-12 px-5 sm:px-7 bg-gradient-to-b from-amber-300 to-amber-400 hover:from-amber-200 hover:to-amber-300 active:translate-y-0.5 text-slate-950 font-kid font-black rounded-xl text-fluid-btn transition-all shadow-[0_10px_25px_-5px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
-              >
-                <span>Book Pass ($25)</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
-              </button>
-
-              <button
-                onClick={() => {
-                  soundscape.playMarimbaClick(540, 0.06);
-                  onOpen3DMap();
-                }}
-                className="animate-hero-cta2 flex-1 sm:flex-none h-11 sm:h-12 px-5 sm:px-6 bg-gradient-to-br from-white/20 via-white/10 to-white/5 hover:from-white/30 hover:to-white/15 active:translate-y-0.5 text-white font-kid font-bold rounded-xl text-fluid-btn transition-all border border-white/30 hover:border-amber-400/60 backdrop-blur-md flex items-center justify-center gap-2 cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),0_8px_20px_rgba(0,0,0,0.25)] whitespace-nowrap group"
-              >
-                <span>Explore 3D Grounds</span>
-                <span className="text-amber-300 font-bold transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
-              </button>
-            </div>
-
-            {/* 6th to appear: Instant Venue & Inclusions Footnote */}
-            <div className="animate-hero-note pt-1 flex items-center gap-2 text-fluid-xs text-slate-200 font-medium">
-              <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>5 Richwell Ave, Meyrick Park · All 5 zones, lunch &amp; sweet treats included</span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundscape.playMarimbaClick(700, 0.08);
+                    onOpenBooking(1);
+                  }}
+                  className="bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black px-7 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Book Pass ($25)</span>
+                  <ArrowRight className="w-4 h-4 stroke-[3]" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Layered Organic Wave Transition into the next section */}
-      </section>
-
-      {/* 3. PLAY ZONES: Option B Editorial Index & Catalogue (Rich Botanical Pavilion Ledger) */}
-      <section id="play-zones" className="relative w-full overflow-hidden border-y border-emerald-900/40 bg-[#122219] py-20 sm:py-28 lg:py-36">
-        <img
-          src={bgConfig.playZonesSection}
-          alt="Play Zones Grounds"
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-102 opacity-25 mix-blend-overlay"
-        />
-
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: SECTION_AMBIENT_GRADIENTS.playZones }}
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-6">
-            <div>
-              <span className="font-mono text-xs font-bold text-amber-400 tracking-widest uppercase block mb-1">
-                Catalogue / 05 Curated Sectors
-              </span>
-              <MulticolorTitle
-                text="The Five Play Zones"
-                as="h2"
-                className="text-fluid-h2 sm:text-fluid-h1 font-kid font-black tracking-wide drop-shadow-md break-words"
-                bounceOnMount={true}
-                playMarimbaOnHover={true}
-              />
-              <p className="text-fluid-base text-slate-300 mt-1 font-medium">
-                Segregated by age group across 4,000 m² of natural parkland.
+        {/* ROW 2: Left Deep Indigo Block (72%) + Right Photo with Angled Badge (28%) */}
+        <div className="flex flex-col-reverse md:flex-row w-full min-h-[320px] md:min-h-[380px]">
+          <div className="w-full md:w-[72%] bg-[#240052] text-white p-8 sm:p-12 lg:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
+            <div className="space-y-3 max-w-xl">
+              <h2 className="font-poppins font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight text-white">
+                4,000 m² of pure outdoor play.
+              </h2>
+              <p className="text-white/80 text-sm sm:text-base font-normal leading-relaxed">
+                Timber obstacle courses, shaded bougainvillea lawns, sanitized sensory ball pits, and acoustic puppet stages.
               </p>
             </div>
 
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                { id: 'all', label: 'All 5 Zones' },
-                { id: 'little-garden', label: '👶 6M–2Y' },
-                { id: 'adventure-zone', label: '🏰 3–6Y' },
-                { id: 'creative-zone', label: '🎨 Creative' },
-                { id: 'discovery-world', label: '🔬 Discovery' },
-                { id: 'celebration-stage', label: '🎪 Stage' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveZoneTab(tab.id)}
-                  className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
-                    activeZoneTab === tab.id
-                      ? 'bg-amber-400 text-slate-950 shadow-sm'
-                      : 'bg-white/10 hover:bg-white/20 text-slate-200'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* Circular Thompson-Style Accent Stamp */}
+            <div className="shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-[#F6BE00]/60 flex flex-col items-center justify-center text-center p-2 bg-[#1a003b]/60">
+              <span className="font-poppins font-black text-lg sm:text-xl text-[#F6BE00] leading-none">
+                DEC 5
+              </span>
+              <span className="font-poppins font-bold text-[10px] tracking-widest uppercase text-white/90 mt-1">
+                HARARE
+              </span>
             </div>
           </div>
 
-          {/* EDITORIAL CATALOGUE LEDGER (Zero Box Containers) */}
-          <div className="divide-y divide-white/15 border-y border-white/15">
-            {filteredZones.map((zone, idx) => (
-              <div
-                key={zone.id}
-                onMouseEnter={() => {
-                  soundscape.playMarimbaClick(480 + idx * 35, 0.02);
-                  setHoveredZonePortal({
-                    id: zone.id,
-                    title: zone.name,
-                    subtitle: zone.features.map(f => f.label).slice(0, 2).join(' · '),
-                    image: zone.image,
-                    tag: zone.age,
-                    tagColor: zone.tagColor
-                  });
-                }}
-                onMouseLeave={() => setHoveredZonePortal(null)}
-                onClick={() => onSelectZone(zone.id)}
-                className="group py-6 sm:py-9 flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-all hover:bg-white/[0.04] px-3 sm:px-4 -mx-3 sm:-mx-4 rounded-xl cursor-pointer"
-              >
-                {/* Col 1: Index Number + Title + Micro-labels */}
-                <div className="flex items-start sm:items-baseline gap-4 sm:gap-6 min-w-0 flex-1">
-                  <span className="font-mono text-xs sm:text-sm font-bold text-amber-400/80 tracking-widest shrink-0 mt-1 sm:mt-0">
-                    0{idx + 1}
-                  </span>
+          <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[240px] md:min-h-[380px]">
+            <img
+              src="https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1200&q=80"
+              alt="Toddlers playing safely at The Little Farm"
+              className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
+              loading="lazy"
+            />
+            {/* Angled Thompson Tag Badge */}
+            <div className="absolute bottom-4 right-4 bg-[#31006F] text-white px-3.5 py-1.5 font-poppins font-black text-xs uppercase tracking-wider shadow-lg">
+              Early Bird
+            </div>
+          </div>
+        </div>
 
-                  <div className="space-y-1.5 min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-kid font-bold text-white group-hover:text-amber-300 transition-colors tracking-tight">
-                        {zone.name}
-                      </h3>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${zone.tagColor}`}>
-                        {zone.age}
+        {/* ROW 3: Left Photo (28%) + Right Tangerine Orange Block (72%) */}
+        <div className="flex flex-col md:flex-row w-full min-h-[260px] md:min-h-[320px]">
+          <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[220px] md:min-h-[320px]">
+            <img
+              src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1200&q=80"
+              alt="Artistic discovery and child creativity"
+              className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
+              loading="lazy"
+            />
+          </div>
+
+          <div className="w-full md:w-[72%] bg-[#FF6720] text-white p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <h2 className="font-poppins font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight text-white">
+                unplugged wonder that radiates.
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundscape.playMarimbaClick(560, 0.06);
+                onOpen3DMap();
+              }}
+              className="bg-[#31006F] hover:bg-[#250058] active:scale-95 text-white font-poppins font-black px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer shrink-0"
+            >
+              <Compass className="w-4 h-4 text-[#F6BE00]" />
+              <span>Explore 3D Grounds ↗</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ROW 4: Left Sky Blue Block (72%) + Right Photo (28%) */}
+        <div className="flex flex-col-reverse md:flex-row w-full min-h-[260px] md:min-h-[320px]">
+          <div className="w-full md:w-[72%] bg-[#00A3E0] text-white p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <h2 className="font-poppins font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight text-white">
+                all 5 zones, lunch &amp; sweet treats included.
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundscape.playMarimbaClick(600, 0.06);
+                const el = document.getElementById('programme');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="bg-[#D82374] hover:bg-[#b8185f] active:scale-95 text-white font-poppins font-black px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer shrink-0"
+            >
+              <span>View Programme →</span>
+            </button>
+          </div>
+
+          <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[220px] md:min-h-[320px]">
+            <img
+              src="https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1200&q=80"
+              alt="Children enjoying sensory science experiments"
+              className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
+              loading="lazy"
+            />
+          </div>
+        </div>
+
+      </section>
+
+
+      {/* =========================================================================
+          2. THOMPSON 3 SATURATED CATEGORY FEATURE CARDS
+          (Exact reverse-engineered layout from Section 4 of https://www.thompsoncff.org/)
+          ========================================================================= */}
+      <section className="py-20 sm:py-28 bg-[#FAF9F5] border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <h2 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-[#31006F] tracking-tight">
+              designed for every age and curiosity.
+            </h2>
+            <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed">
+              Curated play environments engineered with safety, shade, and joyful physical engagement.
+            </p>
+          </div>
+
+          {/* 3 Thompson Cards (Top Photo + Saturated Solid Color Box) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Card 1: Sky Blue (#00A3E0) */}
+            <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
+              <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
+                <img
+                  src="/little-garden.jpg"
+                  alt="The Little Garden"
+                  className="w-full h-full object-cover object-center"
+                  loading="lazy"
+                />
+              </div>
+              <div className="bg-[#00A3E0] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
+                <div className="space-y-3">
+                  <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
+                    the little garden
+                  </h3>
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
+                    Calm sensory sanctuary with cushioned soft play foam, gentle story pergolas, and sanitized foam pits for infants &amp; toddlers (6M – 2Y).
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => onSelectZone('little-garden')}
+                    className="w-full bg-[#31006F] hover:bg-[#240052] active:scale-95 text-white font-poppins font-black py-3.5 px-6 text-xs sm:text-sm uppercase tracking-wider transition cursor-pointer"
+                  >
+                    Explore Zone
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Tangerine Orange (#FF6720) */}
+            <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
+              <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
+                <img
+                  src={bgConfig.zoneCards['adventure-zone']}
+                  alt="Adventure Arena"
+                  className="w-full h-full object-cover object-center"
+                  loading="lazy"
+                />
+              </div>
+              <div className="bg-[#FF6720] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
+                <div className="space-y-3">
+                  <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
+                    adventure arena
+                  </h3>
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
+                    High-energy timber obstacle courses, giant bouncy inflatable slides, low rope balance paths, and active open-air discovery (3Y – 6Y).
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => onSelectZone('adventure-zone')}
+                    className="w-full bg-[#31006F] hover:bg-[#240052] active:scale-95 text-white font-poppins font-black py-3.5 px-6 text-xs sm:text-sm uppercase tracking-wider transition cursor-pointer"
+                  >
+                    Explore Zone
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Magenta / Berry (#D82374) */}
+            <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
+              <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
+                <img
+                  src={bgConfig.zoneCards['creative-zone']}
+                  alt="Creative & Discovery"
+                  className="w-full h-full object-cover object-center"
+                  loading="lazy"
+                />
+              </div>
+              <div className="bg-[#D82374] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
+                <div className="space-y-3">
+                  <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
+                    creative &amp; discovery
+                  </h3>
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
+                    Messy bubble chemistry labs, giant communal easels, non-toxic pottery clay modeling, and kid-friendly microscope exploration (All Ages).
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => onSelectZone('creative-zone')}
+                    className="w-full bg-[#31006F] hover:bg-[#240052] active:scale-95 text-white font-poppins font-black py-3.5 px-6 text-xs sm:text-sm uppercase tracking-wider transition cursor-pointer"
+                  >
+                    Explore Zone
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      {/* =========================================================================
+          3. THOMPSON LEADER STATS: "Transforming How Families Gather"
+          ========================================================================= */}
+      <section className="py-20 sm:py-28 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div className="lg:col-span-7 space-y-4">
+              <h2 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-[#31006F] leading-tight tracking-tight">
+                a human-scale celebration transforming how families gather.
+              </h2>
+              <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
+                Bambino World is designed for curious explorers aged 6 months to 12 years and the parents who love them. We bring together unplugged outdoor discovery, live performing arts, and joyful sensory immersion in a calm, safe, and beautifully shaded pastoral landscape.
+              </p>
+            </div>
+
+            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+              <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <span className="font-poppins font-black text-4xl text-[#FF6720] block">5</span>
+                <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
+                  Curated Play Zones
+                </span>
+              </div>
+
+              <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <span className="font-poppins font-black text-4xl text-[#31006F] block">10+</span>
+                <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
+                  Farm Activities
+                </span>
+              </div>
+
+              <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <span className="font-poppins font-black text-4xl text-[#2F532E] block">100%</span>
+                <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
+                  Gated &amp; Secured
+                </span>
+              </div>
+
+              <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <span className="font-poppins font-black text-4xl text-[#D82374] block">0</span>
+                <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
+                  Hidden Fees
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      {/* =========================================================================
+          4. THOMPSON "COMMUNITIES WE SERVE / SECTORS WE FEATURE" WITH PLUS EXPANSION
+          (Exact reverse-engineered layout from Section 3 of https://www.thompsoncff.org/)
+          ========================================================================= */}
+      <section id="sectors-feature" className="relative w-full py-24 sm:py-32 bg-slate-950 overflow-hidden text-white border-b border-slate-800">
+        {/* Full-bleed background photo with deep purple duotone overlay */}
+        <img
+          src="https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=2000&q=80"
+          alt="Lush parkland at The Little Farm"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-45"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#240052]/90 via-[#31006F]/80 to-[#240052]/90" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            
+            {/* Left Column: Heading */}
+            <div className="lg:col-span-5 space-y-4">
+              <h2 className="font-poppins font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.08]">
+                sectors we feature.
+              </h2>
+              <p className="text-white/80 text-base sm:text-lg font-normal leading-relaxed">
+                4,000 m² of natural parkland thoughtfully segregated by developmental stage for unhurried exploration.
+              </p>
+              <div className="pt-4">
+                <button
+                  type="button"
+                  onClick={() => onOpen3DMap()}
+                  className="bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black px-7 py-3.5 text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                >
+                  <Compass className="w-4 h-4" />
+                  <span>Inspect Grounds in 3D</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Stack of Thompson Plus Rows */}
+            <div className="lg:col-span-7 divide-y divide-white/20 border-y border-white/20">
+              {sectors.map((sec) => {
+                const isExpanded = expandedSector === sec.id;
+                return (
+                  <div key={sec.id} className="py-5 sm:py-6 transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundscape.playMarimbaClick(480, 0.04);
+                        setExpandedSector(isExpanded ? null : sec.id);
+                      }}
+                      className="w-full flex items-center justify-between gap-4 text-left cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-[#FF6720] text-white flex items-center justify-center font-bold text-lg transition-colors shrink-0">
+                          {isExpanded ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                        </span>
+                        <span className="font-poppins font-black text-xl sm:text-2xl text-white group-hover:text-[#F6BE00] transition-colors tracking-tight">
+                          {sec.name}
+                        </span>
+                      </div>
+                      <span className="font-poppins font-bold text-xs uppercase tracking-wider text-white/70 px-3 py-1 rounded-full bg-white/10 shrink-0">
+                        {sec.age}
                       </span>
-                    </div>
+                    </button>
 
-                    {/* Punchy micro-labels (Zero wordy paragraphs!) */}
-                    <p className="text-xs sm:text-sm text-slate-300 font-medium tracking-wide">
-                      {zone.features.map(f => f.label).join(' · ')}
-                    </p>
+                    {isExpanded && (
+                      <div className="pt-4 pl-12 space-y-4 animate-in fade-in duration-200">
+                        <p className="text-white/85 text-sm sm:text-base leading-relaxed font-normal">
+                          {sec.tagline}
+                        </p>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {sec.features.map((feat) => (
+                            <span
+                              key={feat.label}
+                              className="text-xs font-poppins font-bold bg-white/15 text-white px-3 py-1 rounded-sm"
+                            >
+                              {feat.label}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="pt-2 flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              soundscape.playMarimbaClick(620, 0.05);
+                              onOpen3DMap(sec.id);
+                            }}
+                            className="bg-[#00A3E0] hover:bg-[#008fca] active:scale-95 text-white font-poppins font-black px-5 py-2 text-xs uppercase tracking-wider transition cursor-pointer"
+                          >
+                            Fly in 3D ↗
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onSelectZone(sec.id)}
+                            className="bg-white/10 hover:bg-white/20 active:scale-95 text-white font-poppins font-bold px-4 py-2 text-xs uppercase tracking-wider transition cursor-pointer"
+                          >
+                            Details
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      {/* =========================================================================
+          5. THOMPSON "WHAT'S GOING ON?" EVENT PROGRAMME SCHEDULE
+          (Exact reverse-engineered layout from Section 5 of https://www.thompsoncff.org/)
+          ========================================================================= */}
+      <section id="programme" className="py-24 sm:py-32 bg-[#31006F] text-white border-b border-[#240052]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/20 pb-8">
+            <div className="space-y-3">
+              <h2 className="font-poppins font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-none">
+                what’s going on?
+              </h2>
+              <p className="text-white/80 text-base sm:text-lg font-normal">
+                Stay up to date with Bambino World related events &amp; stage showtimes.
+              </p>
+            </div>
+            <div className="text-xs font-poppins font-bold text-white/90 bg-white/10 px-4 py-2 rounded-sm shrink-0">
+              Saturday 5 Dec 2026 · 10:00 AM – 5:00 PM
+            </div>
+          </div>
+
+          {/* 3 Event Cards (Top Photo + Location Pill + Lavender Bottom) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {PROGRAMME_SESSIONS.slice(0, 3).map((session, idx) => (
+              <div
+                key={session.id}
+                className="flex flex-col overflow-hidden bg-[#450C8E] border border-white/15 shadow-xl transition-transform hover:-translate-y-1.5 duration-300"
+              >
+                <div className="h-56 relative overflow-hidden bg-slate-900">
+                  <img
+                    src={[
+                      "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80",
+                      "https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=800&q=80",
+                      "https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=800&q=80"
+                    ][idx % 3]}
+                    alt={session.title}
+                    className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                    loading="lazy"
+                  />
+                  {/* Circular Anniversary/Festival Badge */}
+                  <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-[#31006F]/90 border border-[#F6BE00] text-white flex flex-col items-center justify-center shadow-md">
+                    <span className="font-poppins font-black text-xs text-[#F6BE00] leading-none">BW</span>
+                    <span className="text-[9px] font-bold text-white leading-none">2026</span>
+                  </div>
+                  {/* Location Pill */}
+                  <div className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-xs text-white px-3 py-1 rounded-full text-xs font-poppins font-semibold flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3 text-[#F6BE00]" />
+                    <span>The Little Farm, Meyrick Park</span>
                   </div>
                 </div>
 
-                {/* Col 2: Action Triggers (Directorial 3D camera flight) */}
-                <div className="flex items-center gap-2.5 shrink-0 self-end lg:self-center pt-2 lg:pt-0">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      soundscape.playMarimbaClick(660, 0.05);
-                      onOpen3DMap(zone.id);
-                    }}
-                    className="min-h-[40px] px-4 rounded-xl bg-gradient-to-br from-white/15 to-white/5 hover:from-amber-400/25 hover:to-amber-400/10 text-white hover:text-amber-300 font-kid font-bold text-xs flex items-center gap-2 transition-all border border-white/25 hover:border-amber-400/50 cursor-pointer active:scale-95 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_12px_rgba(0,0,0,0.25)] group"
-                  >
-                    <span>Fly in 3D</span>
-                    <span className="text-amber-300 font-bold transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
-                  </button>
+                <div className="p-6 sm:p-7 flex flex-col justify-between flex-1 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-poppins font-black text-[#F6BE00]">
+                      <span>{session.start} – {session.end}</span>
+                      <span className="text-white/80 uppercase">{session.zoneName}</span>
+                    </div>
+                    <h3 className="font-poppins font-black text-2xl text-white tracking-tight leading-snug">
+                      {session.title}
+                    </h3>
+                    <p className="text-white/80 text-sm leading-relaxed font-normal">
+                      {session.description}
+                    </p>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      soundscape.playMarimbaClick(520, 0.04);
-                      onSelectZone(zone.id);
-                    }}
-                    className="min-h-[40px] px-3.5 rounded-xl bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white font-kid font-bold text-xs transition border border-white/15 cursor-pointer active:scale-95"
-                  >
-                    Details
-                  </button>
+                  <div className="pt-4 border-t border-white/15">
+                    <button
+                      type="button"
+                      onClick={() => onOpenBooking(1)}
+                      className="w-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black py-3 px-5 text-xs uppercase tracking-wider transition cursor-pointer"
+                    >
+                      Reserve Festival Pass
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Wave divider into Site Map */}
+        </div>
       </section>
 
-      {/* 5. THE LITTLE FARM: Sunlit Architectural Venue Spread & Interactive Hotspot Canvas */}
-      <section id="the-little-farm" className="relative w-full py-20 sm:py-28 lg:py-36 border-y border-[#E8E2D6] bg-[#FAF8F4] overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: SECTION_AMBIENT_GRADIENTS.farm }}
-        />
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 text-slate-900">
-          {/* Editorial Architectural Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E8E2D6] pb-8">
+      {/* =========================================================================
+          6. THE LITTLE FARM VENUE SPREAD & HOTSPOTS EXPLORER
+          ========================================================================= */}
+      <section id="the-little-farm" className="py-20 sm:py-28 bg-[#FAF9F5] border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
             <div className="space-y-3 max-w-2xl">
-              <div className="flex items-center gap-3 text-amber-800/80 font-mono text-[11px] tracking-wider uppercase font-semibold">
-                <span>17°48'33.5"S · 31°00'13.8"E</span>
-                <span>·</span>
-                <span>Meyrick Park, Harare</span>
-              </div>
-              <MulticolorTitle
-                text="The Little Farm Grounds"
-                as="h2"
-                className="text-fluid-display font-kid font-black leading-tight text-slate-900 break-words"
-                bounceOnMount={true}
-                playMarimbaOnHover={true}
-              />
-              <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
-                4,000&nbsp;m² of shaded bougainvillea lawns, secure perimeter fencing, and child-height facilities at 5 Richwell Ave.
+              <h2 className="font-poppins font-black text-4xl sm:text-5xl text-[#31006F] tracking-tight leading-tight">
+                The Little Farm Grounds.
+              </h2>
+              <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed">
+                4,000&nbsp;m² of shaded bougainvillea lawns, secure perimeter fencing, and child-height facilities at 5 Richwell Ave, Meyrick Park, Harare.
               </p>
             </div>
 
@@ -482,321 +703,221 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 href="https://www.google.com/maps/search/?api=1&query=-17.8093111%2C31.0038472"
                 target="_blank"
                 rel="noreferrer"
-                onClick={() => soundscape.playMarimbaClick(520, 0.06)}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-slate-300/80 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold tracking-wide transition"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-poppins font-bold uppercase tracking-wider transition shadow-xs"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                <ExternalLink className="w-4 h-4 text-slate-500" />
                 <span>Directions</span>
               </a>
               <button
                 type="button"
-                onClick={() => {
-                  soundscape.playMarimbaClick(620, 0.08);
-                  onOpen3DMap();
-                }}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-amber-200 text-xs font-semibold tracking-wide shadow-sm transition"
+                onClick={() => onOpen3DMap()}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#31006F] hover:bg-[#250058] text-white text-xs font-poppins font-black uppercase tracking-wider shadow-md transition cursor-pointer"
               >
-                <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                <span>Grounds Map</span>
+                <MapPin className="w-4 h-4 text-[#F6BE00]" />
+                <span>3D Grounds Map</span>
               </button>
             </div>
           </div>
 
-          {/* Reusable Interactive Hotspots Discovery Canvas */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-xs font-bold text-amber-700 uppercase tracking-widest">
-                Interactive Grounds Explorer
-              </span>
             </div>
             <FarmHotspotsCanvas onOpen3DMap={() => onOpen3DMap()} />
           </div>
         </div>
       </section>
 
-      {/* 6. PROGRAMME: Editorial Daily Timetable Ledger (Warm Golden-Hour Canopy) */}
-      <section id="programme" className="relative w-full overflow-hidden border-y border-amber-900/40 bg-[#161412] py-20 sm:py-28 lg:py-36">
-        <img
-          src={bgConfig.programmeSection}
-          alt="Event Programme Stage Backdrop"
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-102 opacity-25 mix-blend-overlay"
-        />
 
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: SECTION_AMBIENT_GRADIENTS.programme }}
-        />
+      {/* =========================================================================
+          7. PROGRESSIVE SIBLING DISCOUNT & DIRECT TICKET WIZARD
+          ========================================================================= */}
+      <section id="sibling-calculator" className="py-20 sm:py-28 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#31006F] text-white p-8 sm:p-12 lg:p-16 shadow-2xl relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+              
+              <div className="lg:col-span-7 space-y-6">
+                <h2 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
+                  family tickets made simple.
+                </h2>
+                <p className="text-white/85 text-base sm:text-lg font-normal leading-relaxed">
+                  Passes are $25 early bird with automatic progressive savings for siblings. Parents and children under 2 enter completely free. All 5 play zones, hot lunch, and sweet treats included.
+                </p>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/15 pb-6">
-            <div>
-              <span className="font-mono text-xs font-bold text-amber-400 tracking-widest uppercase block mb-1">
-                Itinerary / Saturday 5 December 2026
-              </span>
-              <MulticolorTitle
-                text="Event Programme"
-                as="h2"
-                className="text-fluid-h2 font-kid font-black text-white tracking-wide drop-shadow-md break-words"
-                bounceOnMount={true}
-                playMarimbaOnHover={true}
-              />
-              <p className="text-fluid-base text-slate-300 mt-1 font-medium">
-                10:00 AM – 5:00 PM CAT · All sessions included with admission pass.
-              </p>
-            </div>
+                {/* Sibling Rate Table */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  {Object.entries(SIBLING_DISCOUNTS).map(([countStr, price]) => {
+                    const count = Number(countStr);
+                    const label = count === 1 ? "1 Child" : `${count} Siblings`;
+                    return (
+                      <div
+                        key={count}
+                        className={`p-3.5 border transition-all text-center ${
+                          ticketChildCount === count
+                            ? "border-[#F6BE00] bg-[#F6BE00]/15"
+                            : "border-white/15 bg-white/5"
+                        }`}
+                      >
+                        <span className="text-xs font-poppins font-bold text-white/90 block">
+                          {label}
+                        </span>
+                        <span className="font-poppins font-black text-xl text-[#F6BE00] block mt-1">
+                          ${price}
+                        </span>
+                        <span className="text-[10px] text-white/70 block">
+                          ${(price / count).toFixed(0)} / child
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-            {/* Quick Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5">
-              {[
-                { id: 'all', label: 'All Sessions' },
-                { id: 'stage', label: 'Stage' },
-                { id: 'baby', label: 'Baby' },
-                { id: 'adventure', label: 'Adventure' },
-                { id: 'creative', label: 'Creative' },
-                { id: 'discovery', label: 'Discovery' }
-              ].map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => setActiveProgZone(f.id)}
-                  className={`min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
-                    activeProgZone === f.id
-                      ? 'bg-amber-400 text-slate-950 shadow-sm font-black'
-                      : 'bg-white/10 hover:bg-white/20 text-slate-200'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
+              {/* Calculator Box */}
+              <div className="lg:col-span-5 bg-white text-slate-900 p-8 shadow-xl space-y-6">
+                <div className="space-y-1 pb-4 border-b border-slate-200">
+                  <h3 className="font-poppins font-black text-2xl text-[#31006F] tracking-tight">
+                    Instant Pass Calculator
+                  </h3>
+                </div>
 
-          {/* EDITORIAL TIMETABLE LEDGER (Zero Box Containers) */}
-          <div className="divide-y divide-white/15 border-y border-white/15">
-            {filteredSchedule.slice(0, 8).map((session, idx) => {
-              const zoneMapId = session.zone === 'baby' ? 'little-garden'
-                : session.zone === 'stage' ? 'celebration-stage'
-                : session.zone === 'adventure' ? 'adventure-zone'
-                : session.zone === 'creative' ? 'creative-zone'
-                : 'discovery-world';
+                <div className="flex items-center justify-between gap-4 py-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundscape.playMarimbaClick(440, 0.04);
+                      setTicketChildCount(Math.max(1, ticketChildCount - 1));
+                    }}
+                    className="w-12 h-12 rounded-full bg-slate-100 hover:bg-[#FF6720] hover:text-white flex items-center justify-center font-bold text-xl transition cursor-pointer"
+                  >
+                    <Minus className="w-5 h-5" />
+                  </button>
 
-              return (
-                <div
-                  key={session.id}
-                  onClick={() => {
-                    soundscape.playMarimbaClick(480 + idx * 30, 0.03);
-                    onOpen3DMap(zoneMapId);
-                  }}
-                  className="group py-5 sm:py-7 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 transition-all hover:bg-white/[0.04] px-3 sm:px-4 -mx-3 sm:-mx-4 rounded-xl cursor-pointer"
-                >
-                  {/* Col 1: Monospace Time Stamp */}
-                  <div className="flex items-center gap-3 shrink-0 sm:w-44">
-                    <span className="font-mono text-xs sm:text-sm font-bold text-amber-400 tracking-wider">
-                      {session.start} – {session.end}
+                  <div className="text-center">
+                    <span className="font-poppins font-black text-5xl text-[#31006F] block">
+                      {ticketChildCount}
+                    </span>
+                    <span className="text-xs font-poppins font-bold text-slate-600 uppercase tracking-wider block mt-1">
+                      {ticketChildCount === 1 ? 'Child' : 'Children'}
                     </span>
                   </div>
 
-                  {/* Col 2: Title & Micro-labels */}
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-kid font-bold text-base sm:text-lg text-white group-hover:text-amber-300 transition-colors tracking-wide">
-                        {session.title}
-                      </h3>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
-                        {session.age || 'All Ages'}
-                      </span>
-                    </div>
-                    {session.description && (
-                      <p className="text-xs text-slate-300 line-clamp-1 font-medium tracking-wide">
-                        {session.description}
-                      </p>
-                    )}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundscape.playMarimbaClick(560, 0.04);
+                      setTicketChildCount(Math.min(8, ticketChildCount + 1));
+                    }}
+                    className="w-12 h-12 rounded-full bg-slate-100 hover:bg-[#FF6720] hover:text-white flex items-center justify-center font-bold text-xl transition cursor-pointer"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
 
-                  {/* Col 3: Sector Badge & Direct Flight Action */}
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    {(() => {
-                      const zoneStyle = getZonePassStyle(session.zoneName);
-                      return (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            soundscape.playMarimbaClick(640, 0.05);
-                            onOpen3DMap(zoneMapId);
-                          }}
-                          className={`min-h-[38px] px-3.5 rounded-xl bg-gradient-to-br ${zoneStyle.gradient} ${zoneStyle.text} font-kid font-bold text-xs flex items-center gap-1.5 transition-all border ${zoneStyle.border} cursor-pointer active:scale-95 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_4px_12px_rgba(0,0,0,0.3)] group/btn whitespace-nowrap`}
-                        >
-                          <span>{session.zoneName}</span>
-                          <span className={`${zoneStyle.arrow} font-bold transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5`}>↗</span>
-                        </button>
-                      );
-                    })()}
+                <div className="bg-[#FAF9F5] border border-slate-200 p-4 space-y-2 text-xs font-poppins font-medium">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Regular Gate Admission</span>
+                    <span className="line-through">${standardFullPrice}</span>
                   </div>
+                  {calculatedSavings > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-bold">
+                      <span>Sibling Discount Savings</span>
+                      <span>-${calculatedSavings}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-base font-black text-[#31006F] pt-2 border-t border-slate-200">
+                    <span>Total Early Bird</span>
+                    <span className="text-[#FF6720] text-2xl font-black">${calculatedPassAmount}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundscape.playMarimbaClick(720, 0.08);
+                    onOpenBooking(ticketChildCount);
+                  }}
+                  className="w-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black py-4 px-6 text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Ticket className="w-4 h-4 stroke-[2.5]" />
+                  <span>Reserve Passes (${calculatedPassAmount})</span>
+                </button>
+
+                <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 font-poppins">
+                  <span>EcoCash Merchant: 0779 140 417</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyEcoCash}
+                    className="text-[#31006F] font-bold hover:underline cursor-pointer"
+                  >
+                    {copiedEcoCash ? 'Copied USSD' : 'Copy Code'}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* =========================================================================
+          8. GUIDELINES & FAQS (Swiss Architectural Hairline Accordion)
+          ========================================================================= */}
+      <section id="faqs" className="py-20 sm:py-28 bg-[#FAF9F5]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
+            <div className="space-y-3 max-w-2xl">
+              <h2 className="font-poppins font-black text-4xl sm:text-5xl text-[#31006F] tracking-tight">
+                guidelines &amp; safety.
+              </h2>
+            </div>
+          </div>
+
+          <div className="divide-y divide-slate-200 border-y border-slate-200">
+            {faqs.map((faq, idx) => {
+              const isExpanded = expandedFaq === idx;
+              return (
+                <div key={faq.q} className="py-6 sm:py-8 transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundscape.playMarimbaClick(440 + idx * 30, 0.04);
+                      setExpandedFaq(isExpanded ? null : idx);
+                    }}
+                    className="w-full flex items-center justify-between gap-4 text-left cursor-pointer group"
+                  >
+                    <div className="flex items-start sm:items-baseline gap-4 sm:gap-6">
+                      <span className="font-poppins font-black text-sm sm:text-base text-[#FF6720] shrink-0">
+                        0{idx + 1}
+                      </span>
+                      <h3 className="font-poppins font-bold text-lg sm:text-xl text-slate-900 group-hover:text-[#31006F] transition-colors leading-snug">
+                        {faq.q}
+                      </h3>
+                    </div>
+                    <span className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-[#31006F] group-hover:text-white text-slate-700 flex items-center justify-center font-bold transition shrink-0">
+                      {isExpanded ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    </span>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="pt-4 pl-10 sm:pl-12 pr-4 sm:pr-8 animate-in fade-in duration-200">
+                      <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-sans">
+                        {faq.a}
+                      </p>
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
+
         </div>
       </section>
 
-      {/* 7. TICKETS: Minimal 2-Step Admission Pass Wizard */}
-      <section id="tickets" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="font-mono text-xs font-bold text-amber-700 tracking-widest uppercase block">
-            06 / Admission
-          </span>
-          <MulticolorTitle
-            text="All-Inclusive Family Pass"
-            as="h2"
-            className="text-fluid-h2 font-kid font-black text-slate-900 tracking-wide"
-            bounceOnMount={true}
-            playMarimbaOnHover={true}
-          />
-          <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
-            Full access to all 5 play zones, child lunch pack, fruit juice, and unlimited treats. Accompanying parents enter free.
-          </p>
-        </div>
-
-        {/* Minimal Intuitive Pass Wizard */}
-        <TicketWizard onBook={onOpenBooking} />
-
-        {/* What Parents Need to Know - 3 Architectural Columns + Card-Free Swiss Hairline FAQ */}
-        <div className="pt-12 sm:pt-16 space-y-16 sm:space-y-20">
-          {/* Header */}
-          <div className="border-b border-[#E8E2D6] pb-4">
-            <span className="font-mono text-xs font-bold text-slate-400 tracking-widest uppercase block mb-1">
-              GUIDELINES &amp; ESSENTIALS
-            </span>
-            <h3 className="text-fluid-h2 font-serif italic text-slate-900 tracking-tight leading-tight">
-              What Parents <span className="font-sans font-black not-italic text-[#C85A32]">Need to Know</span>
-            </h3>
-          </div>
-
-          {/* Architectural 3-Column Ground Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 md:divide-x md:divide-[#E8E2D6]">
-            <div className="space-y-2.5 md:pr-8">
-              <div className="flex items-center gap-2 text-emerald-700">
-                <Shield className="w-4 h-4 shrink-0" />
-                <span className="font-mono text-xs font-bold tracking-widest uppercase">
-                  01 / Safety First
-                </span>
-              </div>
-              <h4 className="font-kid font-bold text-xl text-slate-900 leading-snug">
-                Supervised &amp; Fenced
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium tracking-wide">
-                Stationed zone marshals · Paired security wristbands · Single boom gate
-              </p>
-            </div>
-
-            <div className="space-y-2.5 md:px-8">
-              <div className="flex items-center gap-2 text-[#D97706]">
-                <Sun className="w-4 h-4 shrink-0" />
-                <span className="font-mono text-xs font-bold tracking-widest uppercase">
-                  02 / Comfort &amp; Shade
-                </span>
-              </div>
-              <h4 className="font-kid font-bold text-xl text-slate-900 leading-snug">
-                Shade &amp; Amenities
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium tracking-wide">
-                Shade sails · Sanitized restrooms · Infant changing · On-site medic post
-              </p>
-            </div>
-
-            <div className="space-y-2.5 md:pl-8">
-              <div className="flex items-center gap-2 text-[#C85A32]">
-                <Car className="w-4 h-4 shrink-0" />
-                <span className="font-mono text-xs font-bold tracking-widest uppercase">
-                  03 / Arrival &amp; Entry
-                </span>
-              </div>
-              <h4 className="font-kid font-bold text-xl text-slate-900 leading-snug">
-                Guarded Entry
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium tracking-wide">
-                5 Richwell Ave, Meyrick Park · Free guarded parking · Infants &amp; parents free
-              </p>
-            </div>
-          </div>
-
-          {/* CARD-FREE SWISS HAIRLINE FAQ ACCORDION (Zero Containers) */}
-          <div className="pt-4 space-y-4">
-            <div className="flex items-baseline justify-between border-b border-[#E8E2D6] pb-3">
-              <h4 className="font-kid font-bold text-lg sm:text-xl text-slate-900">
-                Frequently Asked Questions
-              </h4>
-              <span className="font-mono text-xs text-slate-400">
-                SWISS INDEX / 05 ANSWERS
-              </span>
-            </div>
-
-            <div className="divide-y divide-[#E8E2D6] border-y border-[#E8E2D6]">
-              {[
-                {
-                  id: 0,
-                  index: '01',
-                  question: 'Do accompanying parents or infants pay admission?',
-                  answer: 'No. Accompanying parents and children under 2 enter completely free.'
-                },
-                {
-                  id: 1,
-                  index: '02',
-                  question: 'What is included with each child pass?',
-                  answer: 'Full access to all 5 play zones, stage shows, a fresh child lunch pack with juice, and unlimited sweet treats and waffles.'
-                },
-                {
-                  id: 2,
-                  index: '03',
-                  question: 'What safety and perimeter measures are enforced?',
-                  answer: '100% fenced grounds, paired security wristbands, and dedicated marshals stationing every water barrier and play zone.'
-                }
-              ].map((faq) => {
-                const isOpen = expandedFaq === faq.id;
-                return (
-                  <div key={faq.id} className="transition-colors hover:bg-black/[0.015]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundscape.playMarimbaClick(isOpen ? 440 : 580, 0.04);
-                        setExpandedFaq(isOpen ? null : faq.id);
-                      }}
-                      className="w-full py-5 sm:py-7 flex items-center justify-between gap-4 text-left cursor-pointer group"
-                      aria-expanded={isOpen}
-                    >
-                      <div className="flex items-center gap-4 sm:gap-6 min-w-0 flex-1">
-                        <span className="font-mono text-xs sm:text-sm font-bold text-amber-600 tracking-widest shrink-0">
-                          {faq.index}
-                        </span>
-                        <span className="font-kid font-bold text-base sm:text-lg text-slate-900 group-hover:text-amber-800 transition-colors">
-                          {faq.question}
-                        </span>
-                      </div>
-
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-[#E8E2D6] bg-white transition-transform duration-300 ${
-                        isOpen ? 'rotate-180 bg-amber-100 text-amber-900 border-amber-300' : 'text-slate-500'
-                      }`}>
-                        <ChevronDown className="w-4 h-4 stroke-[2.5]" />
-                      </div>
-                    </button>
-
-                    {isOpen && (
-                      <div className="pb-5 pl-10 sm:pl-12 pr-4 sm:pr-8 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-                          {faq.answer}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
+
+export default HomeHero;

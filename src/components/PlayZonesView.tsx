@@ -7,14 +7,15 @@ import {
   Music2,
   MapPin,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  Sparkles,
+  Ticket,
+  Check
 } from 'lucide-react';
 import {
   getStoredSectionBackgrounds,
   SectionBackgroundConfig
 } from '../data/sectionBackgrounds';
-import { MulticolorTitle } from './MulticolorTitle';
-import { FloatingCursorPortal, CursorPortalItem } from './FloatingCursorPortal';
 import { ZONES_DATA } from '../data/festivalData';
 import { ZoneId } from '../types/festival';
 import { soundscape } from '../utils/soundscape';
@@ -28,36 +29,42 @@ const PLAY_ZONE_EXTRAS: Record<string, {
   tone: string;
   icon: React.ComponentType<{ className?: string }>;
   tagColor: string;
+  accentColor: string;
   defaultImage: string;
 }> = {
   'little-garden': {
     tone: 'baby',
     icon: Baby,
-    tagColor: 'bg-emerald-600 text-white',
+    tagColor: 'bg-[#2F532E] text-white',
+    accentColor: '#2F532E',
     defaultImage: '/little-garden.jpg'
   },
   'adventure-zone': {
     tone: 'adventure',
     icon: Castle,
-    tagColor: 'bg-[#D97706] text-white',
+    tagColor: 'bg-[#FF6720] text-white',
+    accentColor: '#FF6720',
     defaultImage: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80'
   },
   'creative-zone': {
     tone: 'creative',
     icon: Palette,
-    tagColor: 'bg-[#C85A32] text-white',
+    tagColor: 'bg-[#AC4FC6] text-white',
+    accentColor: '#AC4FC6',
     defaultImage: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80'
   },
   'discovery-world': {
     tone: 'discovery',
     icon: FlaskConical,
-    tagColor: 'bg-[#237A72] text-white',
+    tagColor: 'bg-[#41B6E6] text-slate-950',
+    accentColor: '#41B6E6',
     defaultImage: 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80'
   },
   'celebration-stage': {
     tone: 'stage',
     icon: Music2,
-    tagColor: 'bg-[#5B4E77] text-white',
+    tagColor: 'bg-[#31006F] text-white',
+    accentColor: '#31006F',
     defaultImage: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80'
   }
 };
@@ -72,7 +79,6 @@ const PLAY_ZONE_IDS: ZoneId[] = [
 
 export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, onOpenBooking }) => {
   const [activeTab, setActiveTab] = useState<string>('all');
-  const [hoveredZonePortal, setHoveredZonePortal] = useState<CursorPortalItem | null>(null);
   const [bgConfig] = useState<SectionBackgroundConfig>(getStoredSectionBackgrounds);
 
   const zones = PLAY_ZONE_IDS.map((id, index) => {
@@ -87,6 +93,7 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
       tone: extras.tone,
       icon: extras.icon,
       tagColor: extras.tagColor,
+      accentColor: extras.accentColor,
       image: (bgConfig.zoneCards as Record<string, string>)[id] || extras.defaultImage,
       shortDesc: data.description,
       features: data.features,
@@ -98,56 +105,64 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
   const filteredZones = activeTab === 'all' ? zones : zones.filter(z => z.tone === activeTab);
 
   return (
-    <div className="w-full space-y-8 pb-16">
+    <div className="w-full space-y-10 pb-20 font-sans">
       {/* Top Header Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8E2D6] pb-5">
-          <div>
-            <span className="font-mono text-xs font-bold text-[#D97706] tracking-widest uppercase block mb-1">
-              Catalogue / 05 Curated Sectors
-            </span>
-            <MulticolorTitle
-              text="Our Play Zones"
-              as="h1"
-              className="text-fluid-h1 font-kid font-black tracking-wide break-words"
-              bounceOnMount={true}
-            />
-            <p className="text-fluid-base text-slate-600 mt-1 font-medium">
-              Five dedicated sectors designed for age-appropriate adventure, creativity, and safety.
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-slate-200 pb-6">
+          <div className="space-y-2">
+            <h1 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-[#31006F] tracking-tight">
+              The Five Play Zones
+            </h1>
+            <p className="text-base text-slate-600 font-sans max-w-2xl">
+              Five dedicated sectors designed for age-appropriate adventure, sensory exploration, creativity, and safety across 4,000 m² of parkland.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => {
                 soundscape.playMarimbaClick(560, 0.06);
                 onInspectZone3D('little-garden');
               }}
-              className="min-h-[44px] px-5 py-2.5 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs sm:text-sm font-kid font-bold rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-md self-start sm:self-auto shrink-0 border border-slate-700 group"
+              className="thompson-pill-btn thompson-pill-purple px-5 py-2.5 text-xs sm:text-sm font-bold shadow-md"
             >
+              <MapPin className="w-4 h-4 text-[#F6BE00]" />
               <span>Explore Grounds in 3D</span>
-              <span className="text-amber-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundscape.playMarimbaClick(650, 0.08);
+                onOpenBooking();
+              }}
+              className="thompson-pill-btn thompson-pill-orange px-5 py-2.5 text-xs sm:text-sm font-bold shadow-md"
+            >
+              <Ticket className="w-4 h-4" />
+              <span>Book Pass</span>
             </button>
           </div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex flex-wrap gap-1.5">
+        {/* Filter Pills in Poppins */}
+        <div className="flex flex-wrap gap-2">
           {[
             { id: 'all', label: 'All 5 Zones' },
-            { id: 'baby', label: `${ZONES_DATA['little-garden'].emoji} ${ZONES_DATA['little-garden'].shortName}` },
-            { id: 'adventure', label: `${ZONES_DATA['adventure-zone'].emoji} ${ZONES_DATA['adventure-zone'].shortName}` },
-            { id: 'creative', label: `${ZONES_DATA['creative-zone'].emoji} ${ZONES_DATA['creative-zone'].shortName}` },
-            { id: 'discovery', label: `${ZONES_DATA['discovery-world'].emoji} ${ZONES_DATA['discovery-world'].shortName}` },
-            { id: 'stage', label: `${ZONES_DATA['celebration-stage'].emoji} ${ZONES_DATA['celebration-stage'].shortName}` }
+            { id: 'baby', label: ZONES_DATA['little-garden'].shortName },
+            { id: 'adventure', label: ZONES_DATA['adventure-zone'].shortName },
+            { id: 'creative', label: ZONES_DATA['creative-zone'].shortName },
+            { id: 'discovery', label: ZONES_DATA['discovery-world'].shortName },
+            { id: 'stage', label: ZONES_DATA['celebration-stage'].shortName }
           ].map(f => (
             <button
               key={f.id}
-              onClick={() => setActiveTab(f.id)}
-              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition active:scale-98 cursor-pointer flex items-center justify-center ${
+              onClick={() => {
+                soundscape.playMarimbaClick(480, 0.03);
+                setActiveTab(f.id);
+              }}
+              className={`px-4 py-2 rounded-full font-poppins text-xs font-bold transition cursor-pointer ${
                 activeTab === f.id
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-white hover:bg-slate-100 text-slate-700 border border-[#E8E2D6]'
+                  ? 'bg-[#31006F] text-white shadow-xs'
+                  : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
               }`}
             >
               {f.label}
@@ -156,122 +171,99 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
         </div>
       </div>
 
-      {/* EDITORIAL CATALOGUE LEDGER (Rich Botanical Pavilion Ledger) */}
-      <div className="relative w-full overflow-hidden border-y border-emerald-900/40 bg-[#122219] py-10 sm:py-16">
-        <img
-          src={bgConfig.playZonesSection}
-          alt="Play Zones Grounds"
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-102 opacity-25 mix-blend-overlay"
-        />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="divide-y divide-white/15 border-y border-white/15">
-            {filteredZones.map(zone => (
-              <div
-                key={zone.id}
-                id={zone.id}
-                onMouseEnter={() => {
-                  soundscape.playMarimbaClick(480 + zone.index * 30, 0.02);
-                  setHoveredZonePortal({
-                    id: zone.id,
-                    title: zone.name,
-                    subtitle: zone.features.slice(0, 2).join(' · '),
-                    image: zone.image,
-                    tag: zone.age,
-                    tagColor: zone.tagColor
-                  });
-                }}
-                onMouseLeave={() => setHoveredZonePortal(null)}
-                onClick={() => {
-                  soundscape.playMarimbaClick(600, 0.06);
-                  onInspectZone3D(zone.id);
-                }}
-                className="group py-6 sm:py-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 transition-all hover:bg-white/[0.04] px-4 sm:px-6 -mx-4 sm:-mx-6 rounded-2xl cursor-pointer"
-              >
-                {/* Col 1: Index + Image + Information */}
-                <div className="flex items-start sm:items-center gap-4 sm:gap-6 min-w-0 flex-1">
-                  <span className="font-mono text-sm sm:text-base font-bold text-amber-400 tracking-widest shrink-0 mt-1 sm:mt-0">
-                    0{zone.index}
-                  </span>
-
-                  {/* Curated Micro-Thumbnail */}
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border border-white/15 shadow-sm group-hover:scale-105 transition-transform duration-500">
-                    <img
-                      src={zone.image}
-                      alt={zone.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover object-center"
-                      referrerPolicy="no-referrer"
-                    />
+      {/* Thompson 3-Column Card Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredZones.map(zone => (
+            <div
+              key={zone.id}
+              className="thompson-card overflow-hidden flex flex-col justify-between group cursor-pointer"
+              onClick={() => onInspectZone3D(zone.id)}
+            >
+              <div>
+                {/* Zone Image */}
+                <div className="relative h-56 overflow-hidden bg-slate-100">
+                  <img
+                    src={zone.image}
+                    alt={zone.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <span className={`thompson-badge ${zone.tagColor} shadow-md`}>
+                      {zone.age}
+                    </span>
                   </div>
-
-                  {/* Zone Metadata & Micro-Labels */}
-                  <div className="space-y-1.5 min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-kid font-bold text-white group-hover:text-amber-300 transition-colors tracking-tight">
-                        {zone.name}
-                      </h2>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${zone.tagColor}`}>
-                        {zone.age}
+                  {zone.staffing && (
+                    <div className="absolute top-4 right-4">
+                      <span className="thompson-badge bg-black/60 text-white backdrop-blur-md text-[10px]">
+                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                        <span>{zone.staffing}</span>
                       </span>
-                      {zone.staffing && (
-                        <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-slate-300 font-medium bg-white/10 px-2.5 py-0.5 rounded-full">
-                          <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                          {zone.staffing}
-                        </span>
-                      )}
                     </div>
-
-                    {/* Punchy micro-labels (Zero wordy paragraphs) */}
-                    <p className="text-xs sm:text-sm text-slate-300 font-medium tracking-wide">
-                      {zone.features.join(' · ')}
-                    </p>
-
-                    {/* Subtext safety footnote */}
-                    {zone.safetyNote && (
-                      <p className="text-fluid-xs text-slate-400 font-normal">
-                        {zone.safetyNote}
-                      </p>
-                    )}
-                  </div>
+                  )}
                 </div>
 
-                {/* Col 2: Action Triggers */}
-                <div className="flex items-center gap-3 shrink-0 self-end lg:self-center pt-2 lg:pt-0">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      soundscape.playMarimbaClick(620, 0.05);
-                      onInspectZone3D(zone.id);
-                    }}
-                    className="min-h-[44px] px-4 sm:px-5 rounded-xl bg-gradient-to-br from-white/15 to-white/5 hover:from-amber-400/25 hover:to-amber-400/10 active:scale-95 text-white hover:text-amber-300 font-kid font-bold text-xs sm:text-sm flex items-center gap-2 transition-all border border-white/25 hover:border-amber-400/50 cursor-pointer shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_12px_rgba(0,0,0,0.25)] group"
-                  >
-                    <span>Fly in 3D</span>
-                    <span className="text-amber-300 font-bold transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
-                  </button>
+                {/* Zone Content */}
+                <div className="p-6 space-y-4">
+                  <h2 className="font-poppins font-bold text-2xl text-slate-900 group-hover:text-[#FF6720] transition-colors">
+                    {zone.name}
+                  </h2>
+                  <p className="font-sans text-sm text-slate-600 leading-relaxed">
+                    {zone.shortDesc}
+                  </p>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      soundscape.playMarimbaClick(650, 0.08);
-                      onOpenBooking();
-                    }}
-                    className="min-h-[44px] px-4 sm:px-5 rounded-xl bg-gradient-to-b from-amber-300 to-amber-400 hover:from-amber-200 hover:to-amber-300 active:translate-y-0.5 text-slate-950 font-kid font-black text-xs sm:text-sm flex items-center gap-2 transition-all shadow-[0_8px_20px_-4px_rgba(245,158,11,0.5)] cursor-pointer"
-                  >
-                    <span>Book Pass ($25)</span>
-                    <ArrowRight className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
-                  </button>
+                  {/* Highlights */}
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <ul className="grid grid-cols-1 gap-1.5 text-xs font-poppins font-medium text-slate-700">
+                      {zone.features.map(f => (
+                        <li key={f} className="flex items-center gap-2">
+                          <Check className="w-3.5 h-3.5 text-[#FF6720] shrink-0" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {zone.safetyNote && (
+                    <p className="text-xs text-slate-500 font-sans pt-1">
+                      {zone.safetyNote}
+                    </p>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
+
+              {/* Action Buttons */}
+              <div className="p-6 pt-0 flex items-center justify-between gap-3 border-t border-slate-100 mt-4">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    soundscape.playMarimbaClick(620, 0.05);
+                    onInspectZone3D(zone.id);
+                  }}
+                  className="thompson-pill-btn thompson-pill-purple px-4 py-2.5 text-xs font-bold flex-1"
+                >
+                  <span>Fly in 3D</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    soundscape.playMarimbaClick(650, 0.08);
+                    onOpenBooking();
+                  }}
+                  className="thompson-pill-btn thompson-pill-orange px-4 py-2.5 text-xs font-bold flex-1"
+                >
+                  <span>Book Pass</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        <FloatingCursorPortal activeItem={hoveredZonePortal} />
       </div>
     </div>
   );

@@ -22,21 +22,21 @@ const FullScreen3DView = lazy(() =>
  * Storybook Farm-Map Loading Skeleton
  */
 const FarmMapSkeleton: React.FC = () => (
-  <div className="absolute inset-0 bg-[#141e18] flex flex-col items-center justify-center p-6 text-white z-20">
-    <div className="sticker-badge p-6 sm:p-8 bg-slate-900/90 border-2 border-amber-400 rounded-3xl shadow-2xl flex flex-col items-center gap-4 max-w-sm text-center backdrop-blur-md animate-pulse">
-      <div className="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-300 border border-amber-400/40 flex items-center justify-center text-3xl shadow-inner">
+  <div className="absolute inset-0 bg-[#31006F] flex flex-col items-center justify-center p-6 text-white z-20">
+    <div className="p-6 sm:p-8 bg-white text-slate-900 rounded-3xl shadow-2xl flex flex-col items-center gap-4 max-w-sm text-center">
+      <div className="w-16 h-16 rounded-2xl bg-orange-100 text-[#FF6720] border border-orange-200 flex items-center justify-center text-3xl shadow-xs">
         🎪
       </div>
       <div className="space-y-1">
-        <h3 className="font-kid font-black text-lg text-amber-300">
+        <h3 className="font-poppins font-bold text-lg text-[#31006F]">
           Entering The Little Farm
         </h3>
-        <p className="text-xs text-slate-300 font-medium leading-relaxed">
-          Rendering miniature diorama grounds, shaded pergolas, and active play zones...
+        <p className="text-xs text-slate-600 font-sans leading-relaxed">
+          Rendering grounds, shaded pergolas, and active play zones...
         </p>
       </div>
-      <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-white/10 mt-1">
-        <div className="bg-gradient-to-r from-amber-400 to-emerald-400 h-full w-2/3 rounded-full animate-pulse" />
+      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200 mt-1">
+        <div className="bg-[#FF6720] h-full w-2/3 rounded-full" />
       </div>
     </div>
   </div>
@@ -308,11 +308,11 @@ export default function App() {
         onBookingSuccess={handleBookingSuccess}
       />
 
-      {/* Mobile Sticky Booking Bar */}
+      {/* Mobile Sticky Booking Bar in Thompson Design System */}
       {currentTab !== '3d-map' && (
         <aside
           aria-label="Quick Booking"
-          className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-[#122219]/95 backdrop-blur-xl border-t border-emerald-800/40 shadow-2xl py-2 px-3 transition-all duration-200"
+          className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-[#31006F]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl py-2 px-3 transition-all duration-200"
           style={{
             paddingLeft: 'max(0.75rem, env(safe-area-inset-left, 0px))',
             paddingRight: 'max(0.75rem, env(safe-area-inset-right, 0px))',
@@ -321,17 +321,17 @@ export default function App() {
         >
           <div className="flex items-center justify-between gap-2.5 max-w-md mx-auto">
             <div className="flex flex-col min-w-0">
-              <span className="font-kid font-bold text-fluid-xs text-white leading-tight">
+              <span className="font-poppins font-bold text-xs text-white leading-tight">
                 Bambino World
               </span>
-              <span className="text-fluid-badge text-amber-300 font-semibold leading-tight">
+              <span className="text-[11px] font-poppins font-semibold text-[#F6BE00] leading-tight">
                 5 Dec · Early Bird $25
               </span>
             </div>
 
             <button
               onClick={() => setIsBookingOpen(true)}
-              className="h-8 px-3 bg-amber-400 hover:bg-amber-300 active:scale-98 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1 shadow-sm transition-transform cursor-pointer shrink-0"
+              className="thompson-pill-btn thompson-pill-orange px-4 py-1.5 text-xs font-bold shrink-0"
             >
               <span>Book Pass ($25)</span>
               <span aria-hidden="true">&rarr;</span>

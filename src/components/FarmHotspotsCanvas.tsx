@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import {
   Compass,
-  Sprout,
-  Waves,
-  Car,
-  Sparkles,
-  Shield,
   ChevronRight,
-  ExternalLink
+  MapPin,
+  Check
 } from 'lucide-react';
 import { soundscape } from '../utils/soundscape';
 
@@ -87,13 +83,12 @@ export const FarmHotspotsCanvas: React.FC<FarmHotspotsCanvasProps> = ({
   };
 
   return (
-    <div className={`space-y-8 ${className}`}>
-      {/* Editorial Split Showcase: Full-bleed Photo & Architectural Ledger */}
+    <div className={`space-y-6 font-sans ${className}`}>
+      {/* Split Showcase: Full-bleed Photo & Architectural Ledger */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
         
-        {/* Left Column: Pure Cinematic Photography */}
-        <div className="lg:col-span-7 xl:col-span-8 relative rounded-3xl overflow-hidden border border-[#E8E2D6] bg-[#F7F4EC] min-h-[380px] sm:min-h-[460px] lg:min-h-full flex flex-col justify-between shadow-[0_20px_50px_-20px_rgba(45,35,25,0.12)]">
-          {/* Authentic Venue Photography - Clean, crisp, unobstructed */}
+        {/* Left Column: Authentic Photography */}
+        <div className="lg:col-span-7 xl:col-span-8 relative rounded-3xl overflow-hidden border border-slate-200 bg-slate-100 min-h-[380px] sm:min-h-[460px] lg:min-h-full flex flex-col justify-between shadow-md">
           <img
             src="/bambino-farm.jpg"
             alt="The Little Farm Grounds at 5 Richwell Ave, Harare"
@@ -102,52 +97,48 @@ export const FarmHotspotsCanvas: React.FC<FarmHotspotsCanvasProps> = ({
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
 
-          {/* Gentle warm tint overlay */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 pointer-events-none bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent"
+            className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#31006F]/90 via-[#31006F]/30 to-transparent"
           />
 
-          {/* Subtle Top Metadata Stamp */}
+          {/* Top Metadata Badge */}
           <div className="relative z-10 p-6 flex items-center justify-between">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-amber-200 border border-white/10 text-[10px] font-mono tracking-widest uppercase font-semibold">
-              <Compass className="w-3 h-3 text-amber-400" />
+            <div className="thompson-badge bg-[#31006F]/90 text-[#F6BE00] backdrop-blur-md border border-white/20 text-[10px]">
+              <Compass className="w-3.5 h-3.5 text-[#F6BE00]" />
               <span>Harare Parkland Grounds</span>
             </div>
             
-            <div className="hidden sm:block text-[11px] font-mono text-white/80 tracking-wider">
+            <div className="hidden sm:block text-xs font-poppins font-bold text-white/90">
               4,000 m² ENCLOSED
             </div>
           </div>
 
           {/* Bottom Photo Caption */}
           <div className="relative z-10 p-6 sm:p-8 space-y-2 text-white">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold">
-              Feature {activeSpot.number} of 05
-            </div>
-            <h3 className="text-xl sm:text-2xl font-serif italic text-white font-normal leading-tight">
+            <h3 className="text-2xl sm:text-3xl font-poppins font-bold text-white leading-tight">
               {activeSpot.title}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-200 max-w-lg font-light leading-relaxed">
+            <p className="text-sm sm:text-base text-white/90 max-w-xl font-sans leading-relaxed">
               {activeSpot.description}
             </p>
           </div>
         </div>
 
         {/* Right Column: Architectural Ledger / Directory */}
-        <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between bg-white rounded-3xl border border-[#E8E2D6] p-6 sm:p-8 shadow-xs">
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
           <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <span className="font-mono text-xs font-bold text-slate-600 uppercase tracking-widest">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+              <span className="font-poppins text-xs font-bold text-[#31006F] ">
                 Venue Directory
               </span>
-              <span className="text-[11px] font-mono text-amber-800 font-semibold">
+              <span className="text-xs font-poppins font-bold text-[#FF6720]">
                 Meyrick Park
               </span>
             </div>
 
             {/* List of 5 Landmark Sectors */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {FARM_HOTSPOTS.map((hotspot) => {
                 const isSelected = activeId === hotspot.id;
 
@@ -158,13 +149,13 @@ export const FarmHotspotsCanvas: React.FC<FarmHotspotsCanvasProps> = ({
                     onClick={() => handleSelect(hotspot.id)}
                     className={`w-full text-left p-3.5 rounded-2xl transition duration-200 cursor-pointer flex items-start gap-4 border ${
                       isSelected
-                        ? 'bg-[#FAF8F4] border-amber-300 shadow-2xs'
-                        : 'bg-transparent border-transparent hover:bg-slate-50'
+                        ? 'bg-[#31006F] text-white border-[#31006F] shadow-sm'
+                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
                     }`}
                   >
                     <span
-                      className={`font-mono text-xs font-bold pt-0.5 ${
-                        isSelected ? 'text-[#C85A32]' : 'text-slate-600 font-bold'
+                      className={`font-poppins text-xs font-black pt-0.5 ${
+                        isSelected ? 'text-[#F6BE00]' : 'text-[#FF6720]'
                       }`}
                     >
                       {hotspot.number}
@@ -173,17 +164,19 @@ export const FarmHotspotsCanvas: React.FC<FarmHotspotsCanvasProps> = ({
                     <div className="space-y-0.5 flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <h4
-                          className={`text-sm font-semibold truncate ${
-                            isSelected ? 'text-slate-900 font-bold' : 'text-slate-700'
+                          className={`text-sm font-poppins font-bold truncate ${
+                            isSelected ? 'text-white' : 'text-slate-900'
                           }`}
                         >
                           {hotspot.title}
                         </h4>
                         {isSelected && (
-                          <ChevronRight className="w-4 h-4 text-[#C85A32] shrink-0" />
+                          <ChevronRight className="w-4 h-4 text-[#F6BE00] shrink-0" />
                         )}
                       </div>
-                      <p className="text-xs text-slate-700 font-normal truncate">
+                      <p className={`text-xs font-sans truncate ${
+                        isSelected ? 'text-white/80' : 'text-slate-500'
+                      }`}>
                         {hotspot.specs}
                       </p>
                     </div>
@@ -194,12 +187,12 @@ export const FarmHotspotsCanvas: React.FC<FarmHotspotsCanvasProps> = ({
           </div>
 
           {/* Active Highlight Micro-Tags & 3D Ground Link */}
-          <div className="pt-6 border-t border-slate-100 mt-6 space-y-4">
+          <div className="pt-6 border-t border-slate-200 mt-6 space-y-4">
             <div className="flex flex-wrap items-center gap-1.5">
               {activeSpot.highlights.map((h, i) => (
                 <span
                   key={i}
-                  className="px-2.5 py-1 rounded-full text-[10px] font-mono font-medium bg-[#FAF8F4] text-slate-700 border border-[#E8E2D6]"
+                  className="px-3 py-1 rounded-full text-xs font-poppins font-semibold bg-slate-100 text-slate-800 border border-slate-200"
                 >
                   {h}
                 </span>
@@ -210,10 +203,10 @@ export const FarmHotspotsCanvas: React.FC<FarmHotspotsCanvasProps> = ({
               <button
                 type="button"
                 onClick={onOpen3DMap}
-                className="w-full py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-slate-400 text-slate-600 hover:text-slate-900 text-xs font-semibold tracking-wide transition flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full thompson-pill-btn thompson-pill-outline-purple py-2.5 text-xs font-bold"
               >
+                <MapPin className="w-3.5 h-3.5" />
                 <span>View Full Aerial Grounds Schematic</span>
-                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             )}
           </div>

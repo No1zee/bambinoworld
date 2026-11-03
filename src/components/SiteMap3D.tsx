@@ -2896,19 +2896,19 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           className="fixed z-[65] pointer-events-auto transform -translate-x-1/2 -translate-y-full pb-3 animate-in fade-in zoom-in-95 duration-150"
           style={{ left: `${personScreenPos.x}px`, top: `${personScreenPos.y}px` }}
         >
-          <div className="bg-slate-950/75 backdrop-blur-md text-white pl-3.5 pr-2 py-2 rounded-2xl border-2 border-amber-400/85 shadow-2xl flex items-center gap-2.5 max-w-[280px] sm:max-w-xs">
+          <div className="bg-[#31006F]/95 backdrop-blur-md text-white pl-3.5 pr-2 py-2 rounded-2xl border border-[#FF6720]/80 shadow-2xl flex items-center gap-2.5 max-w-[280px] sm:max-w-xs font-poppins">
             <span className="text-xl shrink-0">{inspectedPerson.icon}</span>
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-amber-300 truncate">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#F6BE00] truncate">
                 {inspectedPerson.roleTitle}
               </div>
-              <div className="text-xs font-semibold text-slate-100 mt-0.5 line-clamp-2">
+              <div className="text-xs font-medium text-white/95 mt-0.5 line-clamp-2">
                 {inspectedPerson.label}
               </div>
             </div>
             <button
               onClick={() => setInspectedPerson(null)}
-              className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-slate-300 hover:text-white flex items-center justify-center cursor-pointer shrink-0 ml-1"
+              className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 text-white/80 hover:text-white flex items-center justify-center cursor-pointer shrink-0 ml-1"
               aria-label="Dismiss person details"
             >
               <span className="text-xs font-bold leading-none">&times;</span>
