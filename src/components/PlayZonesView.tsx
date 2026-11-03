@@ -111,10 +111,10 @@ export const PlayZonesView: React.FC<PlayZonesViewProps> = ({ onInspectZone3D, o
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-slate-200 pb-6">
           <div className="space-y-2">
             <h1 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-[#31006F] tracking-tight">
-              The Five Play Zones
+              Five Sanctuaries of Pure Joy
             </h1>
             <p className="text-base text-slate-600 font-sans max-w-2xl">
-              Five dedicated sectors designed for age-appropriate adventure, sensory exploration, creativity, and safety across 4,000 m² of parkland.
+              Thoughtfully separated by age so babies and toddlers explore gently while bigger kids leap freely—with trained safety marshals caring for every jump, crawl, and smile.
             </p>
           </div>
 

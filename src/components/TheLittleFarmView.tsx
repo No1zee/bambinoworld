@@ -40,7 +40,7 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
               The Little Farm, Meyrick Park
             </h1>
             <p className="font-sans text-base sm:text-lg text-slate-600 max-w-2xl font-normal leading-relaxed">
-              4,000 m² of mature shade trees, bougainvillea lawns &amp; secure family play infrastructure in Meyrick Park, Harare.
+              A lush, gated garden sanctuary shaded by ancient trees in Meyrick Park. Designed from the grass up for your children to run wild in total safety—while you sit back, sip something cold, and breathe easy.
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export const TheLittleFarmView: React.FC<TheLittleFarmViewProps> = ({
                 </span>
               </div>
               <span className="text-xs font-poppins font-semibold text-[#2F532E] block">
-                100% Gated &amp; Supervised Perimeter
+                100% Securely Gated &amp; Supervised
               </span>
             </div>
           </div>

@@ -148,20 +148,24 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
   const faqs = [
     {
-      q: 'Do accompanying parents or infants pay admission?',
-      a: 'No. Parents and infants aged 0 to 2 years enter completely free. Every child pass ($25 early bird) covers admission, all 5 play zones, lunch, and sweet treats.'
+      q: 'Do parents or babies have to pay to come along?',
+      a: 'Not a single cent. Accompanying parents and babies under 2 enter completely free. We believe family days should bring everyone together without multiplying the bill. Sit under the shaded bougainvillea, sip an iced drink, and enjoy the day—your child’s $25 Early Bird pass covers the full experience.'
     },
     {
-      q: 'What is included with each child pass?',
-      a: 'Passes include unlimited entry to all 5 play zones (The Little Garden, Adventure Arena, Creative Corner, Discovery World, and Celebration Stage), a hot nutritious lunch, and afternoon treats.'
+      q: 'Will I be nagged to buy tokens or extra tickets once inside?',
+      a: 'Never. One pass covers literally everything for the entire day. All five play zones, giant bouncy obstacle courses, animal petting cuddles, science labs, puppet theater, warm farm lunch, chilled juices, and afternoon ice cream treats are 100% included. Leave your wallet in your bag and just enjoy watching them play.'
     },
     {
-      q: 'What safety and perimeter measures are enforced?',
-      a: 'The Little Farm is 100% fenced with secure checkpoint entrances. All children and parents receive matching security wristbands at entry. Certified zone marshals and certified paediatric first aid responders are on-site all day.'
+      q: 'How can I be certain my child is safe and won’t wander off?',
+      a: 'Your peace of mind is our highest priority. The Little Farm is completely surrounded by a secure perimeter fence with a single gated entry/exit checkpoint. Upon arrival, you and your child receive matching security wristbands (no child is permitted to leave without their registered adult). Trained early-childhood marshals supervise every station, and a certified paediatric nurse is on-site all day.'
     },
     {
-      q: 'Can we pay with EcoCash or at the gate?',
-      a: 'Yes. EcoCash is supported with instant reference verification. Early bird passes ($25) are discounted online in advance. Standard gate admission on festival day is $30 per child.'
+      q: 'What if my baby gets fussy or needs a quiet place to nurse?',
+      a: 'We designed Bambino World with real parenting in mind. Inside The Little Garden, you will find a serene, private Mother & Baby Sanctuary equipped with comfortable nursing chairs, electric bottle-warming stations, sanitized changing tables, and quiet shaded glades away from the music. Take all the time you need to recharge.'
+    },
+    {
+      q: 'Can I pay with EcoCash right now?',
+      a: 'Yes, in seconds. We support instant EcoCash checkout with immediate confirmation, as well as Visa, Mastercard, and cash reserve options. Early bird passes are just $25 online (gate admission on the day is $30, and venue capacity is strictly capped to prevent overcrowding).'
     }
   ];
 
@@ -189,10 +193,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="w-full md:w-[72%] bg-[#31006F] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden">
             <div className="space-y-4 max-w-3xl">
               <h1 className="font-poppins font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-white">
-                where little dreams come alive.
+                give them the childhood you remember.
               </h1>
               <p className="text-white/85 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl pt-2">
-                Zimbabwe’s premier outdoor celebration for curious explorers aged 6 months to 12 years across 4,000 m² of protected parkland.
+                Real grass under tiny toes, messy ice-cream giggles, and zero screens. A magical, sun-drenched Saturday crafted for your child’s pure wonder—and your total peace of mind.
               </p>
             </div>
 
@@ -222,10 +226,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="w-full md:w-[72%] bg-[#240052] text-white p-8 sm:p-12 lg:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden">
             <div className="space-y-3 max-w-xl">
               <h2 className="font-poppins font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight text-white">
-                4,000 m² of pure outdoor play.
+                a day where mom actually gets to relax.
               </h2>
               <p className="text-white/80 text-sm sm:text-base font-normal leading-relaxed">
-                Timber obstacle courses, shaded bougainvillea lawns, sanitized sensory ball pits, and acoustic puppet stages.
+                100% securely gated perimeter, certified paediatric nurses on standby, and loving early-childhood marshals at every play station. Sip your coffee under the bougainvillea while they play safely.
               </p>
             </div>
 
@@ -268,7 +272,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="w-full md:w-[72%] bg-[#FF6720] text-white p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-xl">
               <h2 className="font-poppins font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight text-white">
-                unplugged wonder that radiates.
+                unplugged joy that lights up their eyes.
               </h2>
             </div>
 
@@ -330,10 +334,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <h2 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-[#31006F] tracking-tight">
-              designed for every age and curiosity.
+              finally, a festival built with real moms in mind.
             </h2>
             <p className="text-slate-600 text-base sm:text-lg font-normal leading-relaxed">
-              Curated play environments engineered with safety, shade, and joyful physical engagement.
+              We got tired of chaotic, dusty events with broken toys, filthy bathrooms, and hidden fees. Bambino World is Harare’s premier sanctuary of joyful outdoor play, spotless facilities, and unhurried family connection.
             </p>
           </div>
 
@@ -353,10 +357,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               <div className="bg-[#00A3E0] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
                 <div className="space-y-3">
                   <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
-                    the little garden
+                    the little garden (6m – 2y)
                   </h3>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
-                    Calm sensory sanctuary with cushioned soft play foam, gentle story pergolas, and sanitized foam pits for infants &amp; toddlers (6M – 2Y).
+                    A gentle, shoe-free sensory haven for babies and toddlers. Cushioned foam crawl zones, tactile discovery mats, and a private nursing sanctuary with bottle warmers &amp; fresh diaper stations.
                   </p>
                 </div>
                 <div>
@@ -384,10 +388,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               <div className="bg-[#FF6720] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
                 <div className="space-y-3">
                   <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
-                    adventure arena
+                    adventure arena (3 – 12y)
                   </h3>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
-                    High-energy timber obstacle courses, giant bouncy inflatable slides, low rope balance paths, and active open-air discovery (3Y – 6Y).
+                    Boundless energy, safely channeled. Supervised obstacle courses, bouncy castles, junior tractor rides, and lawn games where trained marshals guide and protect every jump.
                   </p>
                 </div>
                 <div>
@@ -418,7 +422,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                     creative &amp; discovery
                   </h3>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
-                    Messy bubble chemistry labs, giant communal easels, non-toxic pottery clay modeling, and kid-friendly microscope exploration (All Ages).
+                    Spark their curious imagination with non-toxic pottery clay, giant communal easels, sweet farm animal cuddles, and magical puppet theater that captures their hearts.
                   </p>
                 </div>
                 <div>
@@ -447,10 +451,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             
             <div className="lg:col-span-7 space-y-4">
               <h2 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-[#31006F] leading-tight tracking-tight">
-                a human-scale celebration transforming how families gather.
+                crafted by parents, for parents who want better.
               </h2>
               <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
-                Bambino World is designed for curious explorers aged 6 months to 12 years and the parents who love them. We bring together unplugged outdoor discovery, live performing arts, and joyful sensory immersion in a calm, safe, and beautifully shaded pastoral landscape.
+                From our dedicated Mother & Baby sanctuary with clean bottle warmers to safety marshals at every bouncy obstacle, every single detail was designed so you never have to worry, hover, or stress.
               </p>
             </div>
 
@@ -458,7 +462,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
                 <span className="font-poppins font-black text-4xl text-[#FF6720] block">5</span>
                 <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
-                  Curated Play Zones
+                  Curated Age Zones
                 </span>
               </div>
 
@@ -479,7 +483,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
                 <span className="font-poppins font-black text-4xl text-[#D82374] block">0</span>
                 <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
-                  Hidden Fees
+                  Zero Hidden Fees
                 </span>
               </div>
             </div>
@@ -509,10 +513,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             {/* Left Column: Heading */}
             <div className="lg:col-span-5 space-y-4">
               <h2 className="font-poppins font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.08]">
-                sectors we feature.
+                crafted for your peace of mind.
               </h2>
               <p className="text-white/80 text-base sm:text-lg font-normal leading-relaxed">
-                4,000 m² of natural parkland thoughtfully segregated by developmental stage for unhurried exploration.
+                Every square meter of The Little Farm is engineered so you never have to hover, worry, or play bodyguard.
               </p>
               <div className="pt-4">
                 <button
@@ -609,7 +613,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/20 pb-8">
             <div className="space-y-3">
               <h2 className="font-poppins font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-none">
-                what’s going on?
+                a day of smiles from 10am to 5pm.
               </h2>
               <p className="text-white/80 text-base sm:text-lg font-normal">
                 Stay up to date with Bambino World related events &amp; stage showtimes.
@@ -738,7 +742,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               
               <div className="lg:col-span-7 space-y-6">
                 <h2 className="font-poppins font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
-                  family tickets made simple.
+                  one simple pass. a whole day of joy.
                 </h2>
                 <p className="text-white/85 text-base sm:text-lg font-normal leading-relaxed">
                   Passes are $25 early bird with automatic progressive savings for siblings. Parents and children under 2 enter completely free. All 5 play zones, hot lunch, and sweet treats included.
@@ -870,7 +874,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
             <div className="space-y-3 max-w-2xl">
               <h2 className="font-poppins font-black text-4xl sm:text-5xl text-[#31006F] tracking-tight">
-                guidelines &amp; safety.
+                everything moms ask us.
               </h2>
             </div>
           </div>

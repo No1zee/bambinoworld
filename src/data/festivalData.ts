@@ -14,13 +14,13 @@ export const ZONES_DATA: Record<string, ZoneData> = {
     staffing: 'Early-Years Staff',
     camPos: { x: -28, y: 24, z: 18 },
     camTarget: { x: -28, y: 0, z: -4 },
-    description: 'A calm, shaded sensory sanctuary for babies and toddlers with soft-play foam shapes and shaded play mats.',
+    description: 'A gentle, shoe-free sensory haven designed exclusively for babies and toddlers. Cushioned foam crawl zones, tactile discovery mats, and a private nursing sanctuary with electric bottle warmers—so you and your littlest one can bond in complete calm.',
     features: [
-      'Soft-play foam climbing shapes',
-      'Shaded baby crawling mats',
-      'Shoe-free enclosed area'
+      'Shoe-free cushioned crawl glade',
+      'Gentle baby marimba melodies',
+      'Private nursing glade & bottle warmers'
     ],
-    safetyNote: 'Shoe-free padded area with dedicated early-years attendants.'
+    safetyNote: 'Shoe-free padded area supervised by certified early-years caregivers.'
   },
   'adventure-zone': {
     id: 'adventure-zone',
@@ -35,13 +35,13 @@ export const ZONES_DATA: Record<string, ZoneData> = {
     staffing: 'Play Marshals',
     camPos: { x: 10, y: 28, z: -2 },
     camTarget: { x: 10, y: 1, z: -28 },
-    description: 'An expansive green lawn featuring bouncy castles, inflatable slides, carnival games, and supervised animal petting.',
+    description: 'Where boundless energy meets 100% peace of mind. Supervised bouncy obstacle courses, gentle animal petting cuddles, and junior tractor rides—monitored at every entrance by certified safety marshals.',
     features: [
-      'Bouncy castles & slides',
-      'Gentle animal petting',
-      'Carnival lawn games'
+      'Supervised bouncy obstacle courses',
+      'Gentle farm animal petting cuddles',
+      'Junior tractor wagon rides'
     ],
-    safetyNote: 'Dedicated safety marshals stationed at every inflatable.'
+    safetyNote: 'Dedicated safety marshals stationed continuously at every inflatable.'
   },
   'creative-zone': {
     id: 'creative-zone',
@@ -56,11 +56,11 @@ export const ZONES_DATA: Record<string, ZoneData> = {
     staffing: 'Creative Mentors',
     camPos: { x: -34, y: 18, z: 48 },
     camTarget: { x: -35, y: 0, z: 33 },
-    description: 'A shaded open-air studio where children explore washable painting, friendship bracelets, and fun spelling games.',
+    description: 'Spark their artistic imagination with zero cleanup stress at home! Child-safe washable easel painting, soft non-toxic modeling clay, and friendship crafts that your child will proudly bring home.',
     features: [
-      'Washable easel painting',
-      'Friendship bracelet crafting',
-      'Fun spelling activities'
+      'Washable easel painting (zero mess at home!)',
+      'Non-toxic pottery clay sculpting',
+      'Friendship bracelet & keepsake crafting'
     ],
     safetyNote: 'All materials are child-safe, washable, and non-toxic.'
   },
@@ -98,7 +98,7 @@ export const ZONES_DATA: Record<string, ZoneData> = {
     staffing: 'Performance Team',
     camPos: { x: 10, y: 20, z: 22 },
     camTarget: { x: 10, y: 2, z: -1 },
-    description: 'The musical heart of the festival with live marimba tunes, puppet storytelling, and family sing-alongs.',
+    description: 'Soulful acoustic marimbas, delightful puppet adventures, and family sing-alongs calibrated at gentle sound levels safe for delicate young ears.',
     features: [
       'Live marimba concerts',
       'Puppet storytelling & theatre',
