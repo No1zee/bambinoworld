@@ -177,18 +177,14 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     );
 
     renderer.setSize(width, height);
-    renderer.setPixelRatio(isLowPowerGPU ? 1.0 : Math.min(window.devicePixelRatio, 1.5));
-    renderer.shadowMap.enabled = !isLowPowerGPU;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // Locked 60-120 FPS high performance: Cap pixel ratio to 1.25 on Retina displays
+    renderer.setPixelRatio(isLowPowerGPU ? 1.0 : Math.min(window.devicePixelRatio || 1, 1.25));
+    // Disable heavy double-pass dynamic shadow maps (saves 50% draw calls & GPU fill rate)
+    renderer.shadowMap.enabled = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.15;
     container.appendChild(renderer.domElement);
-
-    // Studio Environment Reflections
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-    pmremGenerator.dispose();
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.copy(POSTER_CAM_TARGET);
@@ -1668,12 +1664,12 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
     // Iridescent Floating Soap Bubbles
     const bubbleGeo = new THREE.SphereGeometry(0.24, 10, 10);
-    const bubbleMat = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      transmission: 0.95,
-      opacity: 0.88,
-      transparent: true,
-      roughness: 0.04
+    const bubbleMat = new THREE.MeshStandardMaterial({
+      color: 0xe0f2fe,
+      roughness: 0.1,
+      metalness: 0.1,
+      opacity: 0.65,
+      transparent: true
     });
     for (let i = 0; i < 35; i++) {
       const b = new THREE.Mesh(bubbleGeo, bubbleMat);
@@ -2469,6 +2465,9 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
       const badge = document.createElement('div');
       badge.className = `map-callout ${item.theme}`;
+      badge.style.left = '0px';
+      badge.style.top = '0px';
+      badge.style.willChange = 'transform';
       badge.dataset.zoneId = item.zoneId;
       badge.innerHTML = `
         <span class="pin-icon">${item.icon}</span>
@@ -2685,12 +2684,13 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       const isActivelyNavigating = (controls as any).state !== -1 || camAnim !== null;
       const camPos = camera.position;
 
-      // Animated agents path walking and bounce with Dynamic LOD
+      // Animated agents path walking and bounce with CPU Throttle
+      // During active camera navigation (dragging/orbiting), prioritize smooth 60fps camera over micro limb swings
       animatedAgents.forEach(ag => {
         if (!ag.root.visible) return;
         if (ag.accessories) {
           const distSq = ag.root.position.distanceToSquared(camPos);
-          const maxDistSq = isActivelyNavigating ? 1444 : 4225; // 38^2 and 65^2
+          const maxDistSq = isActivelyNavigating ? 1024 : 3600; // LOD cutoff
           ag.accessories.visible = distSq < maxDistSq;
         }
         const t = elapsed * ag.speed + ag.phase;
@@ -2700,25 +2700,33 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           const lookPt = ag.curve.getPointAt((ag.progress + 0.01) % 1);
           ag.root.position.set(pt.x, ag.baseY, pt.z);
           ag.root.lookAt(lookPt.x, ag.baseY, lookPt.z);
-          ag.leftLeg.rotation.x = Math.sin(t * 6) * 0.45;
-          ag.rightLeg.rotation.x = -Math.sin(t * 6) * 0.45;
-          ag.leftArm.rotation.x = -Math.sin(t * 6) * 0.35;
-          ag.rightArm.rotation.x = Math.sin(t * 6) * 0.35;
+          if (!isActivelyNavigating) {
+            ag.leftLeg.rotation.x = Math.sin(t * 6) * 0.45;
+            ag.rightLeg.rotation.x = -Math.sin(t * 6) * 0.45;
+            ag.leftArm.rotation.x = -Math.sin(t * 6) * 0.35;
+            ag.rightArm.rotation.x = Math.sin(t * 6) * 0.35;
+          }
         } else if (ag.behavior === 'bounce') {
           ag.root.position.y = ag.baseY + Math.abs(Math.sin(t * 4.2)) * 0.45;
-          ag.leftArm.rotation.z = Math.sin(t * 4.2) * 0.6 + 0.5;
-          ag.rightArm.rotation.z = -Math.sin(t * 4.2) * 0.6 - 0.5;
+          if (!isActivelyNavigating) {
+            ag.leftArm.rotation.z = Math.sin(t * 4.2) * 0.6 + 0.5;
+            ag.rightArm.rotation.z = -Math.sin(t * 4.2) * 0.6 - 0.5;
+          }
         } else if (ag.behavior === 'dance') {
           ag.root.position.y = ag.baseY + Math.abs(Math.sin(t * 5)) * 0.18;
           ag.root.rotation.y = Math.sin(t * 2.5) * 0.45;
-          ag.leftArm.rotation.x = Math.sin(t * 5) * 0.8;
-          ag.rightArm.rotation.x = -Math.sin(t * 5) * 0.8;
+          if (!isActivelyNavigating) {
+            ag.leftArm.rotation.x = Math.sin(t * 5) * 0.8;
+            ag.rightArm.rotation.x = -Math.sin(t * 5) * 0.8;
+          }
         } else if (ag.behavior === 'crawl') {
           ag.root.position.x = ag.baseX + Math.cos(t * 1.2) * 0.85;
           ag.root.position.z = ag.baseZ + Math.sin(t * 1.2) * 0.85;
           ag.root.rotation.y = -t * 1.2;
         } else {
-          ag.rightArm.rotation.z = -0.45 + Math.sin(t * 3.5) * 0.35;
+          if (!isActivelyNavigating) {
+            ag.rightArm.rotation.z = -0.45 + Math.sin(t * 3.5) * 0.35;
+          }
         }
       });
 
@@ -2754,8 +2762,8 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
           c.badgeEl.style.display = 'inline-flex';
           c.polyEl.style.display = 'block';
-          c.badgeEl.style.left = `${Math.round(lPt.x)}px`;
-          c.badgeEl.style.top = `${Math.round(lPt.y)}px`;
+          // Zero-reflow hardware-accelerated transform positioning
+          c.badgeEl.style.transform = `translate3d(${Math.round(lPt.x)}px, ${Math.round(lPt.y)}px, 0) translate(-50%, -50%)`;
 
           const dx = aPt.x - lPt.x;
           const dy = aPt.y - lPt.y;
