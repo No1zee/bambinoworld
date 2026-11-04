@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { ZONES_DATA, CALLOUT_ITEMS } from '../data/festivalData';
 import { ZoneId } from '../types/festival';
+import { soundscape } from '../utils/soundscape';
 
 export interface SiteMap3DHandle {
   focusZone: (zoneId: string) => void;
@@ -11,6 +12,7 @@ export interface SiteMap3DHandle {
   setLighting: (mode: 'day' | 'sunset' | 'night') => void;
   focusActivityCam: (key: string) => void;
   animateCameraForTab: (tab: string) => void;
+  toggleKidsEyeView?: () => boolean;
 }
 
 interface SiteMap3DProps {
@@ -72,28 +74,36 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     setDensity: (level: 'quiet' | 'normal' | 'peak') => void;
     toggleGroup: (layer: 'flow' | 'barriers' | 'trees', visible: boolean) => void;
     focusActivityCam: (key: string) => void;
+    triggerZoneBounce: (zoneId: string) => void;
+    toggleKidsEyeView: () => boolean;
+    resetView: () => void;
   } | null>(null);
 
   // Expose imperative handle for parent and zone navigation
   useImperativeHandle(ref, () => ({
     focusZone: (zoneId: string) => {
       const z = ZONES_DATA[zoneId];
-      if (z && internalsRef.current) {
-        internalsRef.current.animateCameraTo(
-          new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z),
-          new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z),
-          1050
-        );
+      if (internalsRef.current) {
+        internalsRef.current.triggerZoneBounce(zoneId);
+        if (z) {
+          internalsRef.current.animateCameraTo(
+            new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z),
+            new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z),
+            1050
+          );
+        }
       }
     },
     resetView: () => {
       if (internalsRef.current) {
-        internalsRef.current.animateCameraTo(
-          new THREE.Vector3(0, 68, 74),
-          new THREE.Vector3(-2, 0, 2),
-          1000
-        );
+        internalsRef.current.resetView();
       }
+    },
+    toggleKidsEyeView: () => {
+      if (internalsRef.current) {
+        return internalsRef.current.toggleKidsEyeView();
+      }
+      return false;
     },
     setLighting: (mode) => {
       if (internalsRef.current) {
@@ -189,14 +199,32 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.copy(POSTER_CAM_TARGET);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.05; // Silky KODE-style momentum
+    controls.dampingFactor = 0.055; // Luxurious buttery "Fling & Glide" inertia
+    controls.rotateSpeed = 0.85;
     controls.minPolarAngle = Math.PI / 5.5; // Prevent straight top-down flattening
     controls.maxPolarAngle = Math.PI / 2.3; // Prevent dipping below ground / horizon
     controls.minDistance = 14; // Prevent clipping into geometry
     controls.maxDistance = 110; // Prevent disorienting void zoom out
+
+    // Kid's-Eye View Camera State
+    let isKidsEyeView = false;
+    const setKidsEyeMode = (active: boolean) => {
+      isKidsEyeView = active;
+      if (active) {
+        controls.maxPolarAngle = Math.PI / 1.7; // ~106° allows low-angle child camera (y=2.2) looking upward at target (y=5.8)
+        controls.minPolarAngle = Math.PI / 4.0;
+      } else {
+        controls.maxPolarAngle = Math.PI / 2.3; // standard bird's-eye limit
+        controls.minPolarAngle = Math.PI / 5.5;
+      }
+    };
+
     controls.addEventListener('start', () => {
       camAnim = null;
       setInspectedPerson(null);
+      if (isKidsEyeView) {
+        setKidsEyeMode(false);
+      }
     });
     controls.update();
 
@@ -208,7 +236,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     hemiLight.position.set(0, 80, 0);
     scene.add(hemiLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffedd5, 0.82);
+    const sunLight = new THREE.DirectionalLight(0xfff8ed, 1.35);
     sunLight.position.set(-45, 78, 42);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 1024;
@@ -236,46 +264,156 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     // Soft atmospheric rim light for subtle diorama highlights
     const rimLight = new THREE.DirectionalLight(0xffedd5, 0.25);
     rimLight.position.set(38, 48, -42);
-    scene.add(stageSpot1, stageSpot2, poolGlowLight, ledGlowLight, rimLight);
+
+    // Warm festival lantern glow for Golden-Hour ambiance
+    const festivalLanternGlow = new THREE.PointLight(0xffaa44, 0, 32);
+    festivalLanternGlow.position.set(10, 4.2, 5);
+    scene.add(stageSpot1, stageSpot2, poolGlowLight, ledGlowLight, rimLight, festivalLanternGlow);
+
+    const sharedLanternMat = new THREE.MeshStandardMaterial({
+      color: 0xffedd5,
+      emissive: 0xffaa33,
+      emissiveIntensity: 0.15,
+      roughness: 0.25
+    });
+
+    // Smooth lighting transition controller
+    let lightingTransition: {
+      startTime: number;
+      duration: number;
+      fromSunColor: THREE.Color;
+      toSunColor: THREE.Color;
+      fromSunIntensity: number;
+      toSunIntensity: number;
+      fromSunPos: THREE.Vector3;
+      toSunPos: THREE.Vector3;
+      fromAmbientColor: THREE.Color;
+      toAmbientColor: THREE.Color;
+      fromAmbientIntensity: number;
+      toAmbientIntensity: number;
+      fromBgColor: THREE.Color;
+      toBgColor: THREE.Color;
+      fromLanternEmissive: number;
+      toLanternEmissive: number;
+      fromLanternGlow: number;
+      toLanternGlow: number;
+      fromSpot1: number;
+      toSpot1: number;
+      fromSpot2: number;
+      toSpot2: number;
+      fromPoolGlow: number;
+      toPoolGlow: number;
+      fromLedGlow: number;
+      toLedGlow: number;
+    } | null = null;
 
     const applyLighting = (mode: 'day' | 'sunset' | 'night') => {
-      if (mode === 'day') {
-        scene.background = new THREE.Color(0x1a261e);
-        if (scene.fog) scene.fog.color.setHex(0x1a261e);
-        ambientLight.intensity = 0.42;
-        sunLight.intensity = 0.95;
-        sunLight.color.setHex(0xfffbeb);
-        rimLight.intensity = 0.25;
-        rimLight.color.setHex(0xffedd5);
-        stageSpot1.intensity = 0;
-        stageSpot2.intensity = 0;
-        poolGlowLight.intensity = 0;
-        ledGlowLight.intensity = 0;
-      } else if (mode === 'sunset') {
-        scene.background = new THREE.Color(0x2d1b24);
-        if (scene.fog) scene.fog.color.setHex(0x2d1b24);
-        ambientLight.intensity = 0.45;
-        sunLight.intensity = 1.1;
-        sunLight.color.setHex(0xfb923c);
-        rimLight.intensity = 0.70;
-        rimLight.color.setHex(0xfdba74);
-        stageSpot1.intensity = 1.2;
-        stageSpot2.intensity = 1.2;
-        poolGlowLight.intensity = 0.9;
-        ledGlowLight.intensity = 0.8;
+      const targetSunColor = new THREE.Color(mode === 'sunset' ? 0xffaa44 : mode === 'night' ? 0x818cf8 : 0xfff8ed);
+      const targetSunIntensity = mode === 'sunset' ? 1.65 : mode === 'night' ? 0.32 : 1.35;
+      const targetSunPos = mode === 'sunset' ? new THREE.Vector3(-58, 42, 60) : mode === 'night' ? new THREE.Vector3(-30, 40, 20) : new THREE.Vector3(-45, 78, 42);
+      const targetAmbientColor = new THREE.Color(mode === 'sunset' ? 0xfed7aa : mode === 'night' ? 0x1e1b4b : 0xfff7ed);
+      const targetAmbientIntensity = mode === 'sunset' ? 0.65 : mode === 'night' ? 0.25 : 0.55;
+      const targetBgColor = new THREE.Color(mode === 'sunset' ? 0x361e2b : mode === 'night' ? 0x090d16 : 0x1a261e);
+      const targetLanternEmissive = mode === 'sunset' ? 2.4 : mode === 'night' ? 2.8 : 0.15;
+      const targetLanternGlow = mode === 'sunset' ? 1.8 : mode === 'night' ? 2.2 : 0.0;
+      const targetSpot1 = mode === 'sunset' ? 1.4 : mode === 'night' ? 2.4 : 0.0;
+      const targetSpot2 = mode === 'sunset' ? 1.4 : mode === 'night' ? 2.4 : 0.0;
+      const targetPoolGlow = mode === 'sunset' ? 0.9 : mode === 'night' ? 1.8 : 0.0;
+      const targetLedGlow = mode === 'sunset' ? 0.8 : mode === 'night' ? 1.5 : 0.0;
+
+      lightingTransition = {
+        startTime: performance.now(),
+        duration: 800,
+        fromSunColor: sunLight.color.clone(),
+        toSunColor: targetSunColor,
+        fromSunIntensity: sunLight.intensity,
+        toSunIntensity: targetSunIntensity,
+        fromSunPos: sunLight.position.clone(),
+        toSunPos: targetSunPos,
+        fromAmbientColor: ambientLight.color.clone(),
+        toAmbientColor: targetAmbientColor,
+        fromAmbientIntensity: ambientLight.intensity,
+        toAmbientIntensity: targetAmbientIntensity,
+        fromBgColor: (scene.background as THREE.Color).clone(),
+        toBgColor: targetBgColor,
+        fromLanternEmissive: sharedLanternMat.emissiveIntensity,
+        toLanternEmissive: targetLanternEmissive,
+        fromLanternGlow: festivalLanternGlow.intensity,
+        toLanternGlow: targetLanternGlow,
+        fromSpot1: stageSpot1.intensity,
+        toSpot1: targetSpot1,
+        fromSpot2: stageSpot2.intensity,
+        toSpot2: targetSpot2,
+        fromPoolGlow: poolGlowLight.intensity,
+        toPoolGlow: targetPoolGlow,
+        fromLedGlow: ledGlowLight.intensity,
+        toLedGlow: targetLedGlow
+      };
+    };
+
+    let lastTapTime = 0;
+    let lastTapX = 0;
+    let lastTapY = 0;
+    const KIDS_EYE_CAM_POS = new THREE.Vector3(2.5, 2.2, 11.5);
+    const KIDS_EYE_CAM_TARGET = new THREE.Vector3(6.5, 5.8, -2.5);
+
+    const toggleKidsEyeView = () => {
+      const nextMode = !isKidsEyeView;
+      setKidsEyeMode(nextMode);
+      if (nextMode) {
+        soundscape.playMarimbaClick(783.99, 0.08);
+        animateCameraTo(KIDS_EYE_CAM_POS.clone(), KIDS_EYE_CAM_TARGET.clone(), 1100);
       } else {
-        scene.background = new THREE.Color(0x090d16);
-        if (scene.fog) scene.fog.color.setHex(0x090d16);
-        ambientLight.intensity = 0.25;
-        sunLight.intensity = 0.32;
-        sunLight.color.setHex(0x818cf8);
-        rimLight.intensity = 0.18;
-        rimLight.color.setHex(0xa5b4fc);
-        stageSpot1.intensity = 2.4;
-        stageSpot2.intensity = 2.4;
-        poolGlowLight.intensity = 1.8;
-        ledGlowLight.intensity = 1.5;
+        soundscape.playMarimbaClick(440, 0.06);
+        animateCameraTo(POSTER_CAM_POS.clone(), POSTER_CAM_TARGET.clone(), 1100);
       }
+      return nextMode;
+    };
+
+    const resetView = () => {
+      setKidsEyeMode(false);
+      soundscape.playMarimbaClick(440, 0.06);
+      animateCameraTo(POSTER_CAM_POS.clone(), POSTER_CAM_TARGET.clone(), 1000);
+    };
+
+    // Zone Pop Spring Physics State
+    const zoneTargetObjects: Record<string, THREE.Object3D> = {};
+    const activeZoneBounces: Array<{
+      target: THREE.Object3D;
+      origPos: THREE.Vector3;
+      pivot: THREE.Vector3;
+      startTime: number;
+      duration: number;
+    }> = [];
+
+    const triggerZoneBounce = (zoneId: string) => {
+      const target = zoneTargetObjects[zoneId];
+      if (!target) return;
+
+      const now = performance.now();
+      const existingIdx = activeZoneBounces.findIndex(b => b.target === target);
+      if (existingIdx >= 0) {
+        const existing = activeZoneBounces[existingIdx];
+        if (now - existing.startTime < 220) return;
+        target.scale.set(1, 1, 1);
+        target.position.copy(existing.origPos);
+        activeZoneBounces.splice(existingIdx, 1);
+      }
+
+      soundscape.playMarimbaClick(523.25, 0.08);
+
+      const zData = ZONES_DATA[zoneId];
+      const pivot = zData
+        ? new THREE.Vector3(zData.camTarget.x, zData.camTarget.y, zData.camTarget.z)
+        : target.position.clone();
+
+      activeZoneBounces.push({
+        target,
+        origPos: target.position.clone(),
+        pivot,
+        startTime: now,
+        duration: 350
+      });
     };
 
     // Camera animation state
@@ -517,6 +655,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const sharedFencePostGeo = new THREE.BoxGeometry(0.24, 1.35, 0.24);
     const sharedFenceCapGeo = new THREE.BoxGeometry(0.28, 0.08, 0.28);
     const sharedSafetyPostGeo = new THREE.CylinderGeometry(0.09, 0.09, 1.25, 6);
+    const sharedPicketUnitGeo = new THREE.BoxGeometry(0.06, 1.0, 0.16);
     const sharedWoodPostMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21, roughness: 0.85 });
     const sharedWoodRailMat = new THREE.MeshStandardMaterial({ color: 0x7c5230, roughness: 0.8 });
     const sharedCapMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xfacc15, emissiveIntensity: 0.2 });
@@ -530,6 +669,56 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       const capMat = sharedCapMat;
       const orangeMat = sharedOrangeMat;
       const whiteMat = sharedWhiteMat;
+
+      if (style === 'white-picket') {
+        const picketSpacing = 0.45;
+        let totalPickets = 0;
+        for (let i = 0; i < points.length - 1; i++) {
+          if (skipSegments.includes(i)) continue;
+          const p1 = new THREE.Vector3(points[i][0], 0, points[i][1]);
+          const p2 = new THREE.Vector3(points[i + 1][0], 0, points[i + 1][1]);
+          const dist = p1.distanceTo(p2);
+          const numPickets = Math.max(2, Math.floor(dist / picketSpacing));
+          totalPickets += (numPickets + 1);
+        }
+
+        const instancedPickets = new THREE.InstancedMesh(sharedPicketUnitGeo, whiteMat, Math.max(1, totalPickets));
+        instancedPickets.castShadow = true;
+        const dummy = new THREE.Object3D();
+        let instanceIdx = 0;
+
+        for (let i = 0; i < points.length - 1; i++) {
+          if (skipSegments.includes(i)) continue;
+          const p1 = new THREE.Vector3(points[i][0], 0, points[i][1]);
+          const p2 = new THREE.Vector3(points[i + 1][0], 0, points[i + 1][1]);
+          const dist = p1.distanceTo(p2);
+          const dir = p2.clone().sub(p1).normalize();
+          const angleY = Math.atan2(dir.x, dir.z);
+          const numPickets = Math.max(2, Math.floor(dist / picketSpacing));
+
+          for (let p = 0; p <= numPickets; p++) {
+            const pos = p1.clone().lerp(p2, p / numPickets);
+            const h = 0.85 + Math.sin((p / numPickets) * Math.PI * 4) * 0.08;
+            dummy.position.set(pos.x, h / 2 + 0.15, pos.z);
+            dummy.rotation.set(0, angleY, 0);
+            dummy.scale.set(1, h, 1);
+            dummy.updateMatrix();
+            instancedPickets.setMatrixAt(instanceIdx++, dummy.matrix);
+          }
+
+          [0.38, 0.72].forEach(ry => {
+            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, dist), whiteMat);
+            rail.position.copy(p1).add(p2).multiplyScalar(0.5);
+            rail.position.y = ry;
+            rail.rotation.y = angleY;
+            rail.castShadow = true;
+            grp.add(rail);
+          });
+        }
+        instancedPickets.instanceMatrix.needsUpdate = true;
+        grp.add(instancedPickets);
+        return grp;
+      }
 
       for (let i = 0; i < points.length - 1; i++) {
         if (skipSegments.includes(i)) continue;
@@ -578,25 +767,6 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
           meshBarrier.position.y = 0.6;
           meshBarrier.rotation.y = angleY;
           grp.add(meshBarrier);
-        } else if (style === 'white-picket') {
-          const picketSpacing = 0.45;
-          const numPickets = Math.max(2, Math.floor(dist / picketSpacing));
-          for (let p = 0; p <= numPickets; p++) {
-            const pos = p1.clone().lerp(p2, p / numPickets);
-            const h = 0.85 + Math.sin((p / numPickets) * Math.PI * 4) * 0.08;
-            const picket = new THREE.Mesh(new THREE.BoxGeometry(0.06, h, 0.16), whiteMat);
-            picket.position.set(pos.x, h / 2 + 0.15, pos.z);
-            picket.rotation.y = angleY;
-            picket.castShadow = true;
-            grp.add(picket);
-          }
-          [0.38, 0.72].forEach(ry => {
-            const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, dist), whiteMat);
-            rail.position.copy(p1).add(p2).multiplyScalar(0.5);
-            rail.position.y = ry;
-            rail.rotation.y = angleY;
-            grp.add(rail);
-          });
         }
       }
       return grp;
@@ -976,10 +1146,12 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     pondFenceGroup.add(createLifebuoyRing(0, 1.05, 7.55, 0));
     pondGroup.add(pondFenceGroup);
     worldGroup.add(pondGroup);
+    zoneTargetObjects['fish-pond'] = pondGroup;
 
     // ZONE 2: The Little Garden (Baby Garden 6M–2Y)
     const gardenGroup = new THREE.Group();
     worldGroup.add(gardenGroup);
+    zoneTargetObjects['little-garden'] = gardenGroup;
 
     const gardenFloorShape = new THREE.Shape();
     gardenFloorShape.moveTo(-45, -14);
@@ -1130,6 +1302,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     poolGroup.position.set(-26, 0, 16.5);
     poolGroup.rotation.y = -0.10;
     worldGroup.add(poolGroup);
+    zoneTargetObjects['swimming-pool'] = poolGroup;
 
     const poolDeck = new THREE.Mesh(new THREE.BoxGeometry(20.5, 0.26, 12.0), new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.8 }));
     poolDeck.position.y = 0.13;
@@ -1238,6 +1411,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     registerZoneMesh(ledScreenMesh, 'info-adverts');
     billboardGroup.add(screenHousing, ledScreenMesh);
     worldGroup.add(billboardGroup);
+    zoneTargetObjects['info-adverts'] = billboardGroup;
     createFloralPlanterBox(-39, 24.4, 4.6, 0.48);
 
     // ZONE 5: Main Entrance Welcome Archway & Creative Art Rink
@@ -1263,6 +1437,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     registerZoneMesh(archBeam, 'main-entrance');
     archGroup.add(archBeam);
     worldGroup.add(archGroup);
+    zoneTargetObjects['main-entrance'] = archGroup;
 
     const skateGroup = new THREE.Group();
     skateGroup.position.set(-35, 0.16, 33);
@@ -1275,15 +1450,22 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     registerZoneMesh(rinkFloor, 'creative-zone');
     skateGroup.add(rinkFloor);
     worldGroup.add(skateGroup);
+    zoneTargetObjects['creative-zone'] = skateGroup;
 
     // ZONE 6: Parents' Meeting & Lounge (5 Gazebos)
+    const parentsLoungeGroup = new THREE.Group();
+    worldGroup.add(parentsLoungeGroup);
+    zoneTargetObjects['parents-lounge'] = parentsLoungeGroup;
     [
       [-32.5, 28.5], [-28.0, 27.6], [-23.5, 26.8], [-19.2, 31.2], [-15.0, 29.5]
     ].forEach(([lx, lz]) => {
-      worldGroup.add(createPyramidGazebo(lx, lz, 3.3, 0xfef3c7, -0.15, 'parents-lounge'));
+      parentsLoungeGroup.add(createPyramidGazebo(lx, lz, 3.3, 0xfef3c7, -0.15, 'parents-lounge'));
     });
 
     // ZONE 7: Adventure Zone (4 Giant Commercial Bouncy Castles + 6 Picnic Tables)
+    const adventureGroup = new THREE.Group();
+    worldGroup.add(adventureGroup);
+    zoneTargetObjects['adventure-zone'] = adventureGroup;
     const bouncyCastles: THREE.Group[] = [];
     const createBouncyCastle = (x: number, z: number, rotY: number, mainHex: number, accentHex: number, slideHex: number) => {
       const bc = new THREE.Group();
@@ -1456,7 +1638,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       });
 
       bouncyCastles.push(bc);
-      worldGroup.add(bc);
+      adventureGroup.add(bc);
     };
     createBouncyCastle(9.5, -34.5, 0.18, 0xfacc15, 0x7c3aed, 0x3b82f6);
     createBouncyCastle(18.5, -31.0, -0.25, 0xfacc15, 0xef4444, 0x2563eb);
@@ -1478,13 +1660,14 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       return pt;
     };
     [[3.5, -15.5], [7.2, -15.5], [3.5, -12.5], [7.2, -12.5], [17.5, -14.0], [21.0, -14.0]].forEach(([px, pz]) => {
-      worldGroup.add(createPicnicTable(px, pz));
+      adventureGroup.add(createPicnicTable(px, pz));
     });
 
     // ZONE 8: Celebration Stage (Complete Structural Truss Rig, Back Wall, Side Scrims, Stairs & Performers)
     const stageGroup = new THREE.Group();
     stageGroup.position.set(10, 0.15, -1.5);
     worldGroup.add(stageGroup);
+    zoneTargetObjects['celebration-stage'] = stageGroup;
 
     // 1. Stage Elevated Deck / Platform Base
     const stagePlatform = new THREE.Mesh(
@@ -1662,7 +1845,33 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     }
     stageGroup.add(marimbaGroup);
 
-    // Iridescent Floating Soap Bubbles
+    // Iridescent Floating Soap Bubbles & Popping Ripples
+    const bubbleRipples: Array<{ mesh: THREE.Mesh; startTime: number; duration: number }> = [];
+    const bubbleRippleGeo = new THREE.RingGeometry(0.12, 0.22, 16);
+
+    const popBubble = (bubble: THREE.Mesh) => {
+      if (bubble.userData.isPopped) return;
+      bubble.userData.isPopped = true;
+      bubble.userData.popAnimStart = performance.now();
+      bubble.userData.respawnAt = performance.now() + 1800 + Math.random() * 1200;
+
+      // High-pitch droplet chime
+      soundscape.playMarimbaClick(880, 0.09);
+
+      // Expanding ring ripple
+      const ripMat = new THREE.MeshBasicMaterial({
+        color: 0xbae6fd,
+        transparent: true,
+        opacity: 0.8,
+        side: THREE.DoubleSide
+      });
+      const ripMesh = new THREE.Mesh(bubbleRippleGeo, ripMat);
+      ripMesh.position.copy(bubble.position);
+      ripMesh.quaternion.copy(camera.quaternion);
+      stageGroup.add(ripMesh);
+      bubbleRipples.push({ mesh: ripMesh, startTime: performance.now(), duration: 260 });
+    };
+
     const bubbleGeo = new THREE.SphereGeometry(0.24, 10, 10);
     const bubbleMat = new THREE.MeshStandardMaterial({
       color: 0xe0f2fe,
@@ -1674,7 +1883,16 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     for (let i = 0; i < 35; i++) {
       const b = new THREE.Mesh(bubbleGeo, bubbleMat);
       b.position.set((Math.random() - 0.5) * 14, 1.2 + Math.random() * 5.0, (Math.random() - 0.5) * 12);
-      b.userData = { speedY: 0.35 + Math.random() * 0.45, phase: Math.random() * Math.PI * 2, baseY: 1.2 };
+      b.userData = {
+        speedY: 0.35 + Math.random() * 0.45,
+        phase: Math.random() * Math.PI * 2,
+        baseY: 1.2,
+        isPopped: false,
+        popAnimStart: 0,
+        respawnAt: 0,
+        isRespawning: false,
+        respawnStart: 0
+      };
       stageGroup.add(b);
       floatingBubbles.push(b);
     }
@@ -1711,9 +1929,16 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     gatesAndBarriersGroup.add(createSteelBarricadeLine([[3.5, 2.5], [16.5, 2.5]]));
 
     // ZONE 9 & 10: Food & Drinks + Discovery World
-    worldGroup.add(createPyramidGazebo(25.0, -16.5, 3.8, 0x2563eb, -0.2, 'food-drinks'));
-    worldGroup.add(createPyramidGazebo(26.5, -11.0, 3.8, 0x2563eb, -0.2, 'food-drinks'));
-    worldGroup.add(createPyramidGazebo(24.5, 1.5, 3.6, 0xef4444, 0.15, 'discovery-world'));
+    const foodDrinksGroup = new THREE.Group();
+    worldGroup.add(foodDrinksGroup);
+    zoneTargetObjects['food-drinks'] = foodDrinksGroup;
+    foodDrinksGroup.add(createPyramidGazebo(25.0, -16.5, 3.8, 0x2563eb, -0.2, 'food-drinks'));
+    foodDrinksGroup.add(createPyramidGazebo(26.5, -11.0, 3.8, 0x2563eb, -0.2, 'food-drinks'));
+
+    const discoveryGroup = new THREE.Group();
+    worldGroup.add(discoveryGroup);
+    zoneTargetObjects['discovery-world'] = discoveryGroup;
+    discoveryGroup.add(createPyramidGazebo(24.5, 1.5, 3.6, 0xef4444, 0.15, 'discovery-world'));
 
     const stemPavilion = new THREE.Mesh(
       new THREE.BoxGeometry(5.6, 2.6, 3.4),
@@ -1721,7 +1946,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     );
     stemPavilion.position.set(22.0, 1.45, 7.5);
     registerZoneMesh(stemPavilion, 'discovery-world');
-    worldGroup.add(stemPavilion);
+    discoveryGroup.add(stemPavilion);
 
     // 6x6m Giant Lawn Chess Board with Standing Chess Pieces
     const discoveryChessGroup = new THREE.Group();
@@ -1748,7 +1973,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         }
       }
     }
-    worldGroup.add(discoveryChessGroup);
+    discoveryGroup.add(discoveryChessGroup);
 
     // Connect-4 & Dinosaur Fossil Dig Pit
     const c4Group = new THREE.Group();
@@ -1756,13 +1981,14 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const c4Frame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 0.22), new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.4 }));
     c4Frame.position.y = 1.0;
     c4Group.add(c4Frame);
-    worldGroup.add(c4Group);
+    discoveryGroup.add(c4Group);
 
     // ZONE 11: Staff Parking Basketball Court & Giant Chessboard
     const courtGroup = new THREE.Group();
     courtGroup.position.set(23.5, 0.16, 27.5);
     courtGroup.rotation.y = -0.52;
     worldGroup.add(courtGroup);
+    zoneTargetObjects['staff-parking'] = courtGroup;
 
     const courtMesh = new THREE.Mesh(new THREE.PlaneGeometry(25.5, 13.8), new THREE.MeshStandardMaterial({ map: courtTexture, roughness: 0.85 }));
     courtMesh.rotation.x = -Math.PI / 2;
@@ -1771,7 +1997,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
     // White logistics marquees
     [17.5, 23.0, 29.0].forEach(mz => {
-      worldGroup.add(createPyramidGazebo(27.5, mz, 4.4, 0xf8fafc, -0.22, 'food-drinks'));
+      foodDrinksGroup.add(createPyramidGazebo(27.5, mz, 4.4, 0xf8fafc, -0.22, 'food-drinks'));
     });
 
     // ZONE 12: Vehicular Exit Boom Gate
@@ -1779,6 +2005,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     exitGroup.position.set(14.5, 0.15, 35.5);
     exitGroup.rotation.y = -0.52;
     gatesAndBarriersGroup.add(exitGroup);
+    zoneTargetObjects['vehicular-exit'] = exitGroup;
 
     const boomHousing = new THREE.Mesh(new THREE.BoxGeometry(0.65, 1.45, 0.65), new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.4 }));
     boomHousing.position.set(-2.6, 0.72, 0);
@@ -1799,6 +2026,36 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     boomArm.position.x = 2.6;
     exitBoomArmPivot.add(boomArm);
     exitGroup.add(exitBoomArmPivot);
+
+    // Festival String-Lights & Warm Lanterns for Golden-Hour ambiance
+    const stringLightsGroup = new THREE.Group();
+    worldGroup.add(stringLightsGroup);
+
+    const lanternGeo = new THREE.SphereGeometry(0.18, 8, 8);
+    const createStringLightSpan = (start: THREE.Vector3, end: THREE.Vector3, count = 12, sag = 0.65) => {
+      const curvePoints: THREE.Vector3[] = [];
+      for (let i = 0; i <= count; i++) {
+        const t = i / count;
+        const pt = new THREE.Vector3().lerpVectors(start, end, t);
+        pt.y -= Math.sin(t * Math.PI) * sag;
+        curvePoints.push(pt);
+      }
+      const cableGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+      const cableMat = new THREE.LineBasicMaterial({ color: 0x334155 });
+      const cable = new THREE.Line(cableGeo, cableMat);
+      stringLightsGroup.add(cable);
+
+      for (let i = 1; i < count; i++) {
+        const pt = curvePoints[i];
+        const bulb = new THREE.Mesh(lanternGeo, sharedLanternMat);
+        bulb.position.copy(pt);
+        stringLightsGroup.add(bulb);
+      }
+    };
+
+    createStringLightSpan(new THREE.Vector3(3.0, 4.4, 6.0), new THREE.Vector3(17.0, 4.4, 6.0), 14, 0.75);
+    createStringLightSpan(new THREE.Vector3(-12.0, 4.0, 10.0), new THREE.Vector3(3.0, 4.2, 7.5), 12, 0.65);
+    createStringLightSpan(new THREE.Vector3(-22.0, 3.8, 0.0), new THREE.Vector3(-10.0, 4.0, 8.5), 10, 0.55);
 
     gatesAndBarriersGroup.add(createJerseyBarrierLine([[6.5, 31.5], [14.5, 36.8], [21.5, 41.2]]));
 
@@ -2488,6 +2745,7 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       `;
       badge.addEventListener('click', (e) => {
         e.stopPropagation();
+        triggerZoneBounce(item.zoneId);
         onSelectZone(item.zoneId);
         const z = ZONES_DATA[item.zoneId];
         if (z) animateCameraTo(new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z), new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z), 1000);
@@ -2535,8 +2793,22 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
 
+      // 1. Poppable floating soap bubbles
+      const bubbleHits = raycaster.intersectObjects(floatingBubbles, false);
+      const activeBubbleHit = bubbleHits.find(h => {
+        const m = h.object as THREE.Mesh;
+        return m.visible && !m.userData.isPopped;
+      });
+      if (activeBubbleHit) {
+        lastTapTime = 0;
+        popBubble(activeBubbleHit.object as THREE.Mesh);
+        return;
+      }
+
+      // 2. Interactive Festival Characters
       const personHits = raycaster.intersectObjects(personClickMeshes, false);
       if (personHits.length > 0 && personHits[0].object.userData.personInfo) {
+        lastTapTime = 0;
         const info = personHits[0].object.userData.personInfo;
         setInspectedPerson(info);
         const clampedX = Math.max(140, Math.min(window.innerWidth - 140, e.clientX));
@@ -2545,15 +2817,33 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
         return;
       }
 
+      // 3. 3D Zone Mesh Taps
       const zoneHits = raycaster.intersectObjects(clickableMeshes, false);
       if (zoneHits.length > 0 && zoneHits[0].object.userData.zoneId) {
+        lastTapTime = 0;
         const zId = zoneHits[0].object.userData.zoneId;
+        triggerZoneBounce(zId);
         onSelectZone(zId);
         const z = ZONES_DATA[zId];
         if (z) animateCameraTo(new THREE.Vector3(z.camPos.x, z.camPos.y, z.camPos.z), new THREE.Vector3(z.camTarget.x, z.camTarget.y, z.camTarget.z), 800);
+        return;
+      }
+
+      // 4. Ground Canvas Tapped: Double-Tap "Kid's-Eye View" Detection
+      setInspectedPerson(null);
+      onDeselectZone?.();
+
+      const now = performance.now();
+      const timeSinceLastTap = now - lastTapTime;
+      const tapDist = Math.hypot(e.clientX - lastTapX, e.clientY - lastTapY);
+
+      if (timeSinceLastTap < 350 && tapDist < 30) {
+        lastTapTime = 0;
+        toggleKidsEyeView();
       } else {
-        setInspectedPerson(null);
-        onDeselectZone?.();
+        lastTapTime = now;
+        lastTapX = e.clientX;
+        lastTapY = e.clientY;
       }
     };
 
@@ -2564,6 +2854,16 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
+
+      const bubbleHover = raycaster.intersectObjects(floatingBubbles, false);
+      const activeBubbleHover = bubbleHover.find(h => {
+        const m = h.object as THREE.Mesh;
+        return m.visible && !m.userData.isPopped;
+      });
+      if (activeBubbleHover) {
+        renderer.domElement.style.cursor = 'pointer';
+        return;
+      }
 
       const hits = raycaster.intersectObjects(clickableMeshes, false);
       if (hits.length > 0) {
@@ -2631,13 +2931,96 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     const lastCamPos = new THREE.Vector3(0, 0, 0);
     const lastTarget = new THREE.Vector3(0, 0, 0);
 
+    let isIntersecting = true;
+    let isAnimating = true;
+
     const animate = () => {
+      if (!isIntersecting) {
+        isAnimating = false;
+        return;
+      }
       animId = requestAnimationFrame(animate);
+      const now = performance.now();
       const elapsed = clock.getElapsedTime();
+
+      // Smooth Golden-Hour / Lighting Transition
+      if (lightingTransition) {
+        const lp = Math.min(1.0, (now - lightingTransition.startTime) / lightingTransition.duration);
+        const ease = lp < 0.5 ? 2 * lp * lp : 1 - Math.pow(-2 * lp + 2, 2) / 2;
+
+        sunLight.color.copy(lightingTransition.fromSunColor).lerp(lightingTransition.toSunColor, ease);
+        sunLight.intensity = THREE.MathUtils.lerp(lightingTransition.fromSunIntensity, lightingTransition.toSunIntensity, ease);
+        sunLight.position.lerpVectors(lightingTransition.fromSunPos, lightingTransition.toSunPos, ease);
+
+        ambientLight.color.copy(lightingTransition.fromAmbientColor).lerp(lightingTransition.toAmbientColor, ease);
+        ambientLight.intensity = THREE.MathUtils.lerp(lightingTransition.fromAmbientIntensity, lightingTransition.toAmbientIntensity, ease);
+
+        (scene.background as THREE.Color).copy(lightingTransition.fromBgColor).lerp(lightingTransition.toBgColor, ease);
+        if (scene.fog) scene.fog.color.copy(scene.background as THREE.Color);
+
+        const lantE = THREE.MathUtils.lerp(lightingTransition.fromLanternEmissive, lightingTransition.toLanternEmissive, ease);
+        sharedLanternMat.emissiveIntensity = lantE;
+        festivalLanternGlow.intensity = THREE.MathUtils.lerp(lightingTransition.fromLanternGlow, lightingTransition.toLanternGlow, ease);
+
+        stageSpot1.intensity = THREE.MathUtils.lerp(lightingTransition.fromSpot1, lightingTransition.toSpot1, ease);
+        stageSpot2.intensity = THREE.MathUtils.lerp(lightingTransition.fromSpot2, lightingTransition.toSpot2, ease);
+        poolGlowLight.intensity = THREE.MathUtils.lerp(lightingTransition.fromPoolGlow, lightingTransition.toPoolGlow, ease);
+        ledGlowLight.intensity = THREE.MathUtils.lerp(lightingTransition.fromLedGlow, lightingTransition.toLedGlow, ease);
+
+        if (lp >= 1.0) {
+          lightingTransition = null;
+        }
+      }
+
+      // Zone Pop Spring Physics (Elastic bounce: scale 1.0 -> 1.15 -> 0.96 -> 1.0 over 350ms)
+      for (let i = activeZoneBounces.length - 1; i >= 0; i--) {
+        const b = activeZoneBounces[i];
+        const p = Math.min(1.0, (now - b.startTime) / b.duration);
+        let s = 1.0;
+        if (p < 0.35) {
+          const t = p / 0.35;
+          s = 1.0 + 0.15 * Math.sin(t * Math.PI / 2);
+        } else if (p < 0.70) {
+          const t = (p - 0.35) / 0.35;
+          s = 1.15 - 0.19 * ((1 - Math.cos(t * Math.PI)) / 2);
+        } else {
+          const t = (p - 0.70) / 0.30;
+          s = 0.96 + 0.04 * Math.sin(t * Math.PI / 2);
+        }
+        b.target.scale.set(s, s, s);
+        // Pivot-offset correction so the zone group scales about its local festival pavilion center
+        b.target.position.set(
+          b.origPos.x + (1 - s) * (b.pivot.x - b.origPos.x),
+          b.origPos.y + (1 - s) * (b.pivot.y - b.origPos.y),
+          b.origPos.z + (1 - s) * (b.pivot.z - b.origPos.z)
+        );
+        if (p >= 1.0) {
+          b.target.scale.set(1, 1, 1);
+          b.target.position.copy(b.origPos);
+          activeZoneBounces.splice(i, 1);
+        }
+      }
+
+      // Bubble expanding ripples
+      for (let i = bubbleRipples.length - 1; i >= 0; i--) {
+        const rip = bubbleRipples[i];
+        const p = (now - rip.startTime) / rip.duration;
+        if (p >= 1.0) {
+          stageGroup.remove(rip.mesh);
+          // Only dispose the per-ripple material, NEVER dispose the shared bubbleRippleGeo!
+          (rip.mesh.material as THREE.Material).dispose();
+          bubbleRipples.splice(i, 1);
+        } else {
+          const s = 1.0 + p * 2.2;
+          rip.mesh.scale.set(s, s, s);
+          rip.mesh.quaternion.copy(camera.quaternion);
+          (rip.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.8 * (1.0 - p));
+        }
+      }
 
       // Camera flight smoothing
       if (camAnim) {
-        const t = Math.min(1, (performance.now() - camAnim.startTime) / camAnim.duration);
+        const t = Math.min(1, (now - camAnim.startTime) / camAnim.duration);
         // KODE cubic smooth bezier ease-in-out for cinematic camera transition
         const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         camera.position.lerpVectors(camAnim.startPos, camAnim.endPos, ease);
@@ -2646,13 +3029,46 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       }
       controls.update();
 
-      // Floating stage bubbles
+      // Floating stage bubbles with pop & smooth respawn
       floatingBubbles.forEach(b => {
-        b.position.y += b.userData.speedY * 0.015;
-        b.position.x += Math.sin(elapsed * 1.5 + b.userData.phase) * 0.008;
-        b.position.z += Math.cos(elapsed * 1.2 + b.userData.phase) * 0.008;
+        const ud = b.userData;
+        if (ud.isPopped) {
+          const popElapsed = now - ud.popAnimStart;
+          if (popElapsed < 100) {
+            const s = Math.max(0, 1.0 - (popElapsed / 100));
+            b.scale.set(s, s, s);
+          } else {
+            b.scale.set(0, 0, 0);
+            b.visible = false;
+            if (now >= ud.respawnAt) {
+              ud.isPopped = false;
+              ud.isRespawning = true;
+              ud.respawnStart = now;
+              b.visible = true;
+              b.position.y = ud.baseY + Math.random() * 0.3;
+              b.position.x = (Math.random() - 0.5) * 12;
+              b.position.z = (Math.random() - 0.5) * 10;
+            }
+          }
+          return;
+        }
+
+        if (ud.isRespawning) {
+          const rElapsed = now - ud.respawnStart;
+          if (rElapsed < 300) {
+            const s = rElapsed / 300;
+            b.scale.set(s, s, s);
+          } else {
+            b.scale.set(1, 1, 1);
+            ud.isRespawning = false;
+          }
+        }
+
+        b.position.y += ud.speedY * 0.015;
+        b.position.x += Math.sin(elapsed * 1.5 + ud.phase) * 0.008;
+        b.position.z += Math.cos(elapsed * 1.2 + ud.phase) * 0.008;
         if (b.position.y > 7.0) {
-          b.position.y = b.userData.baseY;
+          b.position.y = ud.baseY;
           b.position.x = (Math.random() - 0.5) * 12;
           b.position.z = (Math.random() - 0.5) * 10;
         }
@@ -2784,6 +3200,20 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
 
     // Precompile all shaders to eliminate initial frame drop
     renderer.compile(scene, camera);
+
+    // Offscreen Pause via IntersectionObserver: stops RAF loop when canvas is out of view
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting && !isAnimating) {
+          isAnimating = true;
+          animId = requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
     animate();
 
     const handleResize = () => {
@@ -2807,6 +3237,9 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
       calloutRuntimes,
       setLighting: applyLighting,
       focusActivityCam,
+      triggerZoneBounce,
+      toggleKidsEyeView,
+      resetView,
       toggleGroup: (layer, visible) => {
         if (layer === 'flow') {
           pathwaysInfraGroup.visible = visible;
@@ -2826,12 +3259,17 @@ export const SiteMap3D = forwardRef<SiteMap3DHandle, SiteMap3DProps>(({
     };
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animId);
       clearInterval(bbTimer);
       window.removeEventListener('resize', handleResize);
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
       renderer.domElement.removeEventListener('pointerup', handlePointerUp);
       renderer.domElement.removeEventListener('pointermove', handlePointerMove);
+      bubbleRippleGeo.dispose();
+      bubbleGeo.dispose();
+      bubbleMat.dispose();
+      sharedLanternMat.dispose();
       renderer.dispose();
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement.removeChild(renderer.domElement);

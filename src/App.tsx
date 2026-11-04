@@ -175,15 +175,18 @@ export default function App() {
 
   const handleInspectZone3D = (zoneId: string) => {
     setSelectedZoneId(zoneId);
+    const wasAlready3D = currentTab === '3d-map';
     setCurrentTab('3d-map');
     updateUrlParams('3d-map', zoneId);
     window.scrollTo({ top: 0, behavior: 'instant' });
-    setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
-      if (zoneId) {
-        siteMapRef.current?.focusZone(zoneId);
-      }
-    }, 60);
+    if (!wasAlready3D) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        if (zoneId) {
+          siteMapRef.current?.focusZone(zoneId);
+        }
+      }, 60);
+    }
   };
 
   const handleOpen3DMap = (zoneId?: string) => {
@@ -289,16 +292,18 @@ export default function App() {
         )}
       </main>
 
-      {/* Slide-over Zone Inspector Drawer */}
-      <ZoneInspectorDrawer
-        zoneId={selectedZoneId}
-        onClose={() => {
-          setSelectedZoneId(null);
-          updateUrlParams(currentTab, null);
-        }}
-        onSelectZone={handleInspectZone3D}
-        onOpenBooking={() => handleOpenBooking()}
-      />
+      {/* Slide-over Zone Inspector Drawer (rendered outside 3D fullscreen view) */}
+      {currentTab !== '3d-map' && (
+        <ZoneInspectorDrawer
+          zoneId={selectedZoneId}
+          onClose={() => {
+            setSelectedZoneId(null);
+            updateUrlParams(currentTab, null);
+          }}
+          onSelectZone={handleInspectZone3D}
+          onOpenBooking={() => handleOpenBooking()}
+        />
+      )}
 
       {/* Booking Modal */}
       <BookingModal
