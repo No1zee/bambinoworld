@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
 import {
+  BambinoSprout,
+  BambinoCastle,
+  BambinoPalette,
+  BambinoTicket,
+  BambinoTractor,
+  BambinoCompass,
+  BambinoMug,
+  BambinoShield,
+  BambinoSun,
+  BambinoSparkle,
+  BambinoPin,
+  BambinoCalendar,
+  BambinoArrow
+} from './icons/BambinoIcons';
+import {
   ArrowRight,
   ChevronDown,
   Plus,
@@ -80,7 +95,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       name: 'The Little Garden',
       age: '6M – 2Y',
       tagline: 'A gentle, sunlit haven designed for tiny adventurers. Cushioned foam crawl zones, soft grass, and a private air-cooled nursery glade for feeding and rest.',
-      image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80',
       color: 'bg-[#00A3E0]',
       features: [
         { label: 'Cushioned Grass Mats', tip: 'Soft foam crawling blocks and tumble cushions' },
@@ -180,7 +195,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         
         {/* ROW 1: Left Photo (28%) + Right Royal Purple Block (72%) */}
         <div className="flex flex-col md:flex-row w-full min-h-[340px] md:min-h-[400px]">
-          <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[260px] md:min-h-[400px]">
+          <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[260px] md:min-h-[400px] animate-photo-unfold">
             <img
               src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=1200&q=80"
               alt="Joyful child playing outdoors at Bambino World"
@@ -192,15 +207,15 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
           <div className="w-full md:w-[72%] bg-[#31006F] text-white p-8 sm:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden">
             <div className="space-y-4 max-w-3xl">
-              <h1 className="font-poppins font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-white">
+              <h1 className="font-poppins font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-white animate-cinematic-bloom">
                 a sunlit saturday of pure, golden childhood.
               </h1>
-              <p className="text-white/85 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl pt-2">
+              <p className="text-white/85 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl pt-2 animate-cinematic-bloom stagger-1">
                 Bare feet dancing across green lawns. Warm ice cream smiles. Open skies and boundless laughter. A festival crafted for your child’s absolute wonder—and your family’s deepest joy.
               </p>
             </div>
 
-            <div className="pt-8 flex flex-wrap items-center gap-4 justify-between border-t border-white/15 mt-8">
+            <div className="pt-8 flex flex-wrap items-center gap-4 justify-between border-t border-white/15 mt-8 animate-cinematic-bloom stagger-2">
               <div className="text-xs sm:text-sm font-poppins font-semibold text-white/90">
                 <span>All 5 play zones, farm tractor rides, hot picnic lunch &amp; sweet treats included in every pass</span>
               </div>
@@ -214,7 +229,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                   className="bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black px-7 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <span>Reserve Family Passes ($25)</span>
-                  <ArrowRight className="w-4 h-4 stroke-[3]" />
+                  <BambinoArrow size={18} className="text-white shrink-0" />
                 </button>
               </div>
             </div>
@@ -234,7 +249,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </div>
 
             {/* Circular Thompson-Style Accent Stamp */}
-            <div className="shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-[#F6BE00]/60 flex flex-col items-center justify-center text-center p-2 bg-[#1a003b]/60">
+            <div className="shrink-0 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-[#F6BE00]/60 flex flex-col items-center justify-center text-center p-2 bg-[#1a003b]/60 animate-stamp-bounce stagger-2">
               <span className="font-poppins font-black text-lg sm:text-xl text-[#F6BE00] leading-none">
                 DEC 5
               </span>
@@ -284,8 +299,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               }}
               className="bg-[#31006F] hover:bg-[#250058] active:scale-95 text-white font-poppins font-black px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer shrink-0"
             >
-              <Compass className="w-4 h-4 text-[#F6BE00]" />
-              <span>Explore 3D Grounds ↗</span>
+              <BambinoCompass size={22} className="text-[#F6BE00] shrink-0" />
+              <span>Explore 3D Grounds</span>
+              <BambinoArrow size={16} className="text-white shrink-0" />
             </button>
           </div>
         </div>
@@ -308,7 +324,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               }}
               className="bg-[#D82374] hover:bg-[#b8185f] active:scale-95 text-white font-poppins font-black px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm tracking-wider uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer shrink-0"
             >
-              <span>View Programme →</span>
+              <span>View Programme</span>
+              <BambinoArrow size={16} className="text-white shrink-0" />
             </button>
           </div>
 
@@ -348,7 +365,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
               <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
                 <img
-                  src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80"
+                  src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80"
                   alt="The Little Garden"
                   className="w-full h-full object-cover object-center"
                   loading="lazy"
@@ -356,9 +373,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </div>
               <div className="bg-[#00A3E0] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
                 <div className="space-y-3">
-                  <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
-                    the little garden (6m – 2y)
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <BambinoSprout size={32} className="text-white shrink-0" />
+                    <h3 className="font-poppins font-black text-2xl sm:text-3xl tracking-tight leading-snug">
+                      the little garden (6m – 2y)
+                    </h3>
+                  </div>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
                     A peaceful, shoe-free haven designed for tiny adventurers. Cushioned foam tumble mats, soft texture paths, and an air-cooled nursery suite with private nursing armchairs, bottle warmers, and fresh changing amenities.
                   </p>
@@ -387,9 +407,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </div>
               <div className="bg-[#FF6720] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
                 <div className="space-y-3">
-                  <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
-                    adventure arena (3 – 12y)
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <BambinoCastle size={32} className="text-white shrink-0" />
+                    <h3 className="font-poppins font-black text-2xl sm:text-3xl tracking-tight leading-snug">
+                      adventure arena (3 – 12y)
+                    </h3>
+                  </div>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
                     Boundless outdoor fun in a safe, monitored setting. Giant inflatable obstacle challenges, junior farm tractor journeys, balance logs, and lawn games where dedicated youth coaches champion every victory.
                   </p>
@@ -418,9 +441,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </div>
               <div className="bg-[#D82374] text-white p-8 flex flex-col justify-between flex-1 space-y-6">
                 <div className="space-y-3">
-                  <h3 className="font-poppins font-black text-3xl tracking-tight leading-snug">
-                    creative &amp; discovery
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <BambinoPalette size={32} className="text-white shrink-0" />
+                    <h3 className="font-poppins font-black text-2xl sm:text-3xl tracking-tight leading-snug">
+                      creative &amp; discovery
+                    </h3>
+                  </div>
                   <p className="text-white/90 text-sm sm:text-base leading-relaxed font-normal">
                     Where little imaginations run free. Hands-on pottery sculpting, giant communal painting easels, gentle bunny and lamb petting, bubble physics, and live acoustic marimba storytelling under the trees.
                   </p>
@@ -460,6 +486,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
             <div className="lg:col-span-5 grid grid-cols-2 gap-4">
               <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <div className="flex justify-center mb-1"><BambinoCastle size={28} className="text-[#FF6720]" /></div>
                 <span className="font-poppins font-black text-4xl text-[#FF6720] block">5</span>
                 <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
                   Curated Age Zones
@@ -467,6 +494,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </div>
 
               <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <div className="flex justify-center mb-1"><BambinoTractor size={28} className="text-[#31006F]" /></div>
                 <span className="font-poppins font-black text-4xl text-[#31006F] block">10+</span>
                 <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
                   Farm Activities
@@ -474,6 +502,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </div>
 
               <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <div className="flex justify-center mb-1"><BambinoShield size={28} className="text-[#10B981]" /></div>
                 <span className="font-poppins font-black text-4xl text-[#2F532E] block">100%</span>
                 <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
                   Gated &amp; Secured
@@ -481,6 +510,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </div>
 
               <div className="bg-[#FAF9F5] border border-slate-200 p-6 text-center space-y-1">
+                <div className="flex justify-center mb-1"><BambinoTicket size={28} className="text-[#D82374]" /></div>
                 <span className="font-poppins font-black text-4xl text-[#D82374] block">0</span>
                 <span className="font-poppins font-bold text-xs uppercase tracking-wider text-slate-700 block">
                   Extra Token Booths
@@ -524,7 +554,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                   onClick={() => onOpen3DMap()}
                   className="bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black px-7 py-3.5 text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <Compass className="w-4 h-4" />
+                  <BambinoCompass size={20} className="text-[#F6BE00] shrink-0" />
                   <span>Inspect Grounds in 3D</span>
                 </button>
               </div>
@@ -649,7 +679,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                   </div>
                   {/* Location Pill */}
                   <div className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-xs text-white px-3 py-1 rounded-full text-xs font-poppins font-semibold flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3 text-[#F6BE00]" />
+                    <BambinoPin size={18} className="text-[#F6BE00] shrink-0" />
                     <span>The Little Farm, Meyrick Park</span>
                   </div>
                 </div>
@@ -672,9 +702,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenBooking(1)}
-                      className="w-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black py-3 px-5 text-xs uppercase tracking-wider transition cursor-pointer"
+                      className="w-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black py-3 px-5 text-xs uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 group"
                     >
-                      Reserve Festival Pass
+                      <BambinoTicket size={18} className="text-white shrink-0" />
+                      <span>Reserve Festival Pass</span>
                     </button>
                   </div>
                 </div>
@@ -717,7 +748,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 onClick={() => onOpen3DMap()}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#31006F] hover:bg-[#250058] text-white text-xs font-poppins font-black uppercase tracking-wider shadow-md transition cursor-pointer"
               >
-                <MapPin className="w-4 h-4 text-[#F6BE00]" />
+                <BambinoCompass size={20} className="text-[#F6BE00] shrink-0" />
                 <span>3D Grounds Map</span>
               </button>
             </div>
@@ -843,7 +874,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                   }}
                   className="w-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black py-4 px-6 text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Ticket className="w-4 h-4 stroke-[2.5]" />
+                  <BambinoTicket size={20} className="text-white shrink-0" />
                   <span>Reserve Passes (${calculatedPassAmount})</span>
                 </button>
 

@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 import {
-  Menu,
-  X,
-  Calendar,
-  Sprout,
-  Home,
-  Castle,
-  MapPin,
-  Volume2,
-  VolumeX,
-  Sun,
-  Sunset,
-  Moon,
-  Ticket
-} from 'lucide-react';
+  BambinoSprout,
+  BambinoCastle,
+  BambinoCompass,
+  BambinoCalendar,
+  BambinoTicket,
+  BambinoSun
+} from './icons/BambinoIcons';
 import { soundscape } from '../utils/soundscape';
 
 interface NavigationProps {
@@ -33,7 +27,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   onTimeOfDayChange
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAudioMuted, setIsAudioMuted] = useState(soundscape.getIsMuted());
 
   // Close mobile menu on Escape key press
   useEffect(() => {
@@ -57,11 +50,11 @@ export const Navigation: React.FC<NavigationProps> = ({
   }, [isMobileMenuOpen]);
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
-    { id: 'zones', label: 'Play Zones', icon: Castle },
-    { id: '3d-map', label: '3D Festival Map', icon: MapPin },
-    { id: 'december-5', label: '5 Dec Programme', icon: Calendar },
-    { id: 'farm', label: 'The Little Farm', icon: Sprout }
+    { id: 'home', label: 'Home', icon: BambinoSun },
+    { id: 'zones', label: 'Play Zones', icon: BambinoCastle },
+    { id: '3d-map', label: '3D Festival Map', icon: BambinoCompass },
+    { id: 'december-5', label: '5 Dec Programme', icon: BambinoCalendar },
+    { id: 'farm', label: 'The Little Farm', icon: BambinoSprout }
   ];
 
   const handleSelectTab = (tabId: string) => {
@@ -69,23 +62,6 @@ export const Navigation: React.FC<NavigationProps> = ({
     onTabChange(tabId);
     setIsMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleToggleSound = () => {
-    const muted = soundscape.toggleMute();
-    setIsAudioMuted(muted);
-  };
-
-  const handleCycleTimeOfDay = () => {
-    if (!onTimeOfDayChange) return;
-    const next: Record<'day' | 'sunset' | 'night', 'day' | 'sunset' | 'night'> = {
-      day: 'sunset',
-      sunset: 'night',
-      night: 'day'
-    };
-    const nextMode = next[timeOfDay];
-    soundscape.playMarimbaClick(nextMode === 'night' ? 330 : 660, 0.08);
-    onTimeOfDayChange(nextMode);
   };
 
   return (
@@ -146,7 +122,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             </div>
           </div>
 
-          {/* Desktop Navigation Links in Poppins font */}
+          {/* Desktop Navigation Links in Poppins font with Chubby Storybook Icons */}
           <nav className="hidden lg:flex items-center gap-7 text-sm font-poppins font-bold text-slate-700">
             {navItems.filter(item => item.id !== "home").map(item => {
               const Icon = item.icon;
@@ -156,13 +132,16 @@ export const Navigation: React.FC<NavigationProps> = ({
                   key={item.id}
                   onClick={() => handleSelectTab(item.id)}
                   onMouseEnter={() => soundscape.playMarimbaClick(580, 0.02)}
-                  className={`min-h-[44px] flex items-center gap-2 transition-all whitespace-nowrap shrink-0 cursor-pointer relative py-1 ${
+                  className={`min-h-[44px] flex items-center gap-2.5 transition-all whitespace-nowrap shrink-0 cursor-pointer relative py-1 group ${
                     isActive
                       ? 'text-[#31006F] font-black border-b-2 border-[#31006F]'
                       : 'hover:text-[#FF6720] hover:-translate-y-0.5'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#FF6720]' : 'text-slate-400'}`} />
+                  <Icon
+                    size={20}
+                    className={`transition-colors ${isActive ? 'text-[#FF6720]' : 'text-slate-500 group-hover:text-[#FF6720]'}`}
+                  />
                   <span>{item.label}</span>
                 </button>
               );
@@ -172,16 +151,16 @@ export const Navigation: React.FC<NavigationProps> = ({
           {/* Controls & CTA */}
           <div className="flex items-center gap-2.5 shrink-0">
 
-            {/* Thompson Signature Tangerine Orange CTA Button */}
+            {/* Thompson Signature Tangerine Orange CTA Button with Chubby Ticket */}
             <button
               type="button"
               onClick={() => {
                 soundscape.playMarimbaClick(720, 0.08);
                 onOpenBooking();
               }}
-              className="h-10 sm:h-11 px-5 sm:px-6 rounded-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black text-xs sm:text-sm tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              className="h-10 sm:h-11 px-5 sm:px-6 rounded-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black text-xs sm:text-sm tracking-wide transition-all shadow-sm flex items-center gap-2 cursor-pointer whitespace-nowrap group"
             >
-              <Ticket className="w-4 h-4 stroke-[2.5]" />
+              <BambinoTicket size={18} className="text-white shrink-0" />
               <span>Book Pass ($25)</span>
             </button>
 
@@ -238,13 +217,13 @@ export const Navigation: React.FC<NavigationProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleSelectTab(item.id)}
-                    className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition text-left cursor-pointer ${
+                    className={`flex items-center gap-3.5 px-4 py-3 rounded-xl transition text-left cursor-pointer group ${
                       isActive
                         ? 'bg-[#31006F] text-white font-black'
                         : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-[#FF6720]' : 'text-slate-400'}`} />
+                    <Icon size={22} className={isActive ? 'text-[#FF6720]' : 'text-slate-500 group-hover:text-[#FF6720]'} />
                     <span>{item.label}</span>
                   </button>
                 );
@@ -258,9 +237,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                   setIsMobileMenuOpen(false);
                   onOpenBooking();
                 }}
-                className="w-full py-3.5 px-5 rounded-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black text-sm tracking-wide shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-5 rounded-full bg-[#FF6720] hover:bg-[#e05514] active:scale-95 text-white font-poppins font-black text-sm tracking-wide shadow-md transition flex items-center justify-center gap-2 cursor-pointer group"
               >
-                <Ticket className="w-4 h-4 stroke-[2.5]" />
+                <BambinoTicket size={20} className="text-white" />
                 <span>Book Pass ($25)</span>
               </button>
             </div>

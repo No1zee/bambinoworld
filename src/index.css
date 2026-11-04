@@ -886,3 +886,127 @@ body.expanded-cards .map-callout .pin-tooltip {
   font-size: 0.75rem;
   padding: 0.25rem 0.85rem;
 }
+
+
+/* =========================================================================
+   DIRECTORIAL MOTION SCRIPT KEYFRAMES & STORYTELLING REVEALS
+   Zero layout reflows: 100% transform, opacity, & filter hardware-accelerated.
+   ========================================================================= */
+
+@keyframes cinematic-bloom {
+  0% {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(26px) scale(0.975);
+  }
+  60% {
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes photo-unfold {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+}
+
+@keyframes stamp-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(-18deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) rotate(4deg);
+  }
+  80% {
+    transform: scale(0.96) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+@keyframes chubby-wiggle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-6deg) scale(1.08);
+  }
+  75% {
+    transform: rotate(6deg) scale(1.08);
+  }
+}
+
+.animate-cinematic-bloom {
+  animation: cinematic-bloom 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+.animate-photo-unfold {
+  animation: photo-unfold 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+.animate-stamp-bounce {
+  animation: stamp-bounce 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.animate-float-subtle {
+  animation: float-subtle 4s ease-in-out infinite;
+}
+
+.stagger-1 {
+  animation-delay: 90ms;
+}
+
+.stagger-2 {
+  animation-delay: 180ms;
+}
+
+.stagger-3 {
+  animation-delay: 270ms;
+}
+
+.stagger-4 {
+  animation-delay: 360ms;
+}
+
+.stagger-5 {
+  animation-delay: 450ms;
+}
+
+.stagger-6 {
+  animation-delay: 540ms;
+}
+
+/* Micro-interaction for chubby storybook icons */
+.group:hover .icon-chubby-wiggle {
+  animation: chubby-wiggle 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
