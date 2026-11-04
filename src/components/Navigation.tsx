@@ -171,46 +171,6 @@ export const Navigation: React.FC<NavigationProps> = ({
 
           {/* Controls & CTA */}
           <div className="flex items-center gap-2.5 shrink-0">
-            {/* Atmosphere Switcher */}
-            {onTimeOfDayChange && (
-              <button
-                type="button"
-                onClick={handleCycleTimeOfDay}
-                className="h-10 px-3 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 flex items-center gap-1.5 text-xs font-poppins font-bold transition border border-slate-200 cursor-pointer"
-                title={`Atmosphere: ${timeOfDay}`}
-                aria-label={`Atmosphere: ${timeOfDay}`}
-              >
-                {timeOfDay === 'day' && <Sun className="w-3.5 h-3.5 text-[#F6BE00]" />}
-                {timeOfDay === 'sunset' && <Sunset className="w-3.5 h-3.5 text-[#FF6720]" />}
-                {timeOfDay === 'night' && <Moon className="w-3.5 h-3.5 text-[#31006F]" />}
-                <span className="hidden sm:inline capitalize">{timeOfDay}</span>
-              </button>
-            )}
-
-            {/* Soundscape Toggle */}
-            <button
-              type="button"
-              onClick={handleToggleSound}
-              className={`h-10 px-3 rounded-full flex items-center gap-1.5 text-xs font-poppins font-bold transition active:scale-95 border cursor-pointer ${
-                !isAudioMuted
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                  : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
-              }`}
-              title={isAudioMuted ? 'Turn Sound On' : 'Mute Sound'}
-              aria-label={isAudioMuted ? 'Sound Off' : 'Sound On'}
-            >
-              {!isAudioMuted ? (
-                <>
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="hidden sm:inline">Sound</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="hidden sm:inline text-slate-500">Muted</span>
-                </>
-              )}
-            </button>
 
             {/* Thompson Signature Tangerine Orange CTA Button */}
             <button

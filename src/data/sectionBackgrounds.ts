@@ -19,11 +19,11 @@ export const DEFAULT_SECTION_BACKGROUNDS: SectionBackgroundConfig = {
   
   // Individual Play Zone photographic backdrops
   zoneCards: {
-    'little-garden': '/little-garden.jpg',
-    'adventure-zone': 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80',
-    'creative-zone': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80',
-    'discovery-world': 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80',
-    'celebration-stage': 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80'
+    'little-garden': 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=80',
+    'adventure-zone': 'https://images.unsplash.com/photo-1567057419565-4349c49d8a04?auto=format&fit=crop&w=1600&q=80',
+    'creative-zone': 'https://images.unsplash.com/photo-1607453998774-d533f65dac99?auto=format&fit=crop&w=1600&q=80',
+    'discovery-world': 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=80',
+    'celebration-stage': 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1600&q=80'
   }
 };
 
