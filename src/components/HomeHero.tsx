@@ -95,7 +95,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       name: 'The Little Garden',
       age: '6M – 2Y',
       tagline: 'A gentle, sunlit haven designed for tiny adventurers. Cushioned foam crawl zones, soft grass, and a private air-cooled nursery glade for feeding and rest.',
-      image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://images.unsplash.com/photo-1780336672356-1e35ef12eb22?auto=format&fit=crop&w=1200&q=80',
       color: 'bg-[#00A3E0]',
       features: [
         { label: 'Cushioned Grass Mats', tip: 'Soft foam crawling blocks and tumble cushions' },
@@ -109,7 +109,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       name: 'Adventure Arena',
       age: '3 – 12Y',
       tagline: 'Boundless outdoor energy and big smiles. Inflatable obstacle slides, farm tractor journeys, and lawn challenges where coaches cheer every victory.',
-      image: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://images.unsplash.com/photo-1660841813409-af529ef29677?auto=format&fit=crop&w=1200&q=80',
       color: 'bg-[#FF6720]',
       features: [
         { label: 'Bouncy Obstacle Slides', tip: 'Supervised inflatable slides with thick safety crash mats' },
@@ -123,7 +123,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       name: 'Creative & Discovery',
       age: 'All Ages',
       tagline: 'Where imagination blossoms. Hands-on pottery sculpting, giant communal painting easels, gentle bunny and lamb cuddles, and live marimba storytelling.',
-      image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://images.unsplash.com/photo-1791034347339-14a84d8ec14b?auto=format&fit=crop&w=1200&q=80',
       color: 'bg-[#D82374]',
       features: [
         { label: 'Pottery Clay Sculpting', tip: 'Real potter clay modeling with botanical nature stamps' },
@@ -197,8 +197,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         <div className="flex flex-col md:flex-row w-full min-h-[340px] md:min-h-[400px]">
           <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[260px] md:min-h-[400px] animate-photo-unfold">
             <img
-              src="https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?auto=format&fit=crop&w=1200&q=80"
-              alt="Joyful child playing outdoors at Bambino World"
+              src="https://images.unsplash.com/photo-1507036066871-b7e8032b3dea?auto=format&fit=crop&w=1200&q=80"
+              alt="Joyful African girl laughing outdoors on green grass"
               className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               loading="eager"
             />
@@ -261,8 +261,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
           <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[240px] md:min-h-[380px]">
             <img
-              src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=1200&q=80"
-              alt="Toddlers playing safely at The Little Farm"
+              src="https://images.unsplash.com/photo-1597098415642-079578e90887?auto=format&fit=crop&w=1200&q=80"
+              alt="Black father and toddler relaxing outdoors together peacefully in the shade"
               className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               loading="lazy"
             />
@@ -277,8 +277,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         <div className="flex flex-col md:flex-row w-full min-h-[260px] md:min-h-[320px]">
           <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[220px] md:min-h-[320px]">
             <img
-              src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80"
-              alt="Artistic discovery and child creativity"
+              src="https://images.unsplash.com/photo-1778895113376-12b5e6a2562a?auto=format&fit=crop&w=1200&q=80"
+              alt="Young African boy laughing with boundless energy running outdoors"
               className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               loading="lazy"
             />
@@ -331,8 +331,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
           <div className="w-full md:w-[28%] relative overflow-hidden bg-slate-900 min-h-[220px] md:min-h-[320px]">
             <img
-              src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1200&q=80"
-              alt="Children enjoying sensory science experiments"
+              src="https://images.unsplash.com/photo-1516890896652-41ca1a35787c?auto=format&fit=crop&w=1200&q=80"
+              alt="Two African girls playing with red balloon on lush green grass"
               className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               loading="lazy"
             />
@@ -365,8 +365,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
               <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
                 <img
-                  src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80"
-                  alt="The Little Garden"
+                  src="https://images.unsplash.com/photo-1780336672356-1e35ef12eb22?auto=format&fit=crop&w=1200&q=80"
+                  alt="Smiling African toddler boy sitting peacefully in green grass"
                   className="w-full h-full object-cover object-center"
                   loading="lazy"
                 />
@@ -399,8 +399,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
               <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
                 <img
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=80"
-                  alt="Adventure Arena"
+                  src="https://images.unsplash.com/photo-1660841813409-af529ef29677?auto=format&fit=crop&w=1200&q=80"
+                  alt="African boy smiling excitedly on colorful playground slide"
                   className="w-full h-full object-cover object-center"
                   loading="lazy"
                 />
@@ -433,8 +433,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             <div className="flex flex-col overflow-hidden shadow-lg transition-transform hover:-translate-y-1.5 duration-300">
               <div className="h-64 sm:h-72 overflow-hidden bg-slate-800">
                 <img
-                  src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1200&q=80"
-                  alt="Creative & Discovery"
+                  src="https://images.unsplash.com/photo-1791034347339-14a84d8ec14b?auto=format&fit=crop&w=1200&q=80"
+                  alt="African children smiling on green grass lawn"
                   className="w-full h-full object-cover object-center"
                   loading="lazy"
                 />
@@ -664,9 +664,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 <div className="h-56 relative overflow-hidden bg-slate-900">
                   <img
                     src={[
-                      "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80",
-                      "https://images.unsplash.com/photo-1506869640319-fe1a24fd76dc?auto=format&fit=crop&w=800&q=80",
-                      "https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=800&q=80"
+                      "https://images.unsplash.com/photo-1563377995-bcbe8532207a?auto=format&fit=crop&w=800&q=80",
+                      "https://images.unsplash.com/photo-1516890896652-41ca1a35787c?auto=format&fit=crop&w=800&q=80",
+                      "https://images.unsplash.com/photo-1778895113376-12b5e6a2562a?auto=format&fit=crop&w=800&q=80"
                     ][idx % 3]}
                     alt={session.title}
                     className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"

@@ -37,35 +37,35 @@ const PLAY_ZONE_EXTRAS: Record<string, {
     icon: Baby,
     tagColor: 'bg-[#2F532E] text-white',
     accentColor: '#2F532E',
-    defaultImage: '/little-garden.jpg'
+    defaultImage: 'https://images.unsplash.com/photo-1780336672356-1e35ef12eb22?auto=format&fit=crop&w=1600&q=80'
   },
   'adventure-zone': {
     tone: 'adventure',
     icon: Castle,
     tagColor: 'bg-[#FF6720] text-white',
     accentColor: '#FF6720',
-    defaultImage: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?auto=format&fit=crop&w=1600&q=80'
+    defaultImage: 'https://images.unsplash.com/photo-1660841813409-af529ef29677?auto=format&fit=crop&w=1600&q=80'
   },
   'creative-zone': {
     tone: 'creative',
     icon: Palette,
     tagColor: 'bg-[#AC4FC6] text-white',
     accentColor: '#AC4FC6',
-    defaultImage: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=80'
+    defaultImage: 'https://images.unsplash.com/photo-1791034347339-14a84d8ec14b?auto=format&fit=crop&w=1600&q=80'
   },
   'discovery-world': {
     tone: 'discovery',
     icon: FlaskConical,
     tagColor: 'bg-[#41B6E6] text-slate-950',
     accentColor: '#41B6E6',
-    defaultImage: 'https://images.unsplash.com/photo-1566140967404-b8b3932483f5?auto=format&fit=crop&w=1600&q=80'
+    defaultImage: 'https://images.unsplash.com/photo-1516890896652-41ca1a35787c?auto=format&fit=crop&w=1600&q=80'
   },
   'celebration-stage': {
     tone: 'stage',
     icon: Music2,
     tagColor: 'bg-[#31006F] text-white',
     accentColor: '#31006F',
-    defaultImage: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1600&q=80'
+    defaultImage: 'https://images.unsplash.com/photo-1778895113376-12b5e6a2562a?auto=format&fit=crop&w=1600&q=80'
   }
 };
 
